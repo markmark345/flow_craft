@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Settings - Automation Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0099ff",
+                        "background-light": "#f5f7f8",
+                        "background-dark": "#0f1b23",
+                        "surface-light": "#ffffff",
+                        "surface-dark": "#111c24",
+                        "border-light": "#e5e7eb",
+                        "border-dark": "#1e293b",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"],
+                        "mono": ["ui-monospace", "SFMono-Regular", "Menlo", "Monaco", "Consolas", "Liberation Mono", "Courier New", "monospace"]
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+                    boxShadow: {
+                        "neon": "0 0 10px rgba(0, 153, 255, 0.5)",
+                        "neon-sm": "0 0 5px rgba(0, 153, 255, 0.4)",
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .custom-scrollbar::-webkit-scrollbar {
+            height: 8px;
+            width: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: #cbd5e1;
+            border-radius: 4px;
+        }
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: #334155;
+        }.toggle-checkbox:checked {
+            right: 0;
+            border-color: #0099ff;
+        }
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: #0099ff;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 overflow-hidden">
+<div class="flex h-screen w-full">
+<div class="w-[260px] shrink-0 border-r border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark flex flex-col h-full z-20">
+<div class="flex h-full flex-col justify-between p-4">
+<div class="flex flex-col gap-6">
+<div class="flex items-center gap-3 px-2">
+<div class="bg-center bg-no-repeat bg-cover rounded-lg size-10 bg-primary flex items-center justify-center text-white" data-alt="Automate logo gradient">
+<span class="material-symbols-outlined text-[24px]">bolt</span>
+</div>
+<div class="flex flex-col">
+<h1 class="text-slate-900 dark:text-white text-base font-bold leading-tight">Automate</h1>
+<p class="text-slate-500 dark:text-slate-400 text-xs font-normal">Workspace</p>
+</div>
+</div>
+<div class="flex flex-col gap-1">
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors group" href="#">
+<span class="material-symbols-outlined text-slate-500 dark:text-slate-400 group-hover:text-primary transition-colors">dashboard</span>
+<span class="text-sm font-medium">Overview</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors group" href="#">
+<span class="material-symbols-outlined text-slate-500 dark:text-slate-400 group-hover:text-primary transition-colors">account_tree</span>
+<span class="text-sm font-medium">Flows</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors group" href="#">
+<span class="material-symbols-outlined text-slate-500 dark:text-slate-400 group-hover:text-primary transition-colors">play_circle</span>
+<span class="text-sm font-medium">Executions</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg bg-primary/10 text-primary dark:text-primary dark:bg-primary/20" href="#">
+<span class="material-symbols-outlined fill-current">settings</span>
+<span class="text-sm font-bold">Settings</span>
+</a>
+</div>
+</div>
+<div class="flex flex-col gap-2 border-t border-border-light dark:border-border-dark pt-4">
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" href="#">
+<span class="material-symbols-outlined">help</span>
+<span class="text-sm font-medium">Documentation</span>
+</a>
+<div class="flex items-center gap-3 px-3 py-2 mt-2">
+<div class="size-8 rounded-full bg-slate-200 dark:bg-slate-700 bg-cover bg-center" data-alt="User Avatar" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDp6N9DMMj8we4QCDkIyoac-Ol2-EA5fZ7vlJjXR4PbL9m3XWLBn8eT6-JyEUs-2v_G6Nt6QmvC3qOSaiHNFAa7KJ48PaATQ5Lny3X1xZEPm8DsKbVLIjtwXXGY_Dp4etdAJeDhfdakNA_lQbg4Zb7RoUqR62MMqhz2bmm-N6Fde5_QpnY23v_fIwn9udXKOcbJRYRQddFWDYLsXvQhbFpGjV7QDlgPwOIfAOmTbYoEoBIFQwKJPPNPUuL2YHQ0TCFVY0VgReuN9iYP')"></div>
+<div class="flex flex-col overflow-hidden">
+<span class="text-sm font-medium truncate">Dev Team</span>
+<span class="text-xs text-slate-500 dark:text-slate-400 truncate">Pro Plan</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="flex-1 flex flex-col h-full overflow-hidden relative bg-background-light dark:bg-background-dark">
+<header class="bg-surface-light dark:bg-surface-dark border-b border-border-light dark:border-border-dark px-8 py-6 shrink-0 z-10">
+<div class="max-w-[1440px] mx-auto flex flex-col gap-2">
+<h2 class="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">Settings</h2>
+<p class="text-slate-500 dark:text-slate-400 text-sm">Workspace and preferences</p>
+</div>
+</header>
+<main class="flex-1 overflow-auto custom-scrollbar p-8">
+<div class="max-w-[1440px] mx-auto">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+<div class="lg:col-span-7 flex flex-col gap-6">
+<div class="bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl shadow-sm overflow-hidden">
+<div class="px-6 py-5 border-b border-border-light dark:border-border-dark">
+<h3 class="text-lg font-semibold text-slate-900 dark:text-white">Workspace</h3>
+</div>
+<div class="p-6 space-y-6">
+<div class="space-y-2">
+<label class="block text-sm font-medium text-slate-700 dark:text-slate-300" for="ws-name">Workspace name</label>
+<input class="block w-full rounded-lg border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm focus:border-primary focus:ring-primary sm:text-sm" id="ws-name" type="text" value="Engineering Team"/>
+</div>
+<div class="space-y-2">
+<label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Workspace ID</label>
+<div class="flex rounded-lg shadow-sm">
+<div class="relative flex-grow focus-within:z-10">
+<input class="font-mono block w-full rounded-l-lg border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-slate-500 dark:text-slate-400 focus:border-primary focus:ring-primary sm:text-sm" readonly="" type="text" value="ws_89234x_dev_2023"/>
+</div>
+<button class="relative -ml-px inline-flex items-center space-x-2 rounded-r-lg border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-800 px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary" type="button">
+<span class="material-symbols-outlined text-[18px]">content_copy</span>
+</button>
+</div>
+<p class="text-xs text-slate-500">Used for API authentication and CLI configuration.</p>
+</div>
+<div class="flex justify-end pt-2">
+<button class="inline-flex items-center justify-center rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white shadow-[0_0_15px_rgba(0,153,255,0.3)] hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all">
+                                        Save changes
+                                    </button>
+</div>
+</div>
+</div>
+<div class="bg-surface-light dark:bg-surface-dark border border-red-200 dark:border-red-900/50 rounded-xl shadow-sm overflow-hidden">
+<div class="px-6 py-5 border-b border-red-100 dark:border-red-900/30 bg-red-50/50 dark:bg-red-900/10">
+<h3 class="text-lg font-semibold text-red-700 dark:text-red-400 flex items-center gap-2">
+<span class="material-symbols-outlined">warning</span>
+                                    Danger Zone
+                                </h3>
+</div>
+<div class="p-6 space-y-4">
+<p class="text-sm text-slate-600 dark:text-slate-400">
+                                    Irreversible actions. Please proceed with caution. These actions may affect all active workflows in this workspace.
+                                </p>
+<div class="flex flex-col sm:flex-row gap-4 pt-2">
+<button class="inline-flex items-center justify-center gap-2 rounded-lg border border-red-200 dark:border-red-800 bg-white dark:bg-transparent px-4 py-2 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors">
+                                        Reset workspace
+                                    </button>
+<button class="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-transparent px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:text-red-600 hover:border-red-200 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors">
+                                        Clear local cache
+                                    </button>
+</div>
+</div>
+</div>
+</div>
+<div class="lg:col-span-5 flex flex-col gap-6">
+<div class="bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl shadow-sm overflow-hidden">
+<div class="px-6 py-5 border-b border-border-light dark:border-border-dark">
+<h3 class="text-lg font-semibold text-slate-900 dark:text-white">Preferences</h3>
+</div>
+<div class="p-6 space-y-6">
+<div class="flex flex-col gap-3">
+<span class="text-sm font-medium text-slate-700 dark:text-slate-300">Appearance</span>
+<div class="grid grid-cols-2 gap-2 bg-slate-100 dark:bg-slate-800/50 p-1 rounded-lg">
+<button class="flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium rounded bg-white dark:bg-slate-700 text-primary shadow-sm ring-1 ring-primary/20 shadow-[0_0_8px_rgba(0,153,255,0.15)] transition-all">
+<span class="material-symbols-outlined text-[18px]">light_mode</span>
+                                            Light
+                                        </button>
+<button class="flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium rounded text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 transition-colors">
+<span class="material-symbols-outlined text-[18px]">dark_mode</span>
+                                            Dark
+                                        </button>
+</div>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex flex-col">
+<span class="text-sm font-medium text-slate-900 dark:text-white">Reduce motion</span>
+<span class="text-xs text-slate-500 dark:text-slate-400">Minimize interface animations</span>
+</div>
+<button aria-checked="false" class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent bg-slate-200 dark:bg-slate-700 transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2" role="switch" type="button">
+<span aria-hidden="true" class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out translate-x-0"></span>
+</button>
+</div>
+<div class="flex items-center justify-between border-t border-slate-100 dark:border-slate-800 pt-4">
+<div class="flex flex-col">
+<span class="text-sm font-medium text-slate-900 dark:text-white">Auto-save flows</span>
+<span class="text-xs text-slate-500 dark:text-slate-400">Save changes automatically</span>
+</div>
+<button aria-checked="true" class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent bg-primary transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2" role="switch" type="button">
+<span aria-hidden="true" class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out translate-x-5"></span>
+</button>
+</div>
+</div>
+</div>
+<div class="bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl shadow-sm overflow-hidden">
+<div class="px-6 py-5 border-b border-border-light dark:border-border-dark flex justify-between items-center">
+<h3 class="text-lg font-semibold text-slate-900 dark:text-white">Profile</h3>
+<span class="inline-flex items-center rounded-full bg-blue-100 dark:bg-blue-900/30 px-2.5 py-0.5 text-xs font-medium text-blue-800 dark:text-blue-300">
+                                    Admin
+                                </span>
+</div>
+<div class="p-6">
+<div class="flex items-center gap-4 mb-6">
+<div class="size-16 rounded-full bg-slate-200 bg-cover bg-center ring-2 ring-white dark:ring-slate-800 shadow-sm" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDp6N9DMMj8we4QCDkIyoac-Ol2-EA5fZ7vlJjXR4PbL9m3XWLBn8eT6-JyEUs-2v_G6Nt6QmvC3qOSaiHNFAa7KJ48PaATQ5Lny3X1xZEPm8DsKbVLIjtwXXGY_Dp4etdAJeDhfdakNA_lQbg4Zb7RoUqR62MMqhz2bmm-N6Fde5_QpnY23v_fIwn9udXKOcbJRYRQddFWDYLsXvQhbFpGjV7QDlgPwOIfAOmTbYoEoBIFQwKJPPNPUuL2YHQ0TCFVY0VgReuN9iYP')"></div>
+<div class="flex flex-col">
+<span class="text-base font-bold text-slate-900 dark:text-white">Dev Team</span>
+<span class="text-sm text-slate-500 dark:text-slate-400">dev.team@automate.io</span>
+</div>
+</div>
+<div class="flex gap-3 justify-end">
+<button class="px-3 py-1.5 text-sm font-medium text-slate-700 dark:text-slate-300 hover:text-primary transition-colors">Edit profile</button>
+<button class="px-3 py-1.5 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors">Sign out</button>
+</div>
+</div>
+</div>
+<div class="bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl shadow-sm overflow-hidden">
+<div class="px-6 py-5 border-b border-border-light dark:border-border-dark">
+<h3 class="text-lg font-semibold text-slate-900 dark:text-white">System</h3>
+</div>
+<div class="px-6 py-2">
+<div class="flex justify-between items-center py-3 border-b border-slate-100 dark:border-slate-800 last:border-0">
+<span class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">Version</span>
+<span class="text-sm font-mono text-slate-700 dark:text-slate-300">v2.4.0-beta</span>
+</div>
+<div class="flex justify-between items-center py-3 border-b border-slate-100 dark:border-slate-800 last:border-0">
+<span class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">API Base</span>
+<span class="text-sm font-mono text-slate-700 dark:text-slate-300">api.automate.io</span>
+</div>
+<div class="flex justify-between items-center py-3 border-b border-slate-100 dark:border-slate-800 last:border-0">
+<span class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">Environment</span>
+<span class="inline-flex items-center rounded-md bg-emerald-50 dark:bg-emerald-500/10 px-2 py-1 text-xs font-medium text-emerald-700 dark:text-emerald-400 ring-1 ring-inset ring-emerald-600/20">
+                                        Production
+                                    </span>
+</div>
+<div class="flex justify-between items-center py-3 last:border-0">
+<span class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">Temporal NS</span>
+<span class="text-sm font-mono text-slate-700 dark:text-slate-300">default</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</div>
+
+</body></html>

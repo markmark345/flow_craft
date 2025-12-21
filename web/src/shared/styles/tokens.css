@@ -1,0 +1,87 @@
+:root {
+  /* Colors (Light) */
+  --bg: #f5f7f8;
+  --panel: #ffffff;
+  --surface: #ffffff;
+  --surface-2: #f8fafc;
+  --border: #e5e7eb;
+  --text: #0f172a;
+  --muted: #64748b;
+  --accent: #0099ff;
+  --accent-strong: #2563eb;
+  --success: #22c55e;
+  --warning: #f59e0b;
+  --error: #ef4444;
+  --grid: #cbd5e1;
+
+  /* Extra semantic colors (builder) */
+  --trigger: #a855f7;
+  --slack: #e01e5a;
+
+  /* Spacing (8px base) */
+  --space-4: 4px;
+  --space-8: 8px;
+  --space-12: 12px;
+  --space-16: 16px;
+  --space-20: 20px;
+  --space-24: 24px;
+  --space-32: 32px;
+  --space-40: 40px;
+  --space-48: 48px;
+
+  /* Radius */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-pill: 999px;
+
+  /* Shadows */
+  --shadow-soft: 0 2px 8px rgba(0, 0, 0, 0.04);
+  --shadow-lift: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-focus: 0 0 0 2px rgba(0, 153, 255, 0.32);
+  --glow-accent: 0 0 0 3px rgba(0, 153, 255, 0.16);
+  --glow-error: 0 0 0 3px rgba(239, 68, 68, 0.16);
+  --glow-success: 0 0 0 3px rgba(34, 197, 94, 0.16);
+
+  /* Typography */
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", "SFMono-Regular", monospace;
+
+  /* Gradients */
+  --grad-accent: linear-gradient(90deg, var(--accent) 0%, var(--accent-strong) 100%);
+  --grad-accent-soft: linear-gradient(90deg, transparent 0%, rgba(0, 153, 255, 0.45) 50%, transparent 100%);
+  --topbar-highlight: var(--grad-accent-soft);
+  --nav-active-grad: var(--grad-accent-soft);
+}
+
+[data-theme="dark"] {
+  --bg: #0f1b23;
+  --panel: #15202b;
+  --surface: #15202b;
+  --surface-2: #0f1b23;
+  --border: #1e293b;
+  --text: #f8fafc;
+  --muted: #94a3b8;
+  --accent: #0099ff;
+  --accent-strong: #60a5fa;
+  --success: #22c55e;
+  --warning: #fbbf24;
+  --error: #f87171;
+  --grid: #334155;
+
+  --trigger: #a855f7;
+  --slack: #ff4081;
+
+  --grad-accent: linear-gradient(90deg, var(--accent) 0%, var(--accent-strong) 100%);
+  --grad-accent-soft: linear-gradient(90deg, transparent 0%, rgba(0, 153, 255, 0.28) 50%, transparent 100%);
+  --topbar-highlight: var(--grad-accent-soft);
+  --nav-active-grad: var(--grad-accent-soft);
+
+  --shadow-soft: 0 2px 10px rgba(0, 0, 0, 0.35);
+  --shadow-lift: 0 18px 50px rgba(0, 0, 0, 0.55);
+  --shadow-focus: 0 0 0 2px rgba(0, 153, 255, 0.28);
+  --glow-accent: 0 0 0 3px rgba(0, 153, 255, 0.14);
+  --glow-error: 0 0 0 3px rgba(248, 113, 113, 0.14);
+  --glow-success: 0 0 0 3px rgba(34, 197, 94, 0.14);
+}

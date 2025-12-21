@@ -1,0 +1,27 @@
+@import "../src/shared/styles/tokens.css";
+@import "../src/shared/styles/gradients.css";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  line-height: 1.5;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.grid-background {
+  background-image: radial-gradient(var(--grid) 1px, transparent 0);
+  background-size: 24px 24px;
+}

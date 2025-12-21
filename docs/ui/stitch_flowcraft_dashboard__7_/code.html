@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>FlowCraft Login</title>
+<!-- Google Fonts & Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Theme Configuration -->
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              colors: {
+                "primary": "#0698f9",
+                "background-light": "#f5f7f8",
+                "background-dark": "#0f1b23",
+                "panel-light": "#ffffff",
+                "panel-dark": "#162028", 
+                "border-light": "#e2e8f0",
+                "border-dark": "#2a3641",
+              },
+              fontFamily: {
+                "display": ["Inter", "sans-serif"]
+              },
+              borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+            },
+          },
+        }
+      </script>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-white antialiased selection:bg-primary/20 selection:text-primary">
+<!-- Main Layout -->
+<div class="relative flex min-h-screen w-full flex-col items-center justify-center p-4">
+<!-- Subtle Grid Background Pattern -->
+<div class="absolute inset-0 z-0 pointer-events-none opacity-[0.03] dark:opacity-[0.05]" data-alt="Abstract subtle dot grid pattern for technical background" style="background-image: radial-gradient(#000 1px, transparent 1px); background-size: 24px 24px;">
+</div>
+<!-- Login Card Container -->
+<div class="relative z-10 w-full max-w-[420px] bg-white dark:bg-panel-dark rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] border border-border-light dark:border-border-dark flex flex-col overflow-hidden">
+<!-- Branding & Header Section -->
+<div class="px-8 pt-10 pb-6 flex flex-col items-center text-center">
+<!-- Logo Lockup -->
+<div class="flex items-center gap-2.5 mb-6">
+<div class="size-8 rounded bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[20px]">account_tree</span>
+</div>
+<span class="text-lg font-bold tracking-tight text-slate-900 dark:text-white">FlowCraft</span>
+</div>
+<!-- Headline -->
+<h1 class="text-2xl font-bold tracking-tight text-slate-900 dark:text-white mb-2">Welcome back</h1>
+<p class="text-sm text-slate-500 dark:text-slate-400">Enter your credentials to access the workspace.</p>
+</div>
+<!-- Login Form -->
+<div class="px-8 pb-8">
+<form class="flex flex-col gap-5">
+<!-- Email Input -->
+<div class="space-y-1.5">
+<label class="block text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                            Email or Username
+                        </label>
+<div class="relative">
+<input autocomplete="email" class="block w-full rounded border-border-light dark:border-border-dark bg-slate-50 dark:bg-[#1f2933] text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:border-primary focus:ring-1 focus:ring-primary h-11 px-3 transition-colors" placeholder="name@company.com" type="email"/>
+</div>
+</div>
+<!-- Password Input -->
+<div class="space-y-1.5">
+<div class="flex items-center justify-between">
+<label class="block text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                                Password
+                            </label>
+<a class="text-[11px] font-medium text-primary hover:text-primary/80 transition-colors" href="#" tabindex="-1">
+                                Forgot password?
+                            </a>
+</div>
+<div class="relative group">
+<input autocomplete="current-password" class="block w-full rounded border-border-light dark:border-border-dark bg-slate-50 dark:bg-[#1f2933] text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:border-primary focus:ring-1 focus:ring-primary h-11 px-3 pr-10 transition-colors" placeholder="••••••••" type="password"/>
+<button class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors" type="button">
+<span class="material-symbols-outlined text-[20px]">visibility</span>
+</button>
+</div>
+</div>
+<!-- Primary Action -->
+<button class="w-full flex items-center justify-center gap-2 h-11 bg-primary hover:bg-primary/90 text-white text-sm font-semibold rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary dark:focus:ring-offset-background-dark transition-all mt-1" type="button">
+                        Log In
+                    </button>
+<!-- Divider -->
+<div class="relative py-2">
+<div class="absolute inset-0 flex items-center">
+<div class="w-full border-t border-border-light dark:border-border-dark"></div>
+</div>
+<div class="relative flex justify-center">
+<span class="bg-white dark:bg-panel-dark px-3 text-[11px] font-medium text-slate-400 dark:text-slate-500 uppercase tracking-wider">Or</span>
+</div>
+</div>
+<!-- Secondary Actions (SSO) -->
+<div class="grid grid-cols-2 gap-3">
+<button class="flex items-center justify-center gap-2 h-10 bg-white dark:bg-transparent border border-border-light dark:border-border-dark rounded hover:bg-slate-50 dark:hover:bg-white/5 text-sm font-medium text-slate-700 dark:text-slate-300 transition-colors" type="button">
+<svg aria-hidden="true" class="size-4" fill="currentColor" viewbox="0 0 24 24"><path clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-2.132 1.03-2.881-.103-.253-.447-1.365.099-2.839 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.479.202 2.59.1 2.839.647.749 1.03 1.788 1.03 2.881 0 3.847-2.337 4.694-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" fill-rule="evenodd"></path></svg>
+                            GitHub
+                        </button>
+<button class="flex items-center justify-center gap-2 h-10 bg-white dark:bg-transparent border border-border-light dark:border-border-dark rounded hover:bg-slate-50 dark:hover:bg-white/5 text-sm font-medium text-slate-700 dark:text-slate-300 transition-colors" type="button">
+<svg aria-hidden="true" class="size-4" viewbox="0 0 24 24"><path d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z" fill="currentColor"></path></svg>
+                            Google
+                        </button>
+</div>
+</form>
+</div>
+<!-- Footer Section -->
+<div class="px-8 py-5 bg-slate-50/50 dark:bg-white/[0.02] border-t border-border-light dark:border-border-dark">
+<p class="text-sm text-center text-slate-500 dark:text-slate-400">
+                    Don't have an account? 
+                    <a class="font-semibold text-primary hover:text-primary/80 ml-1 transition-colors" href="#">Sign up</a>
+</p>
+</div>
+</div>
+<!-- Bottom Links -->
+<div class="mt-8 flex gap-6 text-xs text-slate-400 dark:text-slate-500 font-medium">
+<a class="hover:text-slate-600 dark:hover:text-slate-300 transition-colors" href="#">Privacy</a>
+<a class="hover:text-slate-600 dark:hover:text-slate-300 transition-colors" href="#">Docs</a>
+<a class="hover:text-slate-600 dark:hover:text-slate-300 transition-colors" href="#">Contact Support</a>
+</div>
+</div>
+</body></html>

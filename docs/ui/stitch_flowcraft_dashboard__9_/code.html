@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Run History</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&amp;family=Noto+Sans:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0d96f2",
+                        "background-light": "#f5f7f8",
+                        "background-dark": "#101b22",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"],
+                        "mono": ["ui-monospace", "SFMono-Regular", "Menlo", "Monaco", "Consolas", "Liberation Mono", "Courier New", "monospace"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom scrollbar for high density data tables */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: #cbd5e1;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background-color: #94a3b8;
+        }
+        /* Hover effect for rows to show quick actions */
+        .group:hover .group-hover\:opacity-100 {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-[#111518] dark:text-white antialiased">
+<div class="flex h-screen w-full flex-col overflow-hidden">
+<!-- Top Navigation -->
+<header class="flex h-16 shrink-0 items-center justify-between border-b border-[#f0f3f5] dark:border-[#1e293b] bg-white dark:bg-[#101b22] px-6">
+<div class="flex items-center gap-4">
+<div class="flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-2xl">account_tree</span>
+</div>
+<h1 class="text-lg font-bold tracking-tight text-[#111518] dark:text-white">Workflow Builder</h1>
+</div>
+<nav class="flex items-center gap-8">
+<a class="text-sm font-medium text-[#607a8a] dark:text-[#94a3b8] hover:text-[#111518] dark:hover:text-white transition-colors" href="#">Builder</a>
+<a class="text-sm font-medium text-[#607a8a] dark:text-[#94a3b8] hover:text-[#111518] dark:hover:text-white transition-colors" href="#">Flows</a>
+<a class="text-sm font-medium text-primary border-b-2 border-primary pb-0.5" href="#">History</a>
+<a class="text-sm font-medium text-[#607a8a] dark:text-[#94a3b8] hover:text-[#111518] dark:hover:text-white transition-colors" href="#">Settings</a>
+</nav>
+<div class="flex items-center gap-4">
+<button class="flex items-center justify-center p-2 text-[#607a8a] hover:text-[#111518] dark:text-[#94a3b8] dark:hover:text-white">
+<span class="material-symbols-outlined text-xl">notifications</span>
+</button>
+<div class="h-8 w-8 rounded-full bg-cover bg-center ring-2 ring-white dark:ring-[#1e293b]" data-alt="User profile avatar" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDPKwTBmmxpdLzjMuzehmUXEu7z2iSazHE9-uw9FmfhUUKbAWTW1hFs4Rt7AMQzL6ec_UhcWMYQw7koUqlRYZb7ifXzmekokdVygpMncQDAsdVsfzLLToAUjsw5CFN0ZVgoi5VVgvcsLEGRQwmN-bnkrQ4WOcj55dHhcv3dw0_Lr3WZtTw1Pn2ZB-VZd14zdNZp6YCl-0-SYU4KbZc27y4Hq4HFLsS1s02AQdQ7-WGRmb89lBInzwEe81y2i0gpMaRM5aQhgvxCUrqm');"></div>
+</div>
+</header>
+<!-- Main Content Area -->
+<main class="flex flex-1 flex-col overflow-hidden">
+<!-- Page Header & Toolbar -->
+<div class="shrink-0 bg-white dark:bg-[#101b22] px-6 py-4 border-b border-[#f0f3f5] dark:border-[#1e293b]">
+<div class="flex flex-col gap-4">
+<!-- Title Row -->
+<div class="flex items-center justify-between">
+<div>
+<h2 class="text-2xl font-bold tracking-tight text-[#111518] dark:text-white">Run History</h2>
+<p class="text-sm text-[#607a8a] dark:text-[#94a3b8] mt-1">Showing 1-20 of 1,240 executions</p>
+</div>
+<div class="flex items-center gap-3">
+<button class="flex items-center gap-2 rounded-lg bg-[#f0f3f5] dark:bg-[#1e293b] px-4 py-2 text-sm font-medium text-[#111518] dark:text-white hover:bg-[#e2e8f0] dark:hover:bg-[#334155] transition-colors">
+<span class="material-symbols-outlined text-lg">download</span>
+                                Export Logs
+                            </button>
+<button class="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90 transition-colors shadow-sm">
+<span class="material-symbols-outlined text-lg">refresh</span>
+                                Refresh
+                            </button>
+</div>
+</div>
+<!-- Filter Toolbar -->
+<div class="flex flex-wrap items-center gap-3 pt-2">
+<!-- Search -->
+<div class="relative flex-1 min-w-[240px] max-w-md">
+<span class="absolute left-3 top-1/2 -translate-y-1/2 text-[#607a8a]">
+<span class="material-symbols-outlined text-xl">search</span>
+</span>
+<input class="h-10 w-full rounded-lg border border-[#dbe2e6] dark:border-[#334155] bg-white dark:bg-[#1e293b] pl-10 pr-4 text-sm text-[#111518] dark:text-white placeholder-[#607a8a] focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary" placeholder="Search Run ID or Flow Name..." type="text"/>
+</div>
+<!-- Dropdown Filters -->
+<div class="h-8 w-[1px] bg-[#dbe2e6] dark:bg-[#334155] mx-1"></div>
+<div class="flex items-center gap-2">
+<button class="group flex items-center justify-between gap-2 rounded-lg border border-[#dbe2e6] dark:border-[#334155] bg-white dark:bg-[#1e293b] px-3 py-2 text-sm font-medium hover:border-[#b0bec5] dark:hover:border-[#475569] transition-colors min-w-[140px]">
+<span class="text-[#607a8a] dark:text-[#94a3b8]">Status:</span>
+<span class="text-[#111518] dark:text-white">All</span>
+<span class="material-symbols-outlined text-lg text-[#607a8a]">arrow_drop_down</span>
+</button>
+<button class="group flex items-center justify-between gap-2 rounded-lg border border-[#dbe2e6] dark:border-[#334155] bg-white dark:bg-[#1e293b] px-3 py-2 text-sm font-medium hover:border-[#b0bec5] dark:hover:border-[#475569] transition-colors min-w-[160px]">
+<span class="text-[#607a8a] dark:text-[#94a3b8]">Timeframe:</span>
+<span class="text-[#111518] dark:text-white">Last 24h</span>
+<span class="material-symbols-outlined text-lg text-[#607a8a]">arrow_drop_down</span>
+</button>
+<button class="group flex items-center justify-between gap-2 rounded-lg border border-[#dbe2e6] dark:border-[#334155] bg-white dark:bg-[#1e293b] px-3 py-2 text-sm font-medium hover:border-[#b0bec5] dark:hover:border-[#475569] transition-colors min-w-[140px]">
+<span class="text-[#607a8a] dark:text-[#94a3b8]">Flow:</span>
+<span class="text-[#111518] dark:text-white">All Flows</span>
+<span class="material-symbols-outlined text-lg text-[#607a8a]">arrow_drop_down</span>
+</button>
+</div>
+<div class="flex-1"></div>
+<!-- Auto Refresh Toggle -->
+<div class="flex items-center gap-2 rounded-full border border-[#dbe2e6] dark:border-[#334155] bg-[#f5f7f8] dark:bg-[#1e293b] pl-1 pr-3 py-1">
+<div class="relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 bg-primary">
+<span class="translate-x-4 pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"></span>
+</div>
+<span class="text-xs font-semibold text-[#111518] dark:text-white">Auto-refresh</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Data Table Container -->
+<div class="flex-1 overflow-auto bg-[#f5f7f8] dark:bg-[#0f172a] p-6 custom-scrollbar">
+<div class="w-full min-w-[1000px] overflow-hidden rounded-lg border border-[#dbe2e6] dark:border-[#334155] bg-white dark:bg-[#1e293b] shadow-sm">
+<!-- Table Header -->
+<div class="grid grid-cols-[140px_1.5fr_1fr_120px_1fr_100px_120px] gap-4 border-b border-[#f0f3f5] dark:border-[#334155] bg-[#f9fafb] dark:bg-[#1e293b] px-6 py-3 text-xs font-semibold uppercase tracking-wider text-[#607a8a] dark:text-[#94a3b8]">
+<div class="flex items-center cursor-pointer hover:text-primary">Status <span class="material-symbols-outlined text-sm ml-1">unfold_more</span></div>
+<div class="flex items-center cursor-pointer hover:text-primary">Flow Name <span class="material-symbols-outlined text-sm ml-1">unfold_more</span></div>
+<div class="font-mono">Run ID</div>
+<div>Trigger</div>
+<div class="flex items-center cursor-pointer hover:text-primary">Start Time <span class="material-symbols-outlined text-sm ml-1">arrow_downward</span></div>
+<div class="flex items-center cursor-pointer hover:text-primary">Duration</div>
+<div class="text-right">Actions</div>
+</div>
+<!-- Table Body -->
+<div class="divide-y divide-[#f0f3f5] dark:divide-[#334155]">
+<!-- Row 1: Success -->
+<div class="group grid grid-cols-[140px_1.5fr_1fr_120px_1fr_100px_120px] items-center gap-4 bg-white dark:bg-[#1e293b] px-6 py-3 transition-colors hover:bg-[#f8fafc] dark:hover:bg-[#283546]">
+<div class="flex items-center gap-2">
+<span class="inline-flex items-center rounded-full bg-green-100 dark:bg-green-900/30 px-2 py-0.5 text-xs font-medium text-green-700 dark:text-green-400 border border-green-200 dark:border-green-800">
+<span class="mr-1.5 h-1.5 w-1.5 rounded-full bg-green-500"></span>
+                                    Success
+                                </span>
+</div>
+<div class="truncate text-sm font-semibold text-[#111518] dark:text-white">User Onboarding Flow</div>
+<div class="font-mono text-xs text-[#607a8a] dark:text-[#94a3b8] truncate" title="run_8x9d0s5f">run_8x9d0s5f</div>
+<div class="flex items-center gap-1.5 text-xs text-[#111518] dark:text-white">
+<span class="material-symbols-outlined text-[16px] text-[#607a8a]">webhook</span>
+                                Webhook
+                            </div>
+<div class="flex flex-col">
+<span class="text-sm text-[#111518] dark:text-white">Oct 24, 10:42 AM</span>
+<span class="text-xs text-[#607a8a] dark:text-[#94a3b8]">2 mins ago</span>
+</div>
+<div class="font-mono text-sm text-[#111518] dark:text-white">430ms</div>
+<div class="flex justify-end gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+<button class="rounded p-1 text-[#607a8a] hover:bg-[#f0f3f5] hover:text-primary dark:hover:bg-[#334155]" title="View Details">
+<span class="material-symbols-outlined text-[20px]">visibility</span>
+</button>
+<button class="rounded p-1 text-[#607a8a] hover:bg-[#f0f3f5] hover:text-primary dark:hover:bg-[#334155]" title="Rerun Flow">
+<span class="material-symbols-outlined text-[20px]">replay</span>
+</button>
+</div>
+</div>
+<!-- Row 2: Failed -->
+<div class="group grid grid-cols-[140px_1.5fr_1fr_120px_1fr_100px_120px] items-center gap-4 bg-white dark:bg-[#1e293b] px-6 py-3 transition-colors hover:bg-[#f8fafc] dark:hover:bg-[#283546]">
+<div class="flex items-center gap-2">
+<span class="inline-flex items-center rounded-full bg-red-100 dark:bg-red-900/30 px-2 py-0.5 text-xs font-medium text-red-700 dark:text-red-400 border border-red-200 dark:border-red-800">
+<span class="mr-1.5 h-1.5 w-1.5 rounded-full bg-red-500"></span>
+                                    Failed
+                                </span>
+</div>
+<div class="truncate text-sm font-semibold text-[#111518] dark:text-white">Daily Report Generation</div>
+<div class="font-mono text-xs text-[#607a8a] dark:text-[#94a3b8] truncate" title="run_7d8s9a2k">run_7d8s9a2k</div>
+<div class="flex items-center gap-1.5 text-xs text-[#111518] dark:text-white">
+<span class="material-symbols-outlined text-[16px] text-[#607a8a]">schedule</span>
+                                Scheduled
+                            </div>
+<div class="flex flex-col">
+<span class="text-sm text-[#111518] dark:text-white">Oct 24, 10:30 AM</span>
+<span class="text-xs text-[#607a8a] dark:text-[#94a3b8]">14 mins ago</span>
+</div>
+<div class="font-mono text-sm text-[#111518] dark:text-white">12s</div>
+<div class="flex justify-end gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+<button class="rounded p-1 text-[#607a8a] hover:bg-[#f0f3f5] hover:text-primary dark:hover:bg-[#334155]" title="View Details">
+<span class="material-symbols-outlined text-[20px]">visibility</span>
+</button>
+<button class="rounded p-1 text-[#607a8a] hover:bg-[#f0f3f5] hover:text-primary dark:hover:bg-[#334155]" title="Rerun Flow">
+<span class="material-symbols-outlined text-[20px]">replay</span>
+</button>
+</div>
+</div>
+<!-- Row 3: Running -->
+<div class="group grid grid-cols-[140px_1.5fr_1fr_120px_1fr_100px_120px] items-center gap-4 bg-white dark:bg-[#1e293b] px-6 py-3 transition-colors hover:bg-[#f8fafc] dark:hover:bg-[#283546]">
+<div class="flex items-center gap-2">
+<span class="inline-flex items-center rounded-full bg-blue-100 dark:bg-blue-900/30 px-2 py-0.5 text-xs font-medium text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-800 animate-pulse">
+<span class="mr-1.5 h-1.5 w-1.5 rounded-full bg-blue-500"></span>
+                                    Running
+                                </span>
+</div>
+<div class="truncate text-sm font-semibold text-[#111518] dark:text-white">Stripe Data Sync</div>
+<div class="font-mono text-xs text-[#607a8a] dark:text-[#94a3b8] truncate" title="run_1s2d3f4g">run_1s2d3f4g</div>
+<div class="flex items-center gap-1.5 text-xs text-[#111518] dark:text-white">
+<span class="material-symbols-outlined text-[16px] text-[#607a8a]">api</span>
+                                API
+                            </div>
+<div class="flex flex-col">
+<span class="text-sm text-[#111518] dark:text-white">Oct 24, 10:44 AM</span>
+<span class="text-xs text-[#607a8a] dark:text-[#94a3b8]">Just now</span>
+</div>
+<div class="font-mono text-sm text-[#111518] dark:text-white">--</div>
+<div class="flex justify-end gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+<button class="rounded p-1 text-[#607a8a] hover:bg-[#f0f3f5] hover:text-primary dark:hover:bg-[#334155]" title="View Details">
+<span class="material-symbols-outlined text-[20px]">visibility</span>
+</button>
+<button class="rounded p-1 text-[#607a8a] hover:bg-[#f0f3f5] hover:text-primary dark:hover:bg-[#334155]" title="Stop Run">
+<span class="material-symbols-outlined text-[20px]">stop_circle</span>
+</button>
+</div>
+</div>
+<!-- Row 4: Success -->
+<div class="group grid grid-cols-[140px_1.5fr_1fr_120px_1fr_100px_120px] items-center gap-4 bg-white dark:bg-[#1e293b] px-6 py-3 transition-colors hover:bg-[#f8fafc] dark:hover:bg-[#283546]">
+<div class="flex items-center gap-2">
+<span class="inline-flex items-center rounded-full bg-green-100 dark:bg-green-900/30 px-2 py-0.5 text-xs font-medium text-green-700 dark:text-green-400 border border-green-200 dark:border-green-800">
+<span class="mr-1.5 h-1.5 w-1.5 rounded-full bg-green-500"></span>
+                                    Success
+                                </span>
+</div>
+<div class="truncate text-sm font-semibold text-[#111518] dark:text-white">Order Processing</div>
+<div class="font-mono text-xs text-[#607a8a] dark:text-[#94a3b8] truncate" title="run_k9d8s2j1">run_k9d8s2j1</div>
+<div class="flex items-center gap-1.5 text-xs text-[#111518] dark:text-white">
+<span class="material-symbols-outlined text-[16px] text-[#607a8a]">webhook</span>
+                                Webhook
+                            </div>
+<div class="flex flex-col">
+<span class="text-sm text-[#111518] dark:text-white">Oct 24, 09:15 AM</span>
+<span class="text-xs text-[#607a8a] dark:text-[#94a3b8]">1h ago</span>
+</div>
+<div class="font-mono text-sm text-[#111518] dark:text-white">1.2s</div>
+<div class="flex justify-end gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+<button class="rounded p-1 text-[#607a8a] hover:bg-[#f0f3f5] hover:text-primary dark:hover:bg-[#334155]" title="View Details">
+<span class="material-symbols-outlined text-[20px]">visibility</span>
+</button>
+<button class="rounded p-1 text-[#607a8a] hover:bg-[#f0f3f5] hover:text-primary dark:hover:bg-[#334155]" title="Rerun Flow">
+<span class="material-symbols-outlined text-[20px]">replay</span>
+</button>
+</div>
+</div>
+<!-- Row 5: Success -->
+<div class="group grid grid-cols-[140px_1.5fr_1fr_120px_1fr_100px_120px] items-center gap-4 bg-white dark:bg-[#1e293b] px-6 py-3 transition-colors hover:bg-[#f8fafc] dark:hover:bg-[#283546]">
+<div class="flex items-center gap-2">
+<span class="inline-flex items-center rounded-full bg-green-100 dark:bg-green-900/30 px-2 py-0.5 text-xs font-medium text-green-700 dark:text-green-400 border border-green-200 dark:border-green-800">
+<span class="mr-1.5 h-1.5 w-1.5 rounded-full bg-green-500"></span>
+                                    Success
+                                </span>
+</div>
+<div class="truncate text-sm font-semibold text-[#111518] dark:text-white">Slack Notification Bot</div>
+<div class="font-mono text-xs text-[#607a8a] dark:text-[#94a3b8] truncate" title="run_m4n5b6v7">run_m4n5b6v7</div>
+<div class="flex items-center gap-1.5 text-xs text-[#111518] dark:text-white">
+<span class="material-symbols-outlined text-[16px] text-[#607a8a]">webhook</span>
+                                Webhook
+                            </div>
+<div class="flex flex-col">
+<span class="text-sm text-[#111518] dark:text-white">Oct 24, 08:45 AM</span>
+<span class="text-xs text-[#607a8a] dark:text-[#94a3b8]">2h ago</span>
+</div>
+<div class="font-mono text-sm text-[#111518] dark:text-white">250ms</div>
+<div class="flex justify-end gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+<button class="rounded p-1 text-[#607a8a] hover:bg-[#f0f3f5] hover:text-primary dark:hover:bg-[#334155]" title="View Details">
+<span class="material-symbols-outlined text-[20px]">visibility</span>
+</button>
+<button class="rounded p-1 text-[#607a8a] hover:bg-[#f0f3f5] hover:text-primary dark:hover:bg-[#334155]" title="Rerun Flow">
+<span class="material-symbols-outlined text-[20px]">replay</span>
+</button>
+</div>
+</div>
+<!-- Row 6: Failed -->
+<div class="group grid grid-cols-[140px_1.5fr_1fr_120px_1fr_100px_120px] items-center gap-4 bg-white dark:bg-[#1e293b] px-6 py-3 transition-colors hover:bg-[#f8fafc] dark:hover:bg-[#283546]">
+<div class="flex items-center gap-2">
+<span class="inline-flex items-center rounded-full bg-red-100 dark:bg-red-900/30 px-2 py-0.5 text-xs font-medium text-red-700 dark:text-red-400 border border-red-200 dark:border-red-800">
+<span class="mr-1.5 h-1.5 w-1.5 rounded-full bg-red-500"></span>
+                                    Failed
+                                </span>
+</div>
+<div class="truncate text-sm font-semibold text-[#111518] dark:text-white">Inventory Sync (Shopify)</div>
+<div class="font-mono text-xs text-[#607a8a] dark:text-[#94a3b8] truncate" title="run_q1w2e3r4">run_q1w2e3r4</div>
+<div class="flex items-center gap-1.5 text-xs text-[#111518] dark:text-white">
+<span class="material-symbols-outlined text-[16px] text-[#607a8a]">schedule</span>
+                                Schedule
+                            </div>
+<div class="flex flex-col">
+<span class="text-sm text-[#111518] dark:text-white">Oct 23, 11:00 PM</span>
+<span class="text-xs text-[#607a8a] dark:text-[#94a3b8]">11h ago</span>
+</div>
+<div class="font-mono text-sm text-[#111518] dark:text-white">30s</div>
+<div class="flex justify-end gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+<button class="rounded p-1 text-[#607a8a] hover:bg-[#f0f3f5] hover:text-primary dark:hover:bg-[#334155]" title="View Details">
+<span class="material-symbols-outlined text-[20px]">visibility</span>
+</button>
+<button class="rounded p-1 text-[#607a8a] hover:bg-[#f0f3f5] hover:text-primary dark:hover:bg-[#334155]" title="Rerun Flow">
+<span class="material-symbols-outlined text-[20px]">replay</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Pagination Footer -->
+<div class="flex items-center justify-between border-t border-[#f0f3f5] dark:border-[#334155] bg-white dark:bg-[#1e293b] px-6 py-3">
+<div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+<div>
+<p class="text-sm text-[#607a8a] dark:text-[#94a3b8]">
+                                    Showing <span class="font-medium text-[#111518] dark:text-white">1</span> to <span class="font-medium text-[#111518] dark:text-white">20</span> of <span class="font-medium text-[#111518] dark:text-white">1,240</span> results
+                                </p>
+</div>
+<div>
+<nav aria-label="Pagination" class="relative z-0 inline-flex -space-x-px rounded-md shadow-sm">
+<a class="relative inline-flex items-center rounded-l-md border border-[#dbe2e6] dark:border-[#334155] bg-white dark:bg-[#1e293b] px-2 py-2 text-sm font-medium text-[#607a8a] hover:bg-[#f0f3f5] dark:hover:bg-[#334155]" href="#">
+<span class="sr-only">Previous</span>
+<span class="material-symbols-outlined text-lg">chevron_left</span>
+</a>
+<a aria-current="page" class="relative z-10 inline-flex items-center border border-primary bg-primary/10 px-4 py-2 text-sm font-medium text-primary" href="#">1</a>
+<a class="relative inline-flex items-center border border-[#dbe2e6] dark:border-[#334155] bg-white dark:bg-[#1e293b] px-4 py-2 text-sm font-medium text-[#607a8a] hover:bg-[#f0f3f5] dark:hover:bg-[#334155]" href="#">2</a>
+<a class="relative inline-flex items-center border border-[#dbe2e6] dark:border-[#334155] bg-white dark:bg-[#1e293b] px-4 py-2 text-sm font-medium text-[#607a8a] hover:bg-[#f0f3f5] dark:hover:bg-[#334155]" href="#">3</a>
+<span class="relative inline-flex items-center border border-[#dbe2e6] dark:border-[#334155] bg-white dark:bg-[#1e293b] px-4 py-2 text-sm font-medium text-[#607a8a]">...</span>
+<a class="relative inline-flex items-center border border-[#dbe2e6] dark:border-[#334155] bg-white dark:bg-[#1e293b] px-4 py-2 text-sm font-medium text-[#607a8a] hover:bg-[#f0f3f5] dark:hover:bg-[#334155]" href="#">62</a>
+<a class="relative inline-flex items-center rounded-r-md border border-[#dbe2e6] dark:border-[#334155] bg-white dark:bg-[#1e293b] px-2 py-2 text-sm font-medium text-[#607a8a] hover:bg-[#f0f3f5] dark:hover:bg-[#334155]" href="#">
+<span class="sr-only">Next</span>
+<span class="material-symbols-outlined text-lg">chevron_right</span>
+</a>
+</nav>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

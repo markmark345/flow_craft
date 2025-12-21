@@ -1,0 +1,31 @@
+"use client";
+
+import { useCallback, useState } from "react";
+import { login } from "../services/authApi";
+import { useAuthStore } from "../store/use-auth-store";
+import { useAppStore } from "@/shared/hooks/use-app-store";
+
+export function useLogin() {
+  const setSession = useAuthStore((s) => s.setSession);
+  const showSuccess = useAppStore((s) => s.showSuccess);
+  const [loading, setLoading] = useState(false);
+
+  const signIn = useCallback(
+    async (identifier: string, password: string) => {
+      setLoading(true);
+      try {
+        const session = await login(identifier, password);
+        setSession(session);
+        showSuccess("Welcome back", `Signed in as ${session.user.email}`);
+        return session;
+      } catch (err: any) {
+        throw err;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [setSession, showSuccess]
+  );
+
+  return { signIn, loading };
+}

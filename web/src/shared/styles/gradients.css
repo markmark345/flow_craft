@@ -1,0 +1,56 @@
+.fc-topbar-highlight {
+  position: relative;
+}
+
+.fc-topbar-highlight::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--topbar-highlight);
+  pointer-events: none;
+  box-shadow: none;
+  opacity: 0.9;
+}
+
+.fc-nav-active {
+  background: color-mix(in srgb, var(--accent) 10%, var(--surface));
+  color: var(--text);
+  box-shadow: var(--shadow-soft);
+  position: relative;
+  overflow: hidden;
+}
+
+.fc-accent-underline {
+  position: relative;
+}
+
+.fc-accent-underline::after {
+  content: "";
+  position: absolute;
+  left: 10%;
+  right: 10%;
+  bottom: 3px;
+  height: 2px;
+  background: var(--accent);
+  border-radius: var(--radius-pill);
+  opacity: 0.55;
+}
+
+.fc-nav-active::before {
+  content: "";
+  position: absolute;
+  left: -2px;
+  top: 8px;
+  bottom: 8px;
+  width: 4px;
+  background: var(--accent);
+  border-radius: var(--radius-pill);
+}
+
+.fc-canvas {
+  position: relative;
+  background: var(--bg);
+}
