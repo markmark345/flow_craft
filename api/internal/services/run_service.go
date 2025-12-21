@@ -33,8 +33,16 @@ func (s *RunService) List(ctx context.Context) ([]entities.Run, error) {
     return s.runs.List(ctx)
 }
 
+func (s *RunService) ListForUser(ctx context.Context, userID string) ([]entities.Run, error) {
+    return s.runs.ListForUser(ctx, userID)
+}
+
 func (s *RunService) Get(ctx context.Context, id string) (*entities.Run, error) {
     return s.runs.Get(ctx, id)
+}
+
+func (s *RunService) GetForUser(ctx context.Context, id string, userID string) (*entities.Run, error) {
+    return s.runs.GetForUser(ctx, id, userID)
 }
 
 func (s *RunService) UpdateStatus(ctx context.Context, id string, status string, log string) error {

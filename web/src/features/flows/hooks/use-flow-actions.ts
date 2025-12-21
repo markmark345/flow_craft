@@ -1,10 +1,12 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { createFlow, deleteFlow, getFlow, updateFlow } from "../services/flowsApi";
+import { deleteFlow, getFlow, updateFlow } from "../services/flowsApi";
 import { useFlowsStore } from "../store/use-flows-store";
 import { useAppStore } from "@/shared/hooks/use-app-store";
 import { FlowDTO } from "@/shared/types/dto";
+import { createWorkflow } from "@/features/workflows/services/workflowsApi";
+import { useWorkspaceStore } from "@/features/workspaces/store/use-workspace-store";
 
 type ImportResult = {
   flow: FlowDTO;
@@ -22,6 +24,19 @@ export function useFlowActions() {
   const [archivingId, setArchivingId] = useState<string | undefined>(undefined);
   const [deletingId, setDeletingId] = useState<string | undefined>(undefined);
 
+  const scope = useWorkspaceStore((s) => s.activeScope);
+  const projectId = useWorkspaceStore((s) => s.activeProjectId);
+
+  const createInActiveScope = useCallback(
+    async (payload: Omit<Parameters<typeof createWorkflow>[0], "scope" | "projectId">) => {
+      if (scope === "project" && projectId) {
+        return createWorkflow({ ...payload, scope: "project", projectId });
+      }
+      return createWorkflow({ ...payload, scope: "personal" });
+    },
+    [projectId, scope]
+  );
+
   const importFlowFromFile = useCallback(
     async (file: File): Promise<ImportResult> => {
       setImporting(true);
@@ -31,11 +46,12 @@ export function useFlowActions() {
         const name = typeof parsed?.name === "string" ? parsed.name : file.name.replace(/\.json$/i, "");
         const definitionJson = JSON.stringify({ ...parsed, name });
 
-        const flow = await createFlow({
+        const flow = await createInActiveScope({
           name,
           status: "draft",
           version: 1,
           definitionJson,
+          description: "",
         });
 
         addFlow(flow);
@@ -48,7 +64,7 @@ export function useFlowActions() {
         setImporting(false);
       }
     },
-    [addFlow, showError, showSuccess]
+    [addFlow, createInActiveScope, showError, showSuccess]
   );
 
   const duplicateExistingFlow = useCallback(
@@ -72,11 +88,12 @@ export function useFlowActions() {
           }
         }
 
-        const created = await createFlow({
+        const created = await createInActiveScope({
           name: nextName,
           status: "draft",
           version: 1,
           definitionJson: nextDef || "{}",
+          description: flow.description || "",
         });
 
         addFlow(created);
@@ -89,7 +106,7 @@ export function useFlowActions() {
         setDuplicatingId(undefined);
       }
     },
-    [addFlow, showError, showSuccess]
+    [addFlow, createInActiveScope, showError, showSuccess]
   );
 
   const archiveExistingFlow = useCallback(
@@ -138,4 +155,3 @@ export function useFlowActions() {
     deletingId,
   };
 }
-

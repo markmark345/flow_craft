@@ -5,6 +5,8 @@ import "time"
 type Flow struct {
 	ID             string
 	Name           string
+	Description    string
+	Scope          string
 	Status         string
 	Version        int
 	DefinitionJSON string
@@ -12,7 +14,10 @@ type Flow struct {
 	UpdatedAt      time.Time
 	CreatedBy      string
 	UpdatedBy      string
+	OwnerUserID    string
+	ProjectID      string
 	Owner          *UserRef
+	Project        *ProjectRef
 }
 
 type Run struct {

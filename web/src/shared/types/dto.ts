@@ -4,9 +4,32 @@ export type UserDTO = {
   email: string;
 };
 
+export type ProjectRefDTO = {
+  id: string;
+  name: string;
+};
+
+export type ProjectDTO = {
+  id: string;
+  name: string;
+  description?: string;
+  role?: "admin" | "member";
+  createdAt?: string;
+  updatedAt?: string;
+};
+
+export type ProjectMemberDTO = {
+  user: UserDTO;
+  role: "admin" | "member";
+};
+
 export type FlowDTO = {
   id: string;
   name: string;
+  description?: string;
+  scope?: "personal" | "project";
+  projectId?: string;
+  project?: ProjectRefDTO;
   status: "draft" | "active" | "archived";
   version: number;
   definitionJson?: string;

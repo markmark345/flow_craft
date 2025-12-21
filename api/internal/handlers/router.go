@@ -62,17 +62,21 @@ func NewRouter(cfg config.Config, db *sql.DB, logger zerolog.Logger, temporalCli
 	systemRepo := repositories.NewSystemRepository(db)
 	userRepo := repositories.NewUserRepository(db)
 	sessionRepo := repositories.NewAuthSessionRepository(db)
+	projectRepo := repositories.NewProjectRepository(db)
+	projectMemberRepo := repositories.NewProjectMemberRepository(db)
 
-	flowSvc := services.NewFlowService(flowRepo)
+	flowSvc := services.NewFlowService(flowRepo, projectMemberRepo)
 	runSvc := services.NewRunService(runRepo)
 	runStepSvc := services.NewRunStepService(runStepRepo)
 	systemSvc := services.NewSystemService(systemRepo)
 	authSvc := services.NewAuthService(userRepo, sessionRepo)
+	projectSvc := services.NewProjectService(projectRepo, projectMemberRepo, userRepo, flowRepo)
 
 	flowHandler := NewFlowHandler(flowSvc)
 	runHandler := NewRunHandler(runSvc, flowSvc, runStepSvc, temporalClient)
 	systemHandler := NewSystemHandler(systemSvc)
 	authHandler := NewAuthHandler(authSvc)
+	projectHandler := NewProjectHandler(projectSvc)
 
 	authHandler.Register(apiPublic)
 
@@ -112,7 +116,9 @@ func NewRouter(cfg config.Config, db *sql.DB, logger zerolog.Logger, temporalCli
 	flowHandler.Register(apiProtected)
 	runHandler.Register(apiProtected)
 	systemHandler.Register(apiProtected)
+	projectHandler.Register(apiProtected)
 	apiProtected.POST("/flows/:id/run", runHandler.CreateForFlow)
+	apiProtected.POST("/workflows/:id/run", runHandler.CreateForFlow)
 
 	return r
 }

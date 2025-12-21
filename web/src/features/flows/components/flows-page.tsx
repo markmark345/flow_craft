@@ -17,9 +17,11 @@ import { Button } from "@/shared/components/button";
 import { ConfirmDialog } from "@/shared/components/confirm-dialog";
 import { Icon } from "@/shared/components/icon";
 import { Input } from "@/shared/components/input";
-import { useAppStore } from "@/shared/hooks/use-app-store";
+import { Select } from "@/shared/components/select";
+import { useAppStore, useMounted } from "@/shared/hooks/use-app-store";
 import { cn } from "@/shared/lib/cn";
 import { FlowDTO, RunDTO } from "@/shared/types/dto";
+import { useWorkspaceStore } from "@/features/workspaces/store/use-workspace-store";
 
 type ConfirmState = { type: "archive" | "delete"; flow: FlowDTO } | null;
 
@@ -38,6 +40,25 @@ export function FlowsPage() {
   const runs = useRunsStore((s) => s.items);
 
   const router = useRouter();
+  const mounted = useMounted();
+  const scopeRaw = useWorkspaceStore((s) => s.activeScope);
+  const activeProjectIdRaw = useWorkspaceStore((s) => s.activeProjectId);
+  const projects = useWorkspaceStore((s) => s.projects);
+  const scope = mounted ? scopeRaw : "personal";
+  const activeProjectId = mounted ? activeProjectIdRaw : null;
+  const activeProject = useMemo(
+    () => projects.find((p) => p.id === activeProjectId) || null,
+    [activeProjectId, projects]
+  );
+
+  const pageTitle =
+    scope === "project" ? (activeProject ? `Project: ${activeProject.name}` : "Project Workflows") : "Personal Workflows";
+  const pageSubtitle =
+    scope === "project"
+      ? activeProject
+        ? "Workflows shared within this project."
+        : "Select a project to view project workflows."
+      : "Workflows owned by you.";
   const showSuccess = useAppStore((s) => s.showSuccess);
   const showError = useAppStore((s) => s.showError);
   const showInfo = useAppStore((s) => s.showInfo);
@@ -62,8 +83,28 @@ export function FlowsPage() {
   const [selectedIds, setSelectedIds] = useState(() => new Set<string>());
   const [menuOpenFor, setMenuOpenFor] = useState<string | null>(null);
   const [confirm, setConfirm] = useState<ConfirmState>(null);
+  const [createMenuOpen, setCreateMenuOpen] = useState(false);
 
   const fileRef = useRef<HTMLInputElement | null>(null);
+  const createMenuRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!createMenuOpen) return;
+    const onMouseDown = (e: MouseEvent) => {
+      const el = createMenuRef.current;
+      if (!el) return;
+      if (e.target instanceof Node && !el.contains(e.target)) setCreateMenuOpen(false);
+    };
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setCreateMenuOpen(false);
+    };
+    window.addEventListener("mousedown", onMouseDown);
+    window.addEventListener("keydown", onKeyDown);
+    return () => {
+      window.removeEventListener("mousedown", onMouseDown);
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [createMenuOpen]);
 
   const ownerForFlow = (flow: FlowDTO) => {
     if (flow.status === "archived") return "System";
@@ -284,19 +325,59 @@ export function FlowsPage() {
         <div className="max-w-[1600px] mx-auto flex flex-col gap-6">
           <div className="flex justify-between items-start">
             <div className="flex flex-col gap-1">
-              <h2 className="text-2xl font-bold tracking-tight text-text">Flows</h2>
-              <p className="text-muted text-sm">Manage and monitor your automation workflows across all environments.</p>
+              <h2 className="text-2xl font-bold tracking-tight text-text">{pageTitle}</h2>
+              <p className="text-muted text-sm">{pageSubtitle}</p>
             </div>
           </div>
 
           <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
             <div className="flex items-center gap-3 w-full lg:w-auto">
-              <Link href="/flows/new">
-                <Button size="md" className="h-10 px-4 rounded-lg">
-                  <Icon name="add" className="text-[20px] mr-2" />
-                  New Flow
+              <div ref={createMenuRef} className="relative">
+                <Button
+                  size="md"
+                  className="h-10 px-4 rounded-lg gap-2"
+                  onClick={() => setCreateMenuOpen((v) => !v)}
+                >
+                  <Icon name="add" className="text-[18px]" />
+                  Create workflow
+                  <Icon
+                    name="expand_more"
+                    className={cn("text-[18px] transition-transform", createMenuOpen ? "rotate-180" : "")}
+                  />
                 </Button>
-              </Link>
+
+                {createMenuOpen ? (
+                  <div className="absolute left-0 top-full mt-2 w-56 rounded-xl border border-border bg-panel shadow-lift overflow-hidden z-30">
+                    <button
+                      type="button"
+                      className="w-full text-left px-3 py-2 text-sm hover:bg-surface2 transition-colors"
+                      onClick={() => {
+                        setCreateMenuOpen(false);
+                        router.push("/flows/new?scope=personal");
+                      }}
+                    >
+                      Personal workflow
+                    </button>
+                    <button
+                      type="button"
+                      className={cn(
+                        "w-full text-left px-3 py-2 text-sm transition-colors",
+                        scope === "project" && activeProjectId
+                          ? "hover:bg-surface2"
+                          : "text-muted opacity-60 cursor-not-allowed"
+                      )}
+                      disabled={!(scope === "project" && activeProjectId)}
+                      onClick={() => {
+                        if (!(scope === "project" && activeProjectId)) return;
+                        setCreateMenuOpen(false);
+                        router.push(`/flows/new?scope=project&projectId=${encodeURIComponent(activeProjectId)}`);
+                      }}
+                    >
+                      {scope === "project" && activeProject ? `Project workflow (${activeProject.name})` : "Project workflow"}
+                    </button>
+                  </div>
+                ) : null}
+              </div>
               <Button variant="secondary" size="md" className="h-10 px-4 rounded-lg" onClick={onImportClick}>
                 <Icon name="download" className="text-[20px] mr-2" />
                 {importing ? "Importing..." : "Import Flow"}
@@ -326,48 +407,31 @@ export function FlowsPage() {
                 />
               </div>
 
-              <div className="relative hidden md:block">
-                <Icon
-                  name="filter_list"
-                  className="absolute left-3 top-1/2 -translate-y-1/2 text-[18px] text-muted pointer-events-none"
-                />
-                <select
-                  className="h-10 appearance-none rounded-lg bg-surface border border-border pl-10 pr-9 text-sm font-medium text-text focus:outline-none focus:shadow-focus hover:bg-surface2 transition-colors"
-                  value={status}
-                  onChange={(e) => setStatus(e.target.value as any)}
-                >
-                  <option value="all">All statuses</option>
-                  <option value="draft">Draft</option>
-                  <option value="active">Active</option>
-                  <option value="archived">Archived</option>
-                </select>
-                <Icon
-                  name="expand_more"
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[18px] text-muted pointer-events-none"
-                />
-              </div>
+              <Select
+                className="hidden md:block w-[170px]"
+                value={status}
+                onChange={(v) => setStatus(v as any)}
+                leadingIcon="filter_list"
+                options={[
+                  { value: "all", label: "All statuses" },
+                  { value: "draft", label: "Draft" },
+                  { value: "active", label: "Active" },
+                  { value: "archived", label: "Archived" },
+                ]}
+              />
 
-              <div className="relative hidden md:block">
-                <Icon
-                  name="person"
-                  className="absolute left-3 top-1/2 -translate-y-1/2 text-[18px] text-muted pointer-events-none"
-                />
-                <select
-                  className="h-10 appearance-none rounded-lg bg-surface border border-border pl-10 pr-9 text-sm font-medium text-text focus:outline-none focus:shadow-focus hover:bg-surface2 transition-colors"
-                  value={owner}
-                  onChange={(e) => setOwner(e.target.value)}
-                >
-                  {ownerOptions.map((value) => (
-                    <option key={value} value={value}>
-                      {value === "all" ? "All owners" : value}
-                    </option>
-                  ))}
-                </select>
-                <Icon
-                  name="expand_more"
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[18px] text-muted pointer-events-none"
-                />
-              </div>
+              <Select
+                className="hidden md:block w-[220px]"
+                value={owner}
+                onChange={setOwner}
+                leadingIcon="person"
+                searchable
+                searchPlaceholder="Search owners…"
+                options={ownerOptions.map((value) => ({
+                  value,
+                  label: value === "all" ? "All owners" : value,
+                }))}
+              />
 
               <div className="border-l border-border pl-3 ml-1 hidden md:flex items-center gap-1">
                 <button
@@ -555,7 +619,13 @@ export function FlowsPage() {
                 })}
               </div>
             ) : (
-              <div className="px-6 py-8 text-sm text-muted">No flows yet. Create your first automation.</div>
+              <div className="px-6 py-8 text-sm text-muted">
+                {scope === "project"
+                  ? activeProject
+                    ? "This project has no workflows yet."
+                    : "Select a project to view workflows."
+                  : "No personal workflows yet. Create your first automation."}
+              </div>
             )}
           </div>
 
@@ -574,15 +644,16 @@ export function FlowsPage() {
               )}
             </div>
             <div className="flex items-center gap-2">
-              <select
-                className="h-9 rounded-lg bg-surface border border-border px-3 text-sm text-text focus:outline-none focus:shadow-focus"
+              <Select
+                className="w-[150px]"
                 value={pageSize}
-                onChange={(e) => setPageSize(Number(e.target.value))}
-              >
-                <option value={10}>10 per page</option>
-                <option value={25}>25 per page</option>
-                <option value={50}>50 per page</option>
-              </select>
+                onChange={(v) => setPageSize(Number(v))}
+                options={[
+                  { value: 10, label: "10 per page" },
+                  { value: 25, label: "25 per page" },
+                  { value: 50, label: "50 per page" },
+                ]}
+              />
 
               <div className="flex items-center rounded-lg border border-border bg-surface overflow-hidden">
                 <button

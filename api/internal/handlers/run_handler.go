@@ -99,7 +99,8 @@ func stepToResponse(step entities.RunStep) dto.RunStepResponse {
 }
 
 func (h *RunHandler) list(c *gin.Context) {
-	runs, err := h.runs.List(c)
+	user, _ := currentAuthUser(c)
+	runs, err := h.runs.ListForUser(c, user.ID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, dto.ResponseEnvelope{Error: &dto.ErrorBody{Code: "internal", Message: err.Error()}})
 		return
@@ -113,7 +114,8 @@ func (h *RunHandler) list(c *gin.Context) {
 
 func (h *RunHandler) get(c *gin.Context) {
 	id := c.Param("id")
-	run, err := h.runs.Get(c, id)
+	user, _ := currentAuthUser(c)
+	run, err := h.runs.GetForUser(c, id, user.ID)
 	if err == utils.ErrNotFound {
 		c.JSON(http.StatusNotFound, dto.ResponseEnvelope{Error: &dto.ErrorBody{Code: "not_found", Message: "run not found"}})
 		return
@@ -127,7 +129,8 @@ func (h *RunHandler) get(c *gin.Context) {
 
 func (h *RunHandler) listSteps(c *gin.Context) {
 	runID := c.Param("id")
-	if _, err := h.runs.Get(c, runID); err != nil {
+	user, _ := currentAuthUser(c)
+	if _, err := h.runs.GetForUser(c, runID, user.ID); err != nil {
 		if err == utils.ErrNotFound {
 			c.JSON(http.StatusNotFound, dto.ResponseEnvelope{Error: &dto.ErrorBody{Code: "not_found", Message: "run not found"}})
 			return
@@ -153,7 +156,8 @@ func (h *RunHandler) getStep(c *gin.Context) {
 	runID := c.Param("id")
 	stepID := c.Param("stepId")
 
-	if _, err := h.runs.Get(c, runID); err != nil {
+	user, _ := currentAuthUser(c)
+	if _, err := h.runs.GetForUser(c, runID, user.ID); err != nil {
 		if err == utils.ErrNotFound {
 			c.JSON(http.StatusNotFound, dto.ResponseEnvelope{Error: &dto.ErrorBody{Code: "not_found", Message: "run not found"}})
 			return
@@ -176,7 +180,8 @@ func (h *RunHandler) getStep(c *gin.Context) {
 
 func (h *RunHandler) cancel(c *gin.Context) {
 	runID := c.Param("id")
-	run, err := h.runs.Get(c, runID)
+	user, _ := currentAuthUser(c)
+	run, err := h.runs.GetForUser(c, runID, user.ID)
 	if err == utils.ErrNotFound {
 		c.JSON(http.StatusNotFound, dto.ResponseEnvelope{Error: &dto.ErrorBody{Code: "not_found", Message: "run not found"}})
 		return
@@ -202,7 +207,7 @@ func (h *RunHandler) cancel(c *gin.Context) {
 	_ = h.steps.CancelOpenSteps(c, runID, "canceled by user")
 	_ = h.runs.UpdateStatus(c, runID, "canceled", "canceled by user")
 
-	updated, err := h.runs.Get(c, runID)
+	updated, err := h.runs.GetForUser(c, runID, user.ID)
 	if err != nil {
 		c.JSON(http.StatusOK, dto.ResponseEnvelope{Data: runToResponse(*run)})
 		return
@@ -213,9 +218,14 @@ func (h *RunHandler) cancel(c *gin.Context) {
 func (h *RunHandler) CreateForFlow(c *gin.Context) {
 	flowID := c.Param("id")
 
-	if _, err := h.flows.Get(c, flowID); err != nil {
+	user, _ := currentAuthUser(c)
+	if _, err := h.flows.GetAccessible(c, user, flowID); err != nil {
 		if err == utils.ErrNotFound {
 			c.JSON(http.StatusNotFound, dto.ResponseEnvelope{Error: &dto.ErrorBody{Code: "not_found", Message: "flow not found"}})
+			return
+		}
+		if err == utils.ErrForbidden {
+			c.JSON(http.StatusForbidden, dto.ResponseEnvelope{Error: &dto.ErrorBody{Code: "forbidden", Message: "forbidden"}})
 			return
 		}
 		c.JSON(http.StatusInternalServerError, dto.ResponseEnvelope{Error: &dto.ErrorBody{Code: "internal", Message: err.Error()}})

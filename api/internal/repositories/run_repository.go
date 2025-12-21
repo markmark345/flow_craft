@@ -60,6 +60,47 @@ func (r *RunRepository) List(ctx context.Context) ([]entities.Run, error) {
 	return items, rows.Err()
 }
 
+func (r *RunRepository) ListForUser(ctx context.Context, userID string) ([]entities.Run, error) {
+	rows, err := r.db.QueryContext(ctx, `
+        SELECT r.id, r.flow_id, r.status, r.started_at, r.finished_at, r.log, r.temporal_workflow_id, r.created_at, r.updated_at
+        FROM runs r
+        JOIN flows f ON f.id = r.flow_id
+        LEFT JOIN project_members pm ON pm.project_id = f.project_id AND pm.user_id = $1
+        WHERE
+          (f.scope = 'personal' AND (f.owner_user_id = $1 OR (f.owner_user_id IS NULL AND f.created_by = $1)))
+          OR (f.scope = 'project' AND pm.user_id IS NOT NULL)
+        ORDER BY r.created_at DESC
+    `, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var items []entities.Run
+	for rows.Next() {
+		var rItem entities.Run
+		var startedAt sql.NullTime
+		var finishedAt sql.NullTime
+		var createdAt time.Time
+		var updatedAt time.Time
+		if err := rows.Scan(&rItem.ID, &rItem.FlowID, &rItem.Status, &startedAt, &finishedAt, &rItem.Log, &rItem.TemporalWorkflow, &createdAt, &updatedAt); err != nil {
+			return nil, err
+		}
+		if startedAt.Valid {
+			t := startedAt.Time
+			rItem.StartedAt = &t
+		}
+		if finishedAt.Valid {
+			t := finishedAt.Time
+			rItem.FinishedAt = &t
+		}
+		rItem.CreatedAt = createdAt
+		rItem.UpdatedAt = updatedAt
+		items = append(items, rItem)
+	}
+	return items, rows.Err()
+}
+
 func (r *RunRepository) Get(ctx context.Context, id string) (*entities.Run, error) {
 	var run entities.Run
 	var startedAt sql.NullTime
@@ -70,6 +111,41 @@ func (r *RunRepository) Get(ctx context.Context, id string) (*entities.Run, erro
         SELECT id, flow_id, status, started_at, finished_at, log, temporal_workflow_id, created_at, updated_at
         FROM runs WHERE id=$1
     `, id).Scan(&run.ID, &run.FlowID, &run.Status, &startedAt, &finishedAt, &run.Log, &run.TemporalWorkflow, &createdAt, &updatedAt)
+	if err == sql.ErrNoRows {
+		return nil, utils.ErrNotFound
+	}
+	if err != nil {
+		return nil, err
+	}
+	if startedAt.Valid {
+		t := startedAt.Time
+		run.StartedAt = &t
+	}
+	if finishedAt.Valid {
+		t := finishedAt.Time
+		run.FinishedAt = &t
+	}
+	run.CreatedAt = createdAt
+	run.UpdatedAt = updatedAt
+	return &run, nil
+}
+
+func (r *RunRepository) GetForUser(ctx context.Context, id string, userID string) (*entities.Run, error) {
+	var run entities.Run
+	var startedAt sql.NullTime
+	var finishedAt sql.NullTime
+	var createdAt time.Time
+	var updatedAt time.Time
+	err := r.db.QueryRowContext(ctx, `
+        SELECT r.id, r.flow_id, r.status, r.started_at, r.finished_at, r.log, r.temporal_workflow_id, r.created_at, r.updated_at
+        FROM runs r
+        JOIN flows f ON f.id = r.flow_id
+        LEFT JOIN project_members pm ON pm.project_id = f.project_id AND pm.user_id = $2
+        WHERE r.id=$1 AND (
+          (f.scope = 'personal' AND (f.owner_user_id = $2 OR (f.owner_user_id IS NULL AND f.created_by = $2)))
+          OR (f.scope = 'project' AND pm.user_id IS NOT NULL)
+        )
+    `, id, userID).Scan(&run.ID, &run.FlowID, &run.Status, &startedAt, &finishedAt, &run.Log, &run.TemporalWorkflow, &createdAt, &updatedAt)
 	if err == sql.ErrNoRows {
 		return nil, utils.ErrNotFound
 	}
