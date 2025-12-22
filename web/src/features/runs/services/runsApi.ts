@@ -2,8 +2,17 @@ import { API_BASE_URL } from "@/shared/lib/env";
 import { request } from "@/shared/lib/fetcher";
 import { RunDTO, RunStepDTO } from "@/shared/types/dto";
 
-export async function listRuns(): Promise<RunDTO[]> {
-  const res = await request<{ data: RunDTO[] }>(`${API_BASE_URL}/runs`);
+export async function listRuns(opts?: { scope?: "personal" | "project"; projectId?: string | null }): Promise<RunDTO[]> {
+  const params = new URLSearchParams();
+  if (opts?.scope) {
+    params.set("scope", opts.scope);
+    if (opts.scope === "project" && opts.projectId) {
+      params.set("projectId", opts.projectId);
+    }
+  }
+  const suffix = params.toString();
+  const url = suffix ? `${API_BASE_URL}/runs?${suffix}` : `${API_BASE_URL}/runs`;
+  const res = await request<{ data: RunDTO[] }>(url);
   return res.data;
 }
 

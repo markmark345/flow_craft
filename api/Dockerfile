@@ -1,5 +1,11 @@
-FROM golang:1.21-alpine AS base
+FROM golang:1.24-alpine AS base
 WORKDIR /app
+
+# Allow overriding Go proxy settings for slow/blocked networks.
+ARG GOPROXY=https://proxy.golang.org,https://goproxy.io,direct
+ARG GOSUMDB=sum.golang.org
+ENV GOPROXY=$GOPROXY
+ENV GOSUMDB=$GOSUMDB
 
 # Install git for go modules
 RUN apk add --no-cache git

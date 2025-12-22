@@ -28,7 +28,11 @@ services:
     depends_on:
       - temporal
   api:
-    build: .
+    build:
+      context: .
+      args:
+        GOPROXY: ${GOPROXY:-https://proxy.golang.org,https://goproxy.io,direct}
+        GOSUMDB: ${GOSUMDB:-sum.golang.org}
     working_dir: /app
     volumes:
       - ./:/app
@@ -43,7 +47,11 @@ services:
       - postgres
       - temporal
   worker:
-    build: .
+    build:
+      context: .
+      args:
+        GOPROXY: ${GOPROXY:-https://proxy.golang.org,https://goproxy.io,direct}
+        GOSUMDB: ${GOSUMDB:-sum.golang.org}
     working_dir: /app
     volumes:
       - ./:/app

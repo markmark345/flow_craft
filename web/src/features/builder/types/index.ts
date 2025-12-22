@@ -10,6 +10,7 @@ export type BuilderNodeType =
   | "database"
   | "delay"
   | "if"
+  | "merge"
   | "switch";
 
 export type FlowNodeData = {

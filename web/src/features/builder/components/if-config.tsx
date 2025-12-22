@@ -191,6 +191,10 @@ export function IfConfig({
     <div className="space-y-5">
       <div className="space-y-2">
         <div className="text-xs font-bold uppercase tracking-wide text-muted">Conditions</div>
+        <p className="text-xs text-muted">
+          Use <code>input.</code> for the previous output and <code>steps.&lt;nodeId&gt;</code> for other steps
+          (shown in the inspector). Wrap right-side paths in <code>{"{{ ... }}"}</code>.
+        </p>
 
         {state.conditions.map((cond) => {
           const needsValue = operatorNeedsValue(cond.type, cond.operator);
@@ -243,14 +247,14 @@ export function IfConfig({
                 <Input
                   value={cond.left}
                   onChange={(e) => updateCondition(cond.id, { left: e.target.value })}
-                  placeholder="value1 (e.g. input.status)"
+                  placeholder="value1 (e.g. input.status or steps.node_2c0a8.data.name)"
                   className="h-10 rounded-lg bg-panel font-mono"
                 />
                 {needsValue ? (
                   <Input
                     value={cond.right}
                     onChange={(e) => updateCondition(cond.id, { right: e.target.value })}
-                    placeholder="value2"
+                    placeholder="value2 (literal or {{steps.node_2c0a8.data.name}})"
                     className="h-10 rounded-lg bg-panel font-mono"
                   />
                 ) : null}
@@ -321,4 +325,3 @@ export function IfConfig({
     </div>
   );
 }
-

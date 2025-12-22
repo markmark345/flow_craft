@@ -10,9 +10,8 @@ import { useAuthStore } from "@/features/auth/store/use-auth-store";
 import { useLogout } from "@/features/auth/hooks/use-logout";
 import { useEffect, useState } from "react";
 import { useWorkspaceStore } from "@/features/workspaces/store/use-workspace-store";
-import { ConfirmDialog } from "@/shared/components/confirm-dialog";
-import { Input } from "@/shared/components/input";
 import { createProject } from "@/features/projects/services/projectsApi";
+import { CreateProjectModal } from "@/features/projects/components/create-project-modal";
 
 const nav = [
   { label: "Overview", href: "/", icon: "dashboard" },
@@ -57,6 +56,27 @@ export function Sidebar() {
   const [newProjectName, setNewProjectName] = useState("");
   const [newProjectDescription, setNewProjectDescription] = useState("");
 
+  const handleCreateProject = async () => {
+    const name = newProjectName.trim();
+    if (!name) {
+      showError("Create failed", "Project name is required.");
+      return;
+    }
+    setCreatingProject(true);
+    try {
+      const created = await createProject({ name, description: newProjectDescription.trim() || undefined });
+      await loadProjects();
+      setActiveProject(created.id);
+      showSuccess("Project created", created.name);
+      setCreateProjectOpen(false);
+      router.push("/flows");
+    } catch (err: any) {
+      showError("Create failed", err?.message || "Unable to create project");
+    } finally {
+      setCreatingProject(false);
+    }
+  };
+
   const initials = (() => {
     const name = (user?.name || "").trim();
     if (name) {
@@ -68,7 +88,7 @@ export function Sidebar() {
     return "U";
   })();
   return (
-    <aside className="w-[260px] shrink-0 border-r border-border bg-panel flex flex-col h-screen z-20">
+    <aside className="w-[260px] shrink-0 border-r border-border bg-panel flex flex-col h-full overflow-y-auto z-20">
       <div className="flex h-full flex-col justify-between p-4">
         <div className="flex flex-col gap-6">
           <div className="px-2">
@@ -268,49 +288,15 @@ export function Sidebar() {
         </div>
       </div>
 
-      <ConfirmDialog
+      <CreateProjectModal
         open={createProjectOpen}
-        title="Create project"
-        description={
-          <div className="space-y-3">
-            <div className="space-y-1">
-              <div className="text-xs font-medium text-muted">Name</div>
-              <Input value={newProjectName} onChange={(e) => setNewProjectName(e.target.value)} className="h-10" />
-            </div>
-            <div className="space-y-1">
-              <div className="text-xs font-medium text-muted">Description</div>
-              <Input
-                value={newProjectDescription}
-                onChange={(e) => setNewProjectDescription(e.target.value)}
-                className="h-10"
-              />
-            </div>
-          </div>
-        }
-        confirmLabel="Create"
-        confirmVariant="primary"
-        loading={creatingProject}
-        onConfirm={async () => {
-          const name = newProjectName.trim();
-          if (!name) {
-            showError("Create failed", "Project name is required.");
-            return;
-          }
-          setCreatingProject(true);
-          try {
-            const created = await createProject({ name, description: newProjectDescription.trim() || undefined });
-            await loadProjects();
-            setActiveProject(created.id);
-            showSuccess("Project created", created.name);
-            setCreateProjectOpen(false);
-            router.push("/flows");
-          } catch (err: any) {
-            showError("Create failed", err?.message || "Unable to create project");
-          } finally {
-            setCreatingProject(false);
-          }
-        }}
+        name={newProjectName}
+        description={newProjectDescription}
+        creating={creatingProject}
+        onNameChange={setNewProjectName}
+        onDescriptionChange={setNewProjectDescription}
         onClose={() => setCreateProjectOpen(false)}
+        onCreate={handleCreateProject}
       />
     </aside>
   );

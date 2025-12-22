@@ -91,6 +91,9 @@
   - Triggers: output handle only (no input).
   - If: two outputs (true/false) + quick-add default connects to "true".
   - Quick-add "+" appears on hover/selected; opens node picker with search; selecting adds a node to the right and auto-connects.
+- Merge: utility node to combine outputs from previously executed steps into a single payload.
+- If condition fields accept input paths (example: `input.data.name` or `{{data.name}}`). Right-side values are literal unless wrapped in `{{...}}` or prefixed with `input.`.
+- If conditions can also reference other step outputs via `steps.<nodeId>.data.<field>` (use the node code shown in the inspector).
 - Zoom + fit-to-screen; minimap drag to pan.
 - Sticky notes are free-form, color selectable, not part of execution.
 - Save debounced with toast; Run opens logs drawer streaming lines; clicking a log focuses node.
@@ -101,4 +104,3 @@
 ## Microcopy
 - Empty states: "No flows yet. Create your first automation." / "No runs found for this filter." / "Drag a node here to start building." / "No logs yet. Run the flow to see execution output."
 - Toasts: "Saved changes." / "Run started…" / "Run succeeded." / "Run failed. Check logs." / "Version switched."
-

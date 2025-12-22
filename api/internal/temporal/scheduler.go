@@ -32,7 +32,7 @@ type FlowCronScheduler struct {
 func NewFlowCronScheduler(db *sql.DB, temporalClient client.Client) *FlowCronScheduler {
 	return &FlowCronScheduler{
 		flows:         repositories.NewFlowRepository(db),
-		runs:          services.NewRunService(repositories.NewRunRepository(db)),
+		runs:          services.NewRunService(repositories.NewRunRepository(db), nil),
 		temporal:      temporalClient,
 		currentByFlow: map[string]string{},
 	}

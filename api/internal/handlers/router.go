@@ -66,7 +66,7 @@ func NewRouter(cfg config.Config, db *sql.DB, logger zerolog.Logger, temporalCli
 	projectMemberRepo := repositories.NewProjectMemberRepository(db)
 
 	flowSvc := services.NewFlowService(flowRepo, projectMemberRepo)
-	runSvc := services.NewRunService(runRepo)
+	runSvc := services.NewRunService(runRepo, projectMemberRepo)
 	runStepSvc := services.NewRunStepService(runStepRepo)
 	systemSvc := services.NewSystemService(systemRepo)
 	authSvc := services.NewAuthService(userRepo, sessionRepo)

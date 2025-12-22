@@ -2,10 +2,13 @@ import { useCallback, useEffect, useState } from "react";
 import { useRunsStore } from "../store/use-runs-store";
 import { listRuns } from "../services/runsApi";
 import { useAppStore } from "@/shared/hooks/use-app-store";
+import { useWorkspaceStore } from "@/features/workspaces/store/use-workspace-store";
 
 export function useRunsQuery() {
   const setRuns = useRunsStore((s) => s.setRuns);
   const showError = useAppStore((s) => s.showError);
+  const scope = useWorkspaceStore((s) => s.activeScope);
+  const projectId = useWorkspaceStore((s) => s.activeProjectId);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | undefined>(undefined);
 
@@ -13,7 +16,11 @@ export function useRunsQuery() {
     setLoading(true);
     setError(undefined);
     try {
-      const runs = await listRuns();
+      if (scope === "project" && !projectId) {
+        setRuns([]);
+        return;
+      }
+      const runs = await listRuns({ scope, projectId });
       setRuns(runs);
     } catch (err: any) {
       const msg = err?.message || "Failed to load runs";
@@ -22,11 +29,11 @@ export function useRunsQuery() {
     } finally {
       setLoading(false);
     }
-  }, [setRuns, showError]);
+  }, [projectId, scope, setRuns, showError]);
 
   useEffect(() => {
     reload();
-  }, [reload]);
+  }, [reload, scope, projectId]);
 
   return { loading, error, reload };
 }

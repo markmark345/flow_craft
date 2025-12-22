@@ -35,29 +35,7 @@ func (r *RunRepository) List(ctx context.Context) ([]entities.Run, error) {
 	}
 	defer rows.Close()
 
-	var items []entities.Run
-	for rows.Next() {
-		var rItem entities.Run
-		var startedAt sql.NullTime
-		var finishedAt sql.NullTime
-		var createdAt time.Time
-		var updatedAt time.Time
-		if err := rows.Scan(&rItem.ID, &rItem.FlowID, &rItem.Status, &startedAt, &finishedAt, &rItem.Log, &rItem.TemporalWorkflow, &createdAt, &updatedAt); err != nil {
-			return nil, err
-		}
-		if startedAt.Valid {
-			t := startedAt.Time
-			rItem.StartedAt = &t
-		}
-		if finishedAt.Valid {
-			t := finishedAt.Time
-			rItem.FinishedAt = &t
-		}
-		rItem.CreatedAt = createdAt
-		rItem.UpdatedAt = updatedAt
-		items = append(items, rItem)
-	}
-	return items, rows.Err()
+	return scanRunRows(rows)
 }
 
 func (r *RunRepository) ListForUser(ctx context.Context, userID string) ([]entities.Run, error) {
@@ -76,29 +54,39 @@ func (r *RunRepository) ListForUser(ctx context.Context, userID string) ([]entit
 	}
 	defer rows.Close()
 
-	var items []entities.Run
-	for rows.Next() {
-		var rItem entities.Run
-		var startedAt sql.NullTime
-		var finishedAt sql.NullTime
-		var createdAt time.Time
-		var updatedAt time.Time
-		if err := rows.Scan(&rItem.ID, &rItem.FlowID, &rItem.Status, &startedAt, &finishedAt, &rItem.Log, &rItem.TemporalWorkflow, &createdAt, &updatedAt); err != nil {
-			return nil, err
-		}
-		if startedAt.Valid {
-			t := startedAt.Time
-			rItem.StartedAt = &t
-		}
-		if finishedAt.Valid {
-			t := finishedAt.Time
-			rItem.FinishedAt = &t
-		}
-		rItem.CreatedAt = createdAt
-		rItem.UpdatedAt = updatedAt
-		items = append(items, rItem)
+	return scanRunRows(rows)
+}
+
+func (r *RunRepository) ListByOwner(ctx context.Context, userID string) ([]entities.Run, error) {
+	rows, err := r.db.QueryContext(ctx, `
+        SELECT r.id, r.flow_id, r.status, r.started_at, r.finished_at, r.log, r.temporal_workflow_id, r.created_at, r.updated_at
+        FROM runs r
+        JOIN flows f ON f.id = r.flow_id
+        WHERE f.scope = 'personal' AND (f.owner_user_id = $1 OR (f.owner_user_id IS NULL AND f.created_by = $1))
+        ORDER BY r.created_at DESC
+    `, userID)
+	if err != nil {
+		return nil, err
 	}
-	return items, rows.Err()
+	defer rows.Close()
+
+	return scanRunRows(rows)
+}
+
+func (r *RunRepository) ListByProject(ctx context.Context, projectID string) ([]entities.Run, error) {
+	rows, err := r.db.QueryContext(ctx, `
+        SELECT r.id, r.flow_id, r.status, r.started_at, r.finished_at, r.log, r.temporal_workflow_id, r.created_at, r.updated_at
+        FROM runs r
+        JOIN flows f ON f.id = r.flow_id
+        WHERE f.scope = 'project' AND f.project_id = $1
+        ORDER BY r.created_at DESC
+    `, projectID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	return scanRunRows(rows)
 }
 
 func (r *RunRepository) Get(ctx context.Context, id string) (*entities.Run, error) {
@@ -186,4 +174,30 @@ func (r *RunRepository) UpdateStatus(ctx context.Context, id string, status stri
 		return utils.ErrNotFound
 	}
 	return nil
+}
+
+func scanRunRows(rows *sql.Rows) ([]entities.Run, error) {
+	var items []entities.Run
+	for rows.Next() {
+		var rItem entities.Run
+		var startedAt sql.NullTime
+		var finishedAt sql.NullTime
+		var createdAt time.Time
+		var updatedAt time.Time
+		if err := rows.Scan(&rItem.ID, &rItem.FlowID, &rItem.Status, &startedAt, &finishedAt, &rItem.Log, &rItem.TemporalWorkflow, &createdAt, &updatedAt); err != nil {
+			return nil, err
+		}
+		if startedAt.Valid {
+			t := startedAt.Time
+			rItem.StartedAt = &t
+		}
+		if finishedAt.Valid {
+			t := finishedAt.Time
+			rItem.FinishedAt = &t
+		}
+		rItem.CreatedAt = createdAt
+		rItem.UpdatedAt = updatedAt
+		items = append(items, rItem)
+	}
+	return items, rows.Err()
 }

@@ -206,6 +206,16 @@ export const NODE_CATALOG: Record<BuilderNodeType, NodeCatalogItem> = {
       return left.length > 0 && operator.length > 0;
     },
   },
+  merge: {
+    type: "merge",
+    label: "Merge",
+    category: "Utilities",
+    description: "Combine outputs from multiple steps",
+    accent: "accent",
+    op: "util.merge",
+    fields: [],
+    defaultConfig: {},
+  },
   switch: {
     type: "switch",
     label: "Switch",

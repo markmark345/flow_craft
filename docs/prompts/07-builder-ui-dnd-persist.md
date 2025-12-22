@@ -124,6 +124,7 @@ Triggers:
   Utilities:
 - delay
 - if
+- merge
 - switch
 
 Node UI can be same base style for now, but should look polished.
@@ -134,6 +135,8 @@ Nice-to-have (n8n-like):
 - Triggers have output handle only (no input).
 - `if` has two outputs ("true"/"false").
 - Each node has a quick-add "+" button that opens a small node picker (search + categories). Selecting an item adds a new node to the right and auto-connects.
+- If condition editor should accept input paths (example: `input.data.name` or `{{data.name}}`). Right-side values are literal unless wrapped in `{{...}}` or prefixed with `input.`.
+- If conditions can reference other steps via `steps.<nodeId>.data.<field>` (node id shown in the inspector). Merge node combines outputs from previously executed steps for downstream use.
 
 ---
 
@@ -222,4 +225,3 @@ After completion print:
   5. Refresh page and see nodes persist
 
 Proceed now.
-

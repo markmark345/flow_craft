@@ -1,0 +1,115 @@
+"use client";
+
+import { useEffect } from "react";
+import { Button } from "@/shared/components/button";
+import { Input } from "@/shared/components/input";
+import { Icon } from "@/shared/components/icon";
+
+type Props = {
+  open: boolean;
+  name: string;
+  description: string;
+  creating: boolean;
+  onNameChange: (value: string) => void;
+  onDescriptionChange: (value: string) => void;
+  onClose: () => void;
+  onCreate: () => void;
+};
+
+export function CreateProjectModal({
+  open,
+  name,
+  description,
+  creating,
+  onNameChange,
+  onDescriptionChange,
+  onClose,
+  onCreate,
+}: Props) {
+  useEffect(() => {
+    if (!open) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [open, onClose]);
+
+  if (!open) return null;
+
+  const disabled = creating || !name.trim();
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/60 backdrop-blur-sm"
+      onClick={onClose}
+    >
+      <div
+        className="relative w-full max-w-md rounded-2xl bg-panel border border-border shadow-lift overflow-hidden"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <button
+          type="button"
+          onClick={onClose}
+          className="absolute right-4 top-4 text-muted hover:text-text transition-colors rounded-full p-1"
+          aria-label="Close"
+        >
+          <Icon name="close" className="text-[18px]" />
+        </button>
+
+        <div className="px-8 pt-8 pb-2">
+          <h2 className="text-xl font-bold text-text">Create project</h2>
+        </div>
+
+        <form
+          onSubmit={(event) => {
+            event.preventDefault();
+            if (!disabled) onCreate();
+          }}
+        >
+          <div className="px-8 py-4 space-y-5">
+            <div className="space-y-1.5">
+              <label className="block text-sm font-semibold text-muted" htmlFor="create-project-name">
+                Name
+              </label>
+              <Input
+                id="create-project-name"
+                value={name}
+                onChange={(event) => onNameChange(event.target.value)}
+                className="h-11 rounded-lg"
+                autoFocus
+                disabled={creating}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="block text-sm font-semibold text-muted" htmlFor="create-project-description">
+                Description
+              </label>
+              <Input
+                id="create-project-description"
+                value={description}
+                onChange={(event) => onDescriptionChange(event.target.value)}
+                className="h-11 rounded-lg"
+                disabled={creating}
+              />
+            </div>
+          </div>
+
+          <div className="px-8 pt-4 pb-8 flex items-center justify-end gap-3">
+            <button
+              type="button"
+              className="text-sm font-medium text-muted hover:text-text transition-colors"
+              onClick={onClose}
+              disabled={creating}
+            >
+              Cancel
+            </button>
+            <Button type="submit" disabled={disabled} className="rounded-lg px-6">
+              {creating ? "Creating..." : "Create"}
+            </Button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}

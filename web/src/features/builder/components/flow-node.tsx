@@ -88,7 +88,7 @@ export function FlowNode({ id, data, selected }: NodeProps<FlowNodeData>) {
   const popupTop = isIf ? (pickerSourceHandle === "false" ? ifFalseTop : ifTrueTop) : "50%";
 
   const handleOutsideX = 6;
-  const labelOutsideX = 22;
+  const labelOutsideX = 18;
 
   const outputHandleClass =
     "!w-3 !h-3 !rounded-full !border-[2.5px] shadow-soft cursor-crosshair transition-transform hover:scale-125 relative " +
@@ -263,13 +263,13 @@ export function FlowNode({ id, data, selected }: NodeProps<FlowNodeData>) {
             />
             <div
               className="absolute text-[10px] text-muted select-none -translate-y-1/2"
-              style={{ top: ifTrueTop, right: -labelOutsideX }}
+              style={{ top: ifTrueTop, left: `calc(100% + ${labelOutsideX}px)` }}
             >
               true
             </div>
             <div
               className="absolute text-[10px] text-muted select-none -translate-y-1/2"
-              style={{ top: ifFalseTop, right: -labelOutsideX }}
+              style={{ top: ifFalseTop, left: `calc(100% + ${labelOutsideX}px)` }}
             >
               false
             </div>

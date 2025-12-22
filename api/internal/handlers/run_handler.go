@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -99,11 +100,29 @@ func stepToResponse(step entities.RunStep) dto.RunStepResponse {
 }
 
 func (h *RunHandler) list(c *gin.Context) {
+	scope := strings.TrimSpace(c.Query("scope"))
+	projectID := strings.TrimSpace(c.Query("projectId"))
 	user, _ := currentAuthUser(c)
-	runs, err := h.runs.ListForUser(c, user.ID)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, dto.ResponseEnvelope{Error: &dto.ErrorBody{Code: "internal", Message: err.Error()}})
-		return
+	var (
+		runs []entities.Run
+		err  error
+	)
+	if scope == "" {
+		runs, err = h.runs.ListForUser(c, user.ID)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, dto.ResponseEnvelope{Error: &dto.ErrorBody{Code: "internal", Message: err.Error()}})
+			return
+		}
+	} else {
+		runs, err = h.runs.ListScopedForUser(c, user, scope, projectID)
+		if err != nil {
+			if err == utils.ErrForbidden {
+				c.JSON(http.StatusForbidden, dto.ResponseEnvelope{Error: &dto.ErrorBody{Code: "forbidden", Message: "forbidden"}})
+				return
+			}
+			c.JSON(http.StatusBadRequest, dto.ResponseEnvelope{Error: &dto.ErrorBody{Code: "bad_request", Message: err.Error()}})
+			return
+		}
 	}
 	out := make([]dto.RunResponse, 0, len(runs))
 	for _, r := range runs {

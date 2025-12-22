@@ -119,6 +119,25 @@ export function NodeIcon({
           />
         </svg>
       );
+    case "merge":
+      return (
+        <svg className={common} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path
+            d="M4 6h5l4 6h7"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M4 18h5l4-6"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      );
     case "if":
     case "switch":
       return (
@@ -151,4 +170,3 @@ export function NodeIcon({
       );
   }
 }
-
