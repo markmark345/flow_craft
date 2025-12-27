@@ -3,17 +3,19 @@ package handlers
 import (
 	"database/sql"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/rs/zerolog"
 	"go.temporal.io/sdk/client"
 
 	"flowcraft-api/internal/config"
 	"flowcraft-api/internal/dto"
+	"flowcraft-api/internal/mailer"
 	"flowcraft-api/internal/repositories"
 	"flowcraft-api/internal/services"
 	"flowcraft-api/internal/utils"
-	"github.com/rs/zerolog"
 )
 
 func NewRouter(cfg config.Config, db *sql.DB, logger zerolog.Logger, temporalClient client.Client) *gin.Engine {
@@ -62,6 +64,10 @@ func NewRouter(cfg config.Config, db *sql.DB, logger zerolog.Logger, temporalCli
 	systemRepo := repositories.NewSystemRepository(db)
 	userRepo := repositories.NewUserRepository(db)
 	sessionRepo := repositories.NewAuthSessionRepository(db)
+	passwordResetRepo := repositories.NewPasswordResetRepository(db)
+	oauthAccountRepo := repositories.NewOAuthAccountRepository(db)
+	credentialRepo := repositories.NewCredentialRepository(db)
+	variableRepo := repositories.NewVariableRepository(db)
 	projectRepo := repositories.NewProjectRepository(db)
 	projectMemberRepo := repositories.NewProjectMemberRepository(db)
 
@@ -69,14 +75,56 @@ func NewRouter(cfg config.Config, db *sql.DB, logger zerolog.Logger, temporalCli
 	runSvc := services.NewRunService(runRepo, projectMemberRepo)
 	runStepSvc := services.NewRunStepService(runStepRepo)
 	systemSvc := services.NewSystemService(systemRepo)
-	authSvc := services.NewAuthService(userRepo, sessionRepo)
 	projectSvc := services.NewProjectService(projectRepo, projectMemberRepo, userRepo, flowRepo)
+	variableSvc := services.NewVariableService(variableRepo, projectMemberRepo)
+
+	credSvc, err := services.NewCredentialService(credentialRepo, projectMemberRepo, cfg.CredentialsEncKey)
+	if err != nil {
+		logger.Error().Err(err).Msg("invalid credentials encryption key")
+		credSvc = nil
+	}
+
+	parseBool := func(value string) bool {
+		parsed, err := strconv.ParseBool(strings.TrimSpace(value))
+		return err == nil && parsed
+	}
+	mail := (*mailer.Mailer)(nil)
+	if strings.TrimSpace(cfg.SMTPHost) != "" && strings.TrimSpace(cfg.SMTPFrom) != "" {
+		port, err := strconv.Atoi(strings.TrimSpace(cfg.SMTPPort))
+		if err != nil || port == 0 {
+			port = 587
+		}
+		cfgMailer := mailer.Config{
+			Host:        cfg.SMTPHost,
+			Port:        port,
+			Username:    cfg.SMTPUser,
+			Password:    cfg.SMTPPass,
+			From:        cfg.SMTPFrom,
+			UseTLS:      parseBool(cfg.SMTPUseTLS),
+			UseStartTLS: parseBool(cfg.SMTPUseStartTLS),
+			AppBaseURL:  cfg.AppBaseURL,
+			SupportURL:  cfg.SMTPSupportURL,
+		}
+		instance, err := mailer.New(cfgMailer)
+		if err != nil {
+			logger.Error().Err(err).Msg("failed to initialize mailer")
+		} else {
+			mail = instance
+		}
+	}
+
+	authSvc := services.NewAuthService(userRepo, sessionRepo, passwordResetRepo, mail, cfg.AppBaseURL)
 
 	flowHandler := NewFlowHandler(flowSvc)
 	runHandler := NewRunHandler(runSvc, flowSvc, runStepSvc, temporalClient)
 	systemHandler := NewSystemHandler(systemSvc)
-	authHandler := NewAuthHandler(authSvc)
+	authHandler := NewAuthHandler(authSvc, userRepo, oauthAccountRepo, credSvc, cfg)
 	projectHandler := NewProjectHandler(projectSvc)
+	variableHandler := NewVariableHandler(variableSvc)
+	var credentialHandler *CredentialHandler
+	if credSvc != nil {
+		credentialHandler = NewCredentialHandler(credSvc, cfg)
+	}
 
 	authHandler.Register(apiPublic)
 
@@ -117,6 +165,10 @@ func NewRouter(cfg config.Config, db *sql.DB, logger zerolog.Logger, temporalCli
 	runHandler.Register(apiProtected)
 	systemHandler.Register(apiProtected)
 	projectHandler.Register(apiProtected)
+	if credentialHandler != nil {
+		credentialHandler.Register(apiProtected)
+	}
+	variableHandler.Register(apiProtected)
 	apiProtected.POST("/flows/:id/run", runHandler.CreateForFlow)
 	apiProtected.POST("/workflows/:id/run", runHandler.CreateForFlow)
 

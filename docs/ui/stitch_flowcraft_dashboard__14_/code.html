@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Add New Credential Modal</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#ff6d5a", // Extracted from the "Create credential" button color
+                        "background-light": "#f9fafb", // Light gray background
+                        "background-dark": "#1f2937", // Dark mode background
+                        "surface-light": "#ffffff",
+                        "surface-dark": "#374151",
+                        "border-light": "#e5e7eb",
+                        "border-dark": "#4b5563",
+                    },
+                    fontFamily: {
+                        display: ["Inter", "sans-serif"],
+                    },
+                    borderRadius: {
+                        DEFAULT: "0.5rem",
+                    },
+                    boxShadow: {
+                        'lift': '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+                        'modal': '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+                    }
+                },
+            },
+        };
+    </script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet"/>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-500/50 dark:bg-gray-900/80 min-h-screen flex items-center justify-center font-display antialiased">
+<div aria-hidden="true" class="fixed inset-0 bg-gray-600/50 dark:bg-black/60 transition-opacity backdrop-blur-sm"></div>
+<div class="relative z-10 w-full max-w-[600px] p-4">
+<div class="bg-surface-light dark:bg-surface-dark rounded-xl shadow-modal transform transition-all w-full overflow-hidden border border-gray-100 dark:border-gray-600">
+<div class="px-8 pt-8 pb-4 relative">
+<div class="flex items-center justify-between mb-2">
+<h2 class="text-xl font-semibold text-gray-900 dark:text-white">Add new credential</h2>
+<button class="text-gray-400 hover:text-gray-500 dark:text-gray-400 dark:hover:text-gray-300 focus:outline-none transition-colors">
+<span class="material-icons-outlined text-xl">close</span>
+</button>
+</div>
+<p class="text-sm text-gray-500 dark:text-gray-400">Select an app or service to connect to</p>
+</div>
+<div class="px-8 pb-10">
+<div class="relative group">
+<div class="relative">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+<span class="material-icons-outlined text-gray-400 text-xl">search</span>
+</div>
+<input autofocus="" class="block w-full pl-10 pr-10 py-3 border border-indigo-500 rounded-md leading-5 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm shadow-sm transition-shadow" placeholder="Search for app..." type="text" value="A"/>
+<div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+<span class="material-icons-outlined text-gray-400 text-xl transform rotate-180">expand_less</span>
+</div>
+</div>
+<div class="absolute z-20 mt-1 w-full bg-white dark:bg-gray-800 shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm border border-gray-100 dark:border-gray-700">
+<ul class="divide-y divide-gray-100 dark:divide-gray-700" role="listbox">
+<li class="cursor-pointer select-none relative py-2.5 pl-3 pr-9 hover:bg-gray-50 dark:hover:bg-gray-700 bg-gray-50 dark:bg-gray-700/50" role="option">
+<div class="flex items-center">
+<span class="font-normal block truncate text-gray-900 dark:text-gray-100">
+                                        Action Network API
+                                    </span>
+</div>
+</li>
+<li class="cursor-pointer select-none relative py-2.5 pl-3 pr-9 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors" role="option">
+<div class="flex items-center">
+<span class="font-normal block truncate text-gray-900 dark:text-gray-100">
+                                        ActiveCampaign API
+                                    </span>
+</div>
+</li>
+<li class="cursor-pointer select-none relative py-2.5 pl-3 pr-9 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors" role="option">
+<div class="flex items-center">
+<span class="font-normal block truncate text-gray-900 dark:text-gray-100">
+                                        Acuity Scheduling API
+                                    </span>
+</div>
+</li>
+<li class="cursor-pointer select-none relative py-2.5 pl-3 pr-9 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors" role="option">
+<div class="flex items-center">
+<span class="font-normal block truncate text-gray-900 dark:text-gray-100">
+                                        AcuityScheduling OAuth2 API
+                                    </span>
+</div>
+</li>
+<li class="cursor-pointer select-none relative py-2.5 pl-3 pr-9 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors" role="option">
+<div class="flex items-center">
+<span class="font-normal block truncate text-gray-900 dark:text-gray-100">
+                                        Adalo API
+                                    </span>
+</div>
+</li>
+<li class="cursor-pointer select-none relative py-2.5 pl-3 pr-9 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors" role="option">
+<div class="flex items-center">
+<span class="font-normal block truncate text-gray-900 dark:text-gray-100">
+                                        Affinity API
+                                    </span>
+</div>
+</li>
+<li class="cursor-pointer select-none relative py-2.5 pl-3 pr-9 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors" role="option">
+<div class="flex items-center">
+<span class="font-normal block truncate text-gray-900 dark:text-gray-100">
+                                        AgileCRM API
+                                    </span>
+</div>
+</li>
+<li class="cursor-pointer select-none relative py-2.5 pl-3 pr-9 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors" role="option">
+<div class="flex items-center">
+<span class="font-normal block truncate text-gray-900 dark:text-gray-100">
+                                        Airtable API
+                                    </span>
+</div>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+</body></html>

@@ -3,6 +3,7 @@ import { getFlow } from "@/features/flows/services/flowsApi";
 import { useBuilderStore } from "../store/use-builder-store";
 import { useAppStore } from "@/shared/hooks/use-app-store";
 import { SerializedFlow } from "../types";
+import { useWorkspaceStore } from "@/features/workspaces/store/use-workspace-store";
 
 export function useBuilderLoad(flowId?: string) {
   const [loading, setLoading] = useState(false);
@@ -11,35 +12,42 @@ export function useBuilderLoad(flowId?: string) {
   const setFlowId = useBuilderStore((s) => s.setFlowId);
   const markSaved = useBuilderStore((s) => s.markSaved);
   const showError = useAppStore((s) => s.showError);
+  const setScope = useWorkspaceStore((s) => s.setScope);
+  const setActiveProject = useWorkspaceStore((s) => s.setActiveProject);
 
   useEffect(() => {
     if (!flowId) return;
     const run = async () => {
       setLoading(true);
       setError(undefined);
-		try {
-			const data = await getFlow(flowId);
-			setFlowId(flowId);
-			let def: SerializedFlow | undefined;
-			if (data.definitionJson) {
-				try {
-					def = JSON.parse(data.definitionJson) as SerializedFlow;
-				} catch {
-					def = undefined;
-				}
-			}
-			if (!def) {
-				def = {
-					id: flowId,
-					name: data.name,
-					version: 1,
-					reactflow: { nodes: [], edges: [], viewport: { x: 0, y: 0, zoom: 1 } },
-					notes: [],
-				};
-			}
-			hydrate(def, data.name);
-			markSaved();
-		} catch (err: any) {
+      try {
+        const data = await getFlow(flowId);
+        if (data.scope === "project" && data.projectId) {
+          setActiveProject(data.projectId);
+        } else {
+          setScope("personal");
+        }
+        setFlowId(flowId);
+        let def: SerializedFlow | undefined;
+        if (data.definitionJson) {
+          try {
+            def = JSON.parse(data.definitionJson) as SerializedFlow;
+          } catch {
+            def = undefined;
+          }
+        }
+        if (!def) {
+          def = {
+            id: flowId,
+            name: data.name,
+            version: 1,
+            reactflow: { nodes: [], edges: [], viewport: { x: 0, y: 0, zoom: 1 } },
+            notes: [],
+          };
+        }
+        hydrate(def, data.name);
+        markSaved();
+      } catch (err: any) {
         const msg = err?.message || "Failed to load flow";
         setError(msg);
         showError("Load failed", msg);
@@ -48,7 +56,7 @@ export function useBuilderLoad(flowId?: string) {
       }
     };
     run();
-  }, [flowId, hydrate, markSaved, setFlowId, showError]);
+  }, [flowId, hydrate, markSaved, setActiveProject, setFlowId, setScope, showError]);
 
   return { loading, error };
 }

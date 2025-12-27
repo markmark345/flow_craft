@@ -11,6 +11,7 @@ import { Icon } from "@/shared/components/icon";
 import { Input } from "@/shared/components/input";
 import { Panel } from "@/shared/components/panel";
 import { useAppStore } from "@/shared/hooks/use-app-store";
+import { API_BASE_URL } from "@/shared/lib/env";
 
 import { useLogin } from "../hooks/use-login";
 
@@ -51,6 +52,11 @@ export function LoginPage() {
     }
   };
 
+  const startOAuth = (provider: "google" | "github") => {
+    const target = `${API_BASE_URL}/auth/oauth/${provider}/start?next=${encodeURIComponent(next)}`;
+    window.location.href = target;
+  };
+
   return (
     <div className="min-h-screen grid-background flex flex-col items-center justify-center px-4 py-12">
       <Panel className="w-full max-w-[420px] bg-panel rounded-2xl shadow-lift border border-border">
@@ -84,13 +90,12 @@ export function LoginPage() {
             <div className="space-y-2">
               <div className="flex items-center justify-between gap-2">
                 <label className="text-xs font-semibold text-muted uppercase tracking-wide">Password</label>
-                <button
-                  type="button"
+                <Link
+                  href={`/forgot-password?next=${encodeURIComponent(next)}` as Route}
                   className="text-xs font-medium text-accent hover:underline"
-                  onClick={() => showInfo("Forgot password", "Password recovery is not implemented yet.")}
                 >
                   Forgot password?
-                </button>
+                </Link>
               </div>
 
               <div className="relative">
@@ -146,7 +151,7 @@ export function LoginPage() {
               <Button
                 variant="secondary"
                 className="h-11 rounded-lg"
-                onClick={() => showInfo("GitHub", "SSO is not implemented yet.")}
+                onClick={() => startOAuth("github")}
               >
                 <Icon name="github" className="text-[18px] mr-2" />
                 GitHub
@@ -154,7 +159,7 @@ export function LoginPage() {
               <Button
                 variant="secondary"
                 className="h-11 rounded-lg"
-                onClick={() => showInfo("Google", "SSO is not implemented yet.")}
+                onClick={() => startOAuth("google")}
               >
                 <Icon name="google" className="text-[18px] mr-2" />
                 Google

@@ -33,6 +33,8 @@ services:
       args:
         GOPROXY: ${GOPROXY:-https://proxy.golang.org,https://goproxy.io,direct}
         GOSUMDB: ${GOSUMDB:-sum.golang.org}
+    env_file:
+      - .env
     working_dir: /app
     volumes:
       - ./:/app
@@ -52,6 +54,8 @@ services:
       args:
         GOPROXY: ${GOPROXY:-https://proxy.golang.org,https://goproxy.io,direct}
         GOSUMDB: ${GOSUMDB:-sum.golang.org}
+    env_file:
+      - .env
     working_dir: /app
     volumes:
       - ./:/app

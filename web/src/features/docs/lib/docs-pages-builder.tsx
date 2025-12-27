@@ -62,6 +62,80 @@ export const BUILDER_PAGES: Record<string, DocsPage> = {
       ),
     ],
   },
+  "/docs/builder/app-action": {
+    title: "Action in an app",
+    breadcrumb: [
+      { label: "Docs", href: "/docs" },
+      { label: "Workflow Builder", href: "/docs/builder/overview" },
+      { label: "Action in an app" },
+    ],
+    description: "Call external apps like Google Sheets, Gmail, and GitHub from a single node.",
+    sections: [
+      section(
+        "connect",
+        "Connect credentials",
+        prose(
+          <>
+            <p>
+              Before using app actions, connect accounts in{" "}
+              <strong>Settings → Credentials</strong> (personal) or{" "}
+              <strong>Project → Credentials</strong> (project).
+            </p>
+            <p>
+              The node will use the selected <code>credentialId</code> to fetch an access token and call the provider API.
+            </p>
+          </>
+        )
+      ),
+      section(
+        "configure",
+        "Configure the node",
+        prose(
+          <>
+            <p>
+              Add <strong>Action in an app</strong> from the node palette, then choose:
+            </p>
+            <ul>
+              <li>
+                <strong>App</strong> (Google Sheets / Gmail / GitHub)
+              </li>
+              <li>
+                <strong>Action</strong> (searchable list)
+              </li>
+              <li>
+                <strong>Credential</strong> to run the action with
+              </li>
+            </ul>
+          </>
+        )
+      ),
+      section(
+        "examples",
+        "Examples",
+        <>
+          <CodeTabs
+            tabs={[
+              {
+                id: "sheets",
+                label: "Google Sheets (Append row)",
+                code: `App: Google Sheets\nAction: Append row in sheet\nSpreadsheet ID: 1AbcD...XYZ\nSheet name: Sheet1\nRow values: [\"value1\",\"value2\"]`,
+              },
+              {
+                id: "gmail",
+                label: "Gmail (Send email)",
+                code: `App: Gmail\nAction: Send email\nTo: recipient@example.com\nSubject: Hello\nBody (text): Hi from FlowCraft`,
+              },
+              {
+                id: "github",
+                label: "GitHub (Create issue)",
+                code: `App: GitHub\nAction: Create an issue\nOwner: octocat\nRepository: hello-world\nTitle: Bug report\nBody: Details...`,
+              },
+            ]}
+          />
+        </>
+      ),
+    ],
+  },
   "/docs/builder/http-request": {
     title: "HTTP Request Node",
     breadcrumb: [

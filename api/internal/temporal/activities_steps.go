@@ -67,11 +67,46 @@ func buildStepInputs(nodeType string, config map[string]any, runID string, stepK
 		if method := readString(config, "method"); method != "" {
 			inputs["method"] = strings.ToUpper(strings.TrimSpace(method))
 		}
+	case "gmail":
+		inputs["credential_id"] = readString(config, "credentialId")
+		if to := readString(config, "to"); to != "" {
+			inputs["to"] = to
+		}
+		if subject := readString(config, "subject"); subject != "" {
+			inputs["subject"] = subject
+		}
+	case "gsheets":
+		inputs["credential_id"] = readString(config, "credentialId")
+		if spreadsheetID := readString(config, "spreadsheetId"); spreadsheetID != "" {
+			inputs["spreadsheet_id"] = spreadsheetID
+		}
+		if sheetName := readString(config, "sheetName"); sheetName != "" {
+			inputs["sheet_name"] = sheetName
+		}
+	case "github":
+		inputs["credential_id"] = readString(config, "credentialId")
+		if owner := readString(config, "owner"); owner != "" {
+			inputs["owner"] = owner
+		}
+		if repo := readString(config, "repo"); repo != "" {
+			inputs["repo"] = repo
+		}
+	case "app":
+		inputs["app"] = readString(config, "app")
+		inputs["action"] = readString(config, "action")
+		inputs["credential_id"] = readString(config, "credentialId")
 	}
 	return inputs
 }
 
-func executeStep(ctx context.Context, nodeType string, config map[string]any, input map[string]any, steps map[string]any) (map[string]any, string, error) {
+func executeStep(
+	ctx context.Context,
+	nodeType string,
+	config map[string]any,
+	input map[string]any,
+	steps map[string]any,
+	deps stepDependencies,
+) (map[string]any, string, error) {
 	now := time.Now().UTC().Format(time.RFC3339)
 
 	switch nodeType {
@@ -85,6 +120,14 @@ func executeStep(ctx context.Context, nodeType string, config map[string]any, in
 		return executeIf(ctx, config, input, steps)
 	case "merge":
 		return executeMerge(ctx, input, steps)
+	case "gmail":
+		return executeGmail(ctx, config, deps)
+	case "gsheets":
+		return executeSheets(ctx, config, deps)
+	case "github":
+		return executeGitHub(ctx, config, deps)
+	case "app":
+		return executeApp(ctx, config, deps)
 	default:
 		return simulateStep(ctx, map[string]any{"status": 200, "data": map[string]any{"ok": true}})
 	}

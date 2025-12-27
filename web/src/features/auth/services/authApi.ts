@@ -34,3 +34,21 @@ export async function logout(): Promise<{ ok: boolean }> {
   const res = await request<{ data: { ok: boolean } }>(`${API_BASE_URL}/auth/logout`, { method: "POST" });
   return res.data;
 }
+
+export async function requestPasswordReset(email: string, lang?: string): Promise<{ ok: boolean }> {
+  const res = await request<{ data: { ok: boolean } }>(`${API_BASE_URL}/auth/forgot-password`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, lang }),
+  });
+  return res.data;
+}
+
+export async function resetPassword(token: string, newPassword: string): Promise<{ ok: boolean }> {
+  const res = await request<{ data: { ok: boolean } }>(`${API_BASE_URL}/auth/reset-password`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ token, newPassword }),
+  });
+  return res.data;
+}

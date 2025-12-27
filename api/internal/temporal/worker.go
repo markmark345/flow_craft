@@ -23,11 +23,17 @@ func NewWorker(cfg config.Config, logger interface{}, db *sql.DB) (*Worker, erro
 	}
 	w := worker.New(c, TaskQueue, worker.Options{})
 	w.RegisterWorkflow(RunFlowWorkflow)
-	w.RegisterActivity(NewActivities(
+	activities, err := NewActivities(
+		cfg,
 		repositories.NewFlowRepository(db),
 		repositories.NewRunRepository(db),
 		repositories.NewRunStepRepository(db),
-	))
+		repositories.NewCredentialRepository(db),
+	)
+	if err != nil {
+		return nil, err
+	}
+	w.RegisterActivity(activities)
 	return &Worker{worker: w, sched: NewFlowCronScheduler(db, c)}, nil
 }
 

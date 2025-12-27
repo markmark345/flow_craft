@@ -1,6 +1,6 @@
 import { BuilderNodeType, FlowNodeData } from ".";
 
-export type NodeFieldType = "text" | "number" | "textarea" | "select" | "toggle" | "keyValue";
+export type NodeFieldType = "text" | "number" | "textarea" | "select" | "toggle" | "keyValue" | "credential";
 
 export type NodeField = {
   key: string;
@@ -12,6 +12,7 @@ export type NodeField = {
   options?: string[];
   required?: boolean;
   helpText?: string;
+  provider?: "google" | "github";
 };
 
 export type NodeCategory = "Triggers" | "Actions" | "Utilities";
@@ -98,6 +99,134 @@ export const NODE_CATALOG: Record<BuilderNodeType, NodeCatalogItem> = {
     ],
     defaultConfig: { url: "", method: "GET", queryParams: [], headers: [], body: "" },
     validate: (cfg) => typeof cfg.url === "string" && cfg.url.length > 0,
+  },
+  app: {
+    type: "app",
+    label: "Action in an app",
+    category: "Actions",
+    description: "Do something in an external app (Google, GitHub, ...)",
+    accent: "neutral",
+    op: "app.action",
+    fields: [],
+    defaultConfig: {
+      app: "googleSheets",
+      action: "gsheets.appendRow",
+      credentialId: "",
+      spreadsheetId: "",
+      sheetName: "Sheet1",
+      values: "",
+    },
+    validate: (cfg) => {
+      const app = typeof (cfg as any)?.app === "string" ? String((cfg as any).app).trim() : "";
+      const action = typeof (cfg as any)?.action === "string" ? String((cfg as any).action).trim() : "";
+      const credentialId =
+        typeof (cfg as any)?.credentialId === "string" ? String((cfg as any).credentialId).trim() : "";
+      return app.length > 0 && action.length > 0 && credentialId.length > 0;
+    },
+  },
+  gmail: {
+    type: "gmail",
+    label: "Gmail Send",
+    category: "Actions",
+    description: "Send an email with Gmail",
+    accent: "accent",
+    op: "gmail.send_email",
+    fields: [
+      {
+        key: "credentialId",
+        label: "Credential",
+        type: "credential",
+        provider: "google",
+        required: true,
+        helpText: "Connect a Google account in Credentials to send mail.",
+      },
+      { key: "from", label: "From (optional)", type: "text", placeholder: "me@company.com" },
+      { key: "to", label: "To", type: "text", placeholder: "recipient@company.com", required: true },
+      { key: "subject", label: "Subject", type: "text", placeholder: "Hello from FlowCraft", required: true },
+      { key: "bodyText", label: "Body (text)", type: "textarea", placeholder: "Write a plain-text message..." },
+      { key: "bodyHtml", label: "Body (HTML)", type: "textarea", placeholder: "<p>Write HTML content...</p>" },
+    ],
+    defaultConfig: {
+      credentialId: "",
+      from: "",
+      to: "",
+      subject: "",
+      bodyText: "",
+      bodyHtml: "",
+    },
+    validate: (cfg) =>
+      typeof cfg.credentialId === "string" &&
+      cfg.credentialId.length > 0 &&
+      typeof cfg.to === "string" &&
+      cfg.to.length > 0 &&
+      typeof cfg.subject === "string" &&
+      cfg.subject.length > 0,
+  },
+  gsheets: {
+    type: "gsheets",
+    label: "Google Sheets",
+    category: "Actions",
+    description: "Append a row to a sheet",
+    accent: "success",
+    op: "gsheets.append_row",
+    fields: [
+      {
+        key: "credentialId",
+        label: "Credential",
+        type: "credential",
+        provider: "google",
+        required: true,
+        helpText: "Connect a Google account in Credentials to access Sheets.",
+      },
+      { key: "spreadsheetId", label: "Spreadsheet ID", type: "text", placeholder: "1AbcD...XYZ", required: true },
+      { key: "sheetName", label: "Sheet name", type: "text", placeholder: "Sheet1" },
+      {
+        key: "values",
+        label: "Row values",
+        type: "textarea",
+        placeholder: "[\"value1\", \"value2\"] or value1, value2",
+        required: true,
+      },
+    ],
+    defaultConfig: { credentialId: "", spreadsheetId: "", sheetName: "Sheet1", values: "" },
+    validate: (cfg) =>
+      typeof cfg.credentialId === "string" &&
+      cfg.credentialId.length > 0 &&
+      typeof cfg.spreadsheetId === "string" &&
+      cfg.spreadsheetId.length > 0 &&
+      ((typeof cfg.values === "string" && cfg.values.length > 0) || Array.isArray(cfg.values)),
+  },
+  github: {
+    type: "github",
+    label: "GitHub Issue",
+    category: "Actions",
+    description: "Create a GitHub issue",
+    accent: "neutral",
+    op: "github.create_issue",
+    fields: [
+      {
+        key: "credentialId",
+        label: "Credential",
+        type: "credential",
+        provider: "github",
+        required: true,
+        helpText: "Connect a GitHub account in Credentials to create issues.",
+      },
+      { key: "owner", label: "Owner", type: "text", placeholder: "octocat", required: true },
+      { key: "repo", label: "Repository", type: "text", placeholder: "hello-world", required: true },
+      { key: "title", label: "Title", type: "text", placeholder: "Bug report", required: true },
+      { key: "body", label: "Body", type: "textarea", placeholder: "Issue details..." },
+    ],
+    defaultConfig: { credentialId: "", owner: "", repo: "", title: "", body: "" },
+    validate: (cfg) =>
+      typeof cfg.credentialId === "string" &&
+      cfg.credentialId.length > 0 &&
+      typeof cfg.owner === "string" &&
+      cfg.owner.length > 0 &&
+      typeof cfg.repo === "string" &&
+      cfg.repo.length > 0 &&
+      typeof cfg.title === "string" &&
+      cfg.title.length > 0,
   },
   slack: {
     type: "slack",
@@ -230,7 +359,19 @@ export const NODE_CATALOG: Record<BuilderNodeType, NodeCatalogItem> = {
 
 export const NODE_CATEGORIES: Array<{ id: NodeCategory; label: string; items: NodeCatalogItem[] }> = [
   { id: "Triggers", label: "Triggers", items: Object.values(NODE_CATALOG).filter((n) => n.category === "Triggers") },
-  { id: "Actions", label: "Actions", items: Object.values(NODE_CATALOG).filter((n) => n.category === "Actions") },
+  {
+    id: "Actions",
+    label: "Actions",
+    items: Object.values(NODE_CATALOG).filter(
+      (n) =>
+        n.category === "Actions" &&
+        // Keep legacy nodes working for existing flows, but hide them from the palette
+        // now that we have the unified "Action in an app" node.
+        n.type !== "gmail" &&
+        n.type !== "gsheets" &&
+        n.type !== "github"
+    ),
+  },
   { id: "Utilities", label: "Utilities", items: Object.values(NODE_CATALOG).filter((n) => n.category === "Utilities") },
 ];
 

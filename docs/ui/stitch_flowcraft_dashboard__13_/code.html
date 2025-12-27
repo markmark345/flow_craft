@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Credentials List - n8n style</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet"/>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#FF6D5A", // Using the reddish/orange color from the screenshots
+                        "primary-hover": "#E65C4A",
+                        "background-light": "#F9FAFB",
+                        "background-dark": "#111827",
+                        "surface-light": "#FFFFFF",
+                        "surface-dark": "#1F2937",
+                        "border-light": "#E5E7EB",
+                        "border-dark": "#374151",
+                        "text-light": "#111827",
+                        "text-dark": "#F9FAFB",
+                        "text-secondary-light": "#6B7280",
+                        "text-secondary-dark": "#9CA3AF",
+                    },
+                    fontFamily: {
+                        display: ["Inter", "sans-serif"],
+                        body: ["Inter", "sans-serif"],
+                    },
+                    borderRadius: {
+                        DEFAULT: "0.25rem",
+                    },
+                },
+            },
+        };
+    </script>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark font-body antialiased flex h-screen overflow-hidden selection:bg-primary selection:text-white">
+<aside class="w-16 border-r border-border-light dark:border-border-dark flex flex-col items-center py-4 bg-surface-light dark:bg-surface-dark flex-shrink-0 z-20">
+<div class="mb-8">
+<div class="w-8 h-8 bg-primary rounded-md flex items-center justify-center text-white font-bold text-xl">
+<span class="material-icons-outlined text-xl">all_inclusive</span>
+</div>
+</div>
+<nav class="flex-1 flex flex-col gap-4 w-full px-2">
+<a class="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-text-secondary-light dark:text-text-secondary-dark hover:text-primary transition-colors group relative" href="#">
+<span class="material-icons-outlined text-2xl">grid_view</span>
+<span class="absolute left-12 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">Workflows</span>
+</a>
+<a class="w-10 h-10 flex items-center justify-center rounded-lg bg-primary/10 text-primary transition-colors group relative" href="#">
+<span class="material-icons-outlined text-2xl">vpn_key</span>
+<span class="absolute left-12 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">Credentials</span>
+</a>
+<a class="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-text-secondary-light dark:text-text-secondary-dark hover:text-primary transition-colors group relative" href="#">
+<span class="material-icons-outlined text-2xl">list_alt</span>
+<span class="absolute left-12 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">Executions</span>
+</a>
+<a class="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-text-secondary-light dark:text-text-secondary-dark hover:text-primary transition-colors group relative" href="#">
+<span class="material-icons-outlined text-2xl">storage</span>
+<span class="absolute left-12 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">Variables</span>
+</a>
+</nav>
+<div class="flex flex-col gap-4 w-full px-2 mt-auto">
+<a class="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-text-secondary-light dark:text-text-secondary-dark transition-colors" href="#">
+<span class="material-icons-outlined text-2xl">settings</span>
+</a>
+<a class="w-10 h-10 flex items-center justify-center rounded-full bg-gray-200 dark:bg-gray-700 text-text-secondary-light dark:text-text-secondary-dark overflow-hidden" href="#">
+<span class="material-icons-outlined text-xl">person</span>
+</a>
+</div>
+</aside>
+<main class="flex-1 flex flex-col h-full overflow-hidden relative">
+<div class="bg-surface-light dark:bg-surface-dark border-b border-border-light dark:border-border-dark px-6 py-2 flex items-center justify-between text-xs">
+<div class="flex items-center gap-4 text-text-secondary-light dark:text-text-secondary-dark">
+<span class="flex items-center gap-2">
+<span class="material-icons-outlined text-sm">info</span>
+                    9 days left in your trial
+                </span>
+<div class="h-4 w-px bg-border-light dark:bg-border-dark"></div>
+<div class="flex items-center gap-2">
+<div class="w-20 h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[10%]"></div>
+</div>
+<span>0/1000 Executions</span>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<span class="text-text-secondary-light dark:text-text-secondary-dark bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">From 6.7€ / month</span>
+<button class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-xs font-medium flex items-center gap-1 transition-colors">
+<span class="material-icons-outlined text-sm">diamond</span>
+                    Upgrade now
+                </button>
+</div>
+</div>
+<header class="bg-surface-light dark:bg-surface-dark px-8 py-6 flex-shrink-0">
+<div class="flex items-start justify-between mb-6">
+<div>
+<h1 class="text-2xl font-bold text-text-light dark:text-text-dark flex items-center gap-2">
+<span class="material-icons-outlined text-text-secondary-light dark:text-text-secondary-dark">layers</span>
+                        My project
+                    </h1>
+</div>
+<div class="flex gap-2">
+<button class="px-4 py-2 border border-border-light dark:border-border-dark rounded bg-surface-light dark:bg-surface-dark text-text-secondary-light dark:text-text-secondary-dark hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-text-light dark:hover:text-text-dark text-sm font-medium flex items-center gap-2 transition-colors">
+<span class="material-icons-outlined text-sm">auto_awesome</span>
+                        Try an AI workflow
+                    </button>
+<div class="flex rounded-md shadow-sm">
+<button class="px-4 py-2 bg-primary hover:bg-primary-hover text-white text-sm font-medium rounded-l focus:outline-none transition-colors border-r border-white/20">
+                            Create credential
+                        </button>
+<button class="px-2 py-2 bg-primary hover:bg-primary-hover text-white rounded-r focus:outline-none transition-colors">
+<span class="material-icons-outlined text-sm">expand_more</span>
+</button>
+</div>
+</div>
+</div>
+<div class="flex gap-8 border-b border-transparent">
+<a class="pb-3 text-sm font-medium text-text-secondary-light dark:text-text-secondary-dark hover:text-text-light dark:hover:text-text-dark transition-colors" href="#">Workflows</a>
+<a class="pb-3 text-sm font-medium text-primary border-b-2 border-primary" href="#">Credentials</a>
+<a class="pb-3 text-sm font-medium text-text-secondary-light dark:text-text-secondary-dark hover:text-text-light dark:hover:text-text-dark transition-colors" href="#">Executions</a>
+<a class="pb-3 text-sm font-medium text-text-secondary-light dark:text-text-secondary-dark hover:text-text-light dark:hover:text-text-dark transition-colors" href="#">Variables</a>
+<a class="pb-3 text-sm font-medium text-text-secondary-light dark:text-text-secondary-dark hover:text-text-light dark:hover:text-text-dark transition-colors" href="#">Data tables</a>
+<a class="pb-3 text-sm font-medium text-text-secondary-light dark:text-text-secondary-dark hover:text-text-light dark:hover:text-text-dark transition-colors" href="#">Project settings</a>
+</div>
+</header>
+<div class="flex-1 overflow-y-auto p-8 bg-background-light dark:bg-background-dark">
+<div class="flex justify-end gap-3 mb-6">
+<div class="relative">
+<span class="material-icons-outlined absolute left-3 top-1/2 transform -translate-y-1/2 text-text-secondary-light dark:text-text-secondary-dark text-lg">search</span>
+<input class="pl-10 pr-4 py-2 text-sm border border-border-light dark:border-border-dark rounded bg-surface-light dark:bg-surface-dark text-text-light dark:text-text-dark focus:ring-1 focus:ring-primary focus:border-primary w-64 placeholder-gray-400 dark:placeholder-gray-500" placeholder="Search credentials..." type="text"/>
+</div>
+<div class="relative">
+<button class="px-4 py-2 text-sm border border-border-light dark:border-border-dark rounded bg-surface-light dark:bg-surface-dark text-text-light dark:text-text-dark flex items-center gap-2 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                        Sort by last updated
+                        <span class="material-icons-outlined text-sm text-text-secondary-light dark:text-text-secondary-dark">expand_more</span>
+</button>
+</div>
+<button class="p-2 border border-border-light dark:border-border-dark rounded bg-surface-light dark:bg-surface-dark text-text-secondary-light dark:text-text-secondary-dark hover:text-text-light dark:hover:text-text-dark hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+<span class="material-icons-outlined text-lg">filter_list</span>
+</button>
+</div>
+<div class="space-y-3">
+<div class="group bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark rounded hover:shadow-sm transition-all p-4 flex items-center justify-between cursor-pointer hover:border-primary/50 dark:hover:border-primary/50">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 flex items-center justify-center bg-white dark:bg-white rounded border border-gray-100 dark:border-gray-700 p-1">
+<img alt="Google Logo" class="w-full h-full object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCiHUvcN8Ea9pCLUIjBl7Og_Fbn2TO3S8Hv6R6k9wZWPFSGhoUqsXC0UaEeDTCOwfLfqd2aFDhTqPot9PdQjXmpWWODVx1G7Lu-paULGDL8Kj47PnQsAEd1fqD7ZyczJqJ4KgdbjMTlafwxeZ_mjfSK2tBLBAMVwbaHgeDsSfcu0ZuEqeL9lPB93aI9QXJrFKq5asmaoMfoIPhRibvCBLI6F3xjyrAIhj8B9ru96Bb0QX-C6EU5J8JL08le46uggGNMYw80MdlB6-wg"/>
+</div>
+<div>
+<h3 class="font-medium text-text-light dark:text-text-dark text-sm group-hover:text-primary transition-colors">Gmail account</h3>
+<p class="text-xs text-text-secondary-light dark:text-text-secondary-dark mt-0.5">
+                                Gmail OAuth2 API <span class="mx-1 text-gray-300 dark:text-gray-600">|</span> Last updated 5 hours ago <span class="mx-1 text-gray-300 dark:text-gray-600">|</span> Created 23 December
+                            </p>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<div class="px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded border border-border-light dark:border-border-dark flex items-center gap-1.5 text-xs text-text-secondary-light dark:text-text-secondary-dark">
+<span class="material-icons-outlined text-[14px]">person</span>
+                            Personal
+                        </div>
+<button class="p-1 text-text-secondary-light dark:text-text-secondary-dark hover:text-text-light dark:hover:text-text-dark hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors">
+<span class="material-icons-outlined text-lg">more_vert</span>
+</button>
+</div>
+</div>
+<div class="group bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark rounded hover:shadow-sm transition-all p-4 flex items-center justify-between cursor-pointer hover:border-primary/50 dark:hover:border-primary/50">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 flex items-center justify-center bg-[#24292e] dark:bg-[#ffffff] rounded border border-gray-100 dark:border-gray-700 p-1.5">
+<svg class="w-full h-full fill-white dark:fill-black" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z" fill-rule="evenodd"></path></svg>
+</div>
+<div>
+<h3 class="font-medium text-text-light dark:text-text-dark text-sm group-hover:text-primary transition-colors">GitHub - Main Repo</h3>
+<p class="text-xs text-text-secondary-light dark:text-text-secondary-dark mt-0.5">
+                                GitHub API <span class="mx-1 text-gray-300 dark:text-gray-600">|</span> Last updated 2 days ago <span class="mx-1 text-gray-300 dark:text-gray-600">|</span> Created 15 November
+                            </p>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<div class="px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded border border-border-light dark:border-border-dark flex items-center gap-1.5 text-xs text-text-secondary-light dark:text-text-secondary-dark">
+<span class="material-icons-outlined text-[14px]">person</span>
+                            Personal
+                        </div>
+<button class="p-1 text-text-secondary-light dark:text-text-secondary-dark hover:text-text-light dark:hover:text-text-dark hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors">
+<span class="material-icons-outlined text-lg">more_vert</span>
+</button>
+</div>
+</div>
+<div class="group bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark rounded hover:shadow-sm transition-all p-4 flex items-center justify-between cursor-pointer hover:border-primary/50 dark:hover:border-primary/50">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 flex items-center justify-center bg-[#000000] dark:bg-white rounded border border-gray-100 dark:border-gray-700 p-1.5">
+<svg class="w-full h-full fill-white dark:fill-black" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M4.459 4.208c.746.606 1.026.56 2.428.466l13.215-.793c.28 0 .047-.28.047-.606 0-.84-.234-1.494-.467-1.774-.327-.373-1.074-.373-1.54-.373-.607 0-3.92.14-5.226.233l-5.74.373c-1.353.094-3.126.14-3.686.14C2.556 1.874.128 3.554.128 4.674c0 .327.327.56.98.513.794-.046 1.774-.28 2.38-.42a.555.555 0 0 1 .56.094l.42.373Zm.933 1.96L3.935 22.99c-.047.467.28.933.7.933.42 0 .84-.326 1.073-.653l1.82-3.402c4.106-1.587 7.045-2.707 7.045-2.707l2.52 3.127c.28.373.653.606 1.167.606.84 0 1.4-.98 1.4-1.867L19.33 4.815c-.046-.234-.466-.467-.84-.373l-13.098.887V6.168Zm8.307 2.006l.326 9.894c0 .327-.186.467-.42.467-.233 0-.466-.14-.653-.327l-2.846-3.453c-.187-.233-.28-.513-.28-.793 0-.094.046-.187.093-.28l3.78-5.507Z"></path></svg>
+</div>
+<div>
+<h3 class="font-medium text-text-light dark:text-text-dark text-sm group-hover:text-primary transition-colors">Notion - Marketing Workspace</h3>
+<p class="text-xs text-text-secondary-light dark:text-text-secondary-dark mt-0.5">
+                                Notion API <span class="mx-1 text-gray-300 dark:text-gray-600">|</span> Last updated 1 week ago <span class="mx-1 text-gray-300 dark:text-gray-600">|</span> Created 02 October
+                            </p>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<div class="px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded border border-border-light dark:border-border-dark flex items-center gap-1.5 text-xs text-text-secondary-light dark:text-text-secondary-dark">
+<span class="material-icons-outlined text-[14px]">person</span>
+                            Personal
+                        </div>
+<button class="p-1 text-text-secondary-light dark:text-text-secondary-dark hover:text-text-light dark:hover:text-text-dark hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors">
+<span class="material-icons-outlined text-lg">more_vert</span>
+</button>
+</div>
+</div>
+</div>
+<div class="hidden mt-12 border border-dashed border-border-light dark:border-border-dark rounded-lg p-12 flex flex-col items-center justify-center text-center">
+<div class="w-16 h-16 mb-4 text-4xl animate-bounce">👋</div>
+<h2 class="text-xl font-semibold text-text-light dark:text-text-dark mb-2">Natapatchara, let's set up a credential</h2>
+<p class="text-text-secondary-light dark:text-text-secondary-dark text-sm max-w-md mb-8">
+                    Credentials let workflows interact with your apps and services.
+                </p>
+<button class="px-6 py-3 border border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark hover:bg-gray-50 dark:hover:bg-gray-800 text-text-light dark:text-text-dark rounded shadow-sm text-sm font-medium transition-colors">
+                    Add first credential
+                </button>
+</div>
+</div>
+</main>
+
+</body></html>

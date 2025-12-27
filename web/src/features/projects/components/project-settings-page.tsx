@@ -57,6 +57,7 @@ export function ProjectSettingsPage({ projectId }: { projectId: string }) {
         setProject(p);
         setName(p.name || "");
         setDescription(p.description || "");
+        setActiveProject(p.id);
         const ms = await listProjectMembers(projectId);
         setMembers(ms);
       } catch (err: any) {
@@ -67,7 +68,7 @@ export function ProjectSettingsPage({ projectId }: { projectId: string }) {
       }
     };
     load();
-  }, [projectId, router, showError]);
+  }, [projectId, router, setActiveProject, showError]);
 
   useEffect(() => {
     if (loading) return;
@@ -80,9 +81,14 @@ export function ProjectSettingsPage({ projectId }: { projectId: string }) {
   const navItems = useMemo(
     () => [
       { id: "workflows", label: "Workflows", href: "/flows", onClick: () => setActiveProject(projectId) },
-      { id: "credentials", label: "Credentials", href: "/docs/authentication" },
-      { id: "executions", label: "Executions", href: "/runs" },
-      { id: "variables", label: "Variables", href: "/docs/builder/overview" },
+      {
+        id: "credentials",
+        label: "Credentials",
+        href: `/projects/${projectId}/credentials`,
+        onClick: () => setActiveProject(projectId),
+      },
+      { id: "executions", label: "Executions", href: "/runs", onClick: () => setActiveProject(projectId) },
+      { id: "variables", label: "Variables", href: `/projects/${projectId}/variables` },
       { id: "settings", label: "Project Settings", href: `/projects/${projectId}/settings`, active: true },
     ],
     [projectId, setActiveProject]

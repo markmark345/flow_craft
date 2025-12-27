@@ -65,3 +65,24 @@ export type RunStepDTO = {
   createdAt?: string;
   updatedAt?: string;
 };
+
+export type CredentialDTO = {
+  id: string;
+  provider: string;
+  name: string;
+  scope: "personal" | "project";
+  projectId?: string;
+  accountEmail?: string;
+  createdAt?: string;
+  updatedAt?: string;
+};
+
+export type VariableDTO = {
+  id: string;
+  key: string;
+  value: string;
+  scope: "personal" | "project";
+  projectId?: string;
+  createdAt?: string;
+  updatedAt?: string;
+};

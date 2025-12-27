@@ -31,17 +31,21 @@ func (r *AuthSessionRepository) Delete(ctx context.Context, token string) error 
 
 func (r *AuthSessionRepository) GetUserByToken(ctx context.Context, token string) (*entities.User, error) {
 	var u entities.User
+	var passwordHash sql.NullString
 	err := r.db.QueryRowContext(ctx, `
 		SELECT u.id, u.name, u.email, u.username, u.password_hash, u.created_at, u.updated_at
 		FROM auth_sessions s
 		JOIN users u ON u.id = s.user_id
 		WHERE s.token = $1
-	`, token).Scan(&u.ID, &u.Name, &u.Email, &u.Username, &u.PasswordHash, &u.CreatedAt, &u.UpdatedAt)
+	`, token).Scan(&u.ID, &u.Name, &u.Email, &u.Username, &passwordHash, &u.CreatedAt, &u.UpdatedAt)
 	if err == sql.ErrNoRows {
 		return nil, utils.ErrNotFound
 	}
 	if err != nil {
 		return nil, err
+	}
+	if passwordHash.Valid {
+		u.PasswordHash = passwordHash.String
 	}
 	return &u, nil
 }

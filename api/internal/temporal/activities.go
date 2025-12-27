@@ -11,18 +11,44 @@ import (
 	"github.com/google/uuid"
 	"go.temporal.io/sdk/activity"
 
+	"flowcraft-api/internal/config"
 	"flowcraft-api/internal/entities"
 	"flowcraft-api/internal/repositories"
+	"flowcraft-api/internal/utils"
 )
 
 type Activities struct {
-	flows *repositories.FlowRepository
-	runs  *repositories.RunRepository
-	steps *repositories.RunStepRepository
+	flows    *repositories.FlowRepository
+	runs     *repositories.RunRepository
+	steps    *repositories.RunStepRepository
+	creds    *repositories.CredentialRepository
+	cfg      config.Config
+	credsKey []byte
 }
 
-func NewActivities(flows *repositories.FlowRepository, runs *repositories.RunRepository, steps *repositories.RunStepRepository) *Activities {
-	return &Activities{flows: flows, runs: runs, steps: steps}
+func NewActivities(
+	cfg config.Config,
+	flows *repositories.FlowRepository,
+	runs *repositories.RunRepository,
+	steps *repositories.RunStepRepository,
+	creds *repositories.CredentialRepository,
+) (*Activities, error) {
+	var key []byte
+	if strings.TrimSpace(cfg.CredentialsEncKey) != "" {
+		parsed, err := utils.DecodeBase64Key(cfg.CredentialsEncKey)
+		if err != nil {
+			return nil, err
+		}
+		key = parsed
+	}
+	return &Activities{
+		flows:    flows,
+		runs:     runs,
+		steps:    steps,
+		creds:    creds,
+		cfg:      cfg,
+		credsKey: key,
+	}, nil
 }
 
 func (a *Activities) LoadFlowDefinitionActivity(ctx context.Context, flowID string) (string, error) {
@@ -327,7 +353,8 @@ func (a *Activities) ExecuteNodeActivity(ctx context.Context, runID string, defi
 			return err
 		}
 
-		outputs, logText, execErr := executeStep(ctx, p.step.NodeType, p.config, input, outputsByNodeID)
+		deps := stepDependencies{cfg: a.cfg, creds: a.creds, credsKey: a.credsKey}
+		outputs, logText, execErr := executeStep(ctx, p.step.NodeType, p.config, input, outputsByNodeID, deps)
 		outputsJSON, _ := json.Marshal(outputs)
 
 		if p.step.NodeID != "" {

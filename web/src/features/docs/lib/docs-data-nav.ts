@@ -40,6 +40,11 @@ export const DOCS_NAV: DocsNavGroup[] = [
         href: "/docs/builder/http-request",
         icon: "arrow_forward",
       },
+      {
+        label: "Action in an app",
+        href: "/docs/builder/app-action",
+        icon: "grid_view",
+      },
       { label: "Schedule", href: "/docs/builder/schedule", icon: "schedule" },
       { label: "Webhook", href: "/docs/builder/webhook", icon: "data_object" },
       {

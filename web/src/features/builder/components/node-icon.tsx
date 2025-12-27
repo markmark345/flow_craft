@@ -32,6 +32,28 @@ export function NodeIcon({
           <path d="M8 16l8-8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
         </svg>
       );
+    case "app":
+      return (
+        <svg className={common} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path
+            d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2Z"
+            stroke="currentColor"
+            strokeWidth="2"
+          />
+          <path
+            d="M2 12h20"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+          />
+          <path
+            d="M12 2c2.8 2.8 4.5 6.4 4.5 10S14.8 19.2 12 22c-2.8-2.8-4.5-6.4-4.5-10S9.2 4.8 12 2Z"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+          />
+        </svg>
+      );
     case "database":
       return (
         <svg className={common} viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -105,6 +127,28 @@ export function NodeIcon({
             d="M15.6 12V8.6a2.3 2.3 0 1 0-4.6 0V12a2.3 2.3 0 0 0 4.6 0Z"
             fill="currentColor"
           />
+        </svg>
+      );
+    case "gmail":
+      return (
+        <svg className={common} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <rect x="4" y="6" width="16" height="12" rx="2" stroke="currentColor" strokeWidth="2" />
+          <path d="M4 7l8 6 8-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+        </svg>
+      );
+    case "gsheets":
+      return (
+        <svg className={common} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <rect x="5" y="4" width="14" height="16" rx="2" stroke="currentColor" strokeWidth="2" />
+          <path d="M9 4v16M15 4v16M5 10h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+        </svg>
+      );
+    case "github":
+      return (
+        <svg className={common} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <circle cx="12" cy="12" r="8" stroke="currentColor" strokeWidth="2" />
+          <path d="M12 8v4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+          <circle cx="12" cy="16" r="1" fill="currentColor" />
         </svg>
       );
     case "transform":

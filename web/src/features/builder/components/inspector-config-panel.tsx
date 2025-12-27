@@ -10,6 +10,7 @@ import { IfConfig } from "./if-config";
 import { FieldRow } from "./inspector-field-row";
 import { ScheduleConfig } from "./inspector-schedule-config";
 import { SlackConfig } from "./inspector-slack-config";
+import { InspectorAppConfig } from "./inspector-app-config";
 
 export function InspectorConfigPanel({
   node,
@@ -73,6 +74,8 @@ export function InspectorConfigPanel({
 
       {node.data.nodeType === "slack" ? (
         <SlackConfig config={node.data.config || {}} onPatch={(patch) => updateNodeConfig(node.id, patch)} />
+      ) : node.data.nodeType === "app" ? (
+        <InspectorAppConfig config={node.data.config || {}} onPatch={(patch) => updateNodeConfig(node.id, patch)} />
       ) : node.data.nodeType === "cron" ? (
         <ScheduleConfig config={node.data.config || {}} onPatch={(patch) => updateNodeConfig(node.id, patch)} />
       ) : node.data.nodeType === "if" ? (

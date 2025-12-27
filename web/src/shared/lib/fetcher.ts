@@ -1,4 +1,5 @@
-import { getAuthToken } from "./auth";
+import { getAuthToken, writeAuthSession } from "./auth";
+import { useAuthStore } from "@/features/auth/store/use-auth-store";
 
 const DEFAULT_TIMEOUT = 10_000;
 
@@ -16,10 +17,29 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
   clearTimeout(timeout);
 
   if (!res.ok) {
+    if (res.status === 401 && token && !isAuthRequest(path)) {
+      if (typeof window !== "undefined") {
+        writeAuthSession(null);
+        try {
+          useAuthStore.getState().signOut();
+        } catch {
+          // ignore
+        }
+        const pathname = window.location.pathname || "";
+        if (pathname !== "/login") {
+          const next = pathname ? `?next=${encodeURIComponent(pathname)}` : "";
+          window.location.replace(`/login${next}`);
+        }
+      }
+    }
     const message = await safeMessage(res);
     throw new Error(message || `Request failed: ${res.status}`);
   }
   return (await res.json()) as T;
+}
+
+function isAuthRequest(path: string) {
+  return /\/auth\/(login|signup)\b/.test(path);
 }
 
 async function safeMessage(res: Response) {

@@ -3,6 +3,7 @@
 import { Input } from "@/shared/components/input";
 import { Icon } from "@/shared/components/icon";
 import { NodeField } from "../types/node-catalog";
+import { useCredentialOptions } from "@/features/credentials/hooks/use-credential-options";
 
 export function FieldRow({
   field,
@@ -15,6 +16,7 @@ export function FieldRow({
 }) {
   const id = `field-${field.key}`;
   const v = value ?? "";
+  const credentialOptions = useCredentialOptions(field.provider, field.type === "credential");
 
   const label = (
     <label htmlFor={id} className="block text-xs font-bold text-muted">
@@ -120,6 +122,34 @@ export function FieldRow({
             </option>
           ))}
         </select>
+        {field.helpText ? <div className="text-xs text-muted">{field.helpText}</div> : null}
+      </div>
+    );
+  }
+
+  if (field.type === "credential") {
+    const { options, loading, error } = credentialOptions;
+    return (
+      <div className="space-y-2">
+        {label}
+        <select
+          id={id}
+          value={String(v)}
+          onChange={(e) => onChange(e.target.value)}
+          className="h-10 w-full rounded-lg bg-surface2 border border-border px-3 text-sm text-text focus:outline-none focus:shadow-focus"
+        >
+          <option value="">Select credential...</option>
+          {options.map((opt) => (
+            <option key={opt.id} value={opt.id}>
+              {opt.label}
+            </option>
+          ))}
+        </select>
+        {loading ? <div className="text-xs text-muted">Loading credentials...</div> : null}
+        {!loading && options.length === 0 ? (
+          <div className="text-xs text-muted">No credentials connected yet.</div>
+        ) : null}
+        {error ? <div className="text-xs text-red">{error}</div> : null}
         {field.helpText ? <div className="text-xs text-muted">{field.helpText}</div> : null}
       </div>
     );
