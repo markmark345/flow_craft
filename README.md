@@ -17,14 +17,17 @@ FlowCraft is a workflow automation tool (n8n-style) with:
 ```mermaid
 flowchart LR
   U["User"] -->|Browser| WEB["Web (Next.js)"]
-  WEB -->|REST /api/v1| API["API (Go/Gin)"]
+  WEB -->|REST| API["API (Go/Gin)"]
   API -->|SQL| PG["Postgres"]
   API -->|Start workflow| TEMP["Temporal Server"]
   TEMP -->|Run activities| WK["Worker (Go)"]
-  WK -->|SQL (read flows/creds/vars, write runs)| PG
-  WK -->|OAuth refresh + API calls| EXT["External APIs"]
+  WK -->|SQL| PG
+  WK -->|OAuth + API calls| EXT["External APIs"]
   EXT --> GGL["Google (Gmail/Sheets)"]
   EXT --> GH["GitHub"]
+
+  API -.-> API_NOTE["/api/v1"]
+  WK -.-> WK_NOTE["Reads: flows, credentials, variables<br/>Writes: runs, run_steps"]
 ```
 
 ## Execution flow (what happens when you click Run)
