@@ -4,6 +4,7 @@ export type BuilderNodeType =
   | "httpTrigger"
   | "webhook"
   | "cron"
+  | "errorTrigger"
   | "httpRequest"
   | "app"
   | "gmail"

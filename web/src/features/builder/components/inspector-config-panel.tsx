@@ -105,6 +105,19 @@ export function InspectorConfigPanel({
           value={node.data.config?.continueOnFail}
           onChange={(v) => updateNodeConfig(node.id, { continueOnFail: v })}
         />
+        {meta?.category !== "Triggers" ? (
+          <FieldRow
+            field={{
+              key: "routeToErrorTrigger",
+              label: "Route to error trigger",
+              type: "toggle",
+              helpText:
+                "When enabled, if this node errors the workflow jumps to the Error Trigger branch (if present).",
+            }}
+            value={node.data.config?.routeToErrorTrigger}
+            onChange={(v) => updateNodeConfig(node.id, { routeToErrorTrigger: v })}
+          />
+        ) : null}
       </div>
     </div>
   );

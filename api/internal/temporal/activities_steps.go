@@ -67,6 +67,10 @@ func buildStepInputs(nodeType string, config map[string]any, runID string, stepK
 		if method := readString(config, "method"); method != "" {
 			inputs["method"] = strings.ToUpper(strings.TrimSpace(method))
 		}
+	case "errorTrigger":
+		if input != nil {
+			inputs["payload"] = input
+		}
 	case "gmail":
 		inputs["credential_id"] = readString(config, "credentialId")
 		if to := readString(config, "to"); to != "" {
@@ -118,6 +122,8 @@ func executeStep(
 		return simulateStep(ctx, map[string]any{"status": 200, "data": sampleWebhookPayload()})
 	case "if":
 		return executeIf(ctx, config, input, steps)
+	case "errorTrigger":
+		return simulateStep(ctx, map[string]any{"status": 200, "data": input})
 	case "merge":
 		return executeMerge(ctx, input, steps)
 	case "gmail":

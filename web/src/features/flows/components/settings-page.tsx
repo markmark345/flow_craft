@@ -10,15 +10,18 @@ import { useResetWorkspace } from "../hooks/use-reset-workspace";
 import { Icon } from "@/shared/components/icon";
 import { useAuthStore } from "@/features/auth/store/use-auth-store";
 import { useRouter } from "next/navigation";
+import { avatarStyle, initialsFor } from "./flows-page-utils";
 
 export function SettingsPage() {
   const router = useRouter();
+  const [mounted, setMounted] = useState(false);
   const theme = useAppStore((s) => s.theme);
   const setTheme = useAppStore((s) => s.setTheme);
   const showSuccess = useAppStore((s) => s.showSuccess);
   const showInfo = useAppStore((s) => s.showInfo);
   const showError = useAppStore((s) => s.showError);
   const signOut = useAuthStore((s) => s.signOut);
+  const user = useAuthStore((s) => s.user);
 
   const savedWorkspaceName = useAppStore((s) => s.workspaceName);
   const reduceMotion = useAppStore((s) => s.reduceMotion);
@@ -33,7 +36,12 @@ export function SettingsPage() {
   const [confirmResetOpen, setConfirmResetOpen] = useState(false);
 
   useEffect(() => setWorkspaceNameDraft(savedWorkspaceName), [savedWorkspaceName]);
+  useEffect(() => setMounted(true), []);
   const workspaceId = useMemo(() => "ws_89234x_dev_2023", []);
+  const safeUser = mounted ? user : undefined;
+  const profileName = safeUser?.name || safeUser?.email || "Unknown";
+  const profileEmail = safeUser?.email || "";
+  const profileAvatar = useMemo(() => avatarStyle(profileName), [profileName]);
 
   const copyWorkspaceId = async () => {
     try {
@@ -242,14 +250,20 @@ export function SettingsPage() {
                 <div className="px-6 py-5 border-b border-border flex items-center justify-between">
                   <h3 className="text-lg font-semibold text-text">Profile</h3>
                   <span className="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-surface2 border border-border text-muted">
-                    Admin
+                    Signed in
                   </span>
                 </div>
                 <div className="p-6 flex items-center gap-4">
-                  <div className="size-12 rounded-full bg-surface2 border border-border" />
+                  <div
+                    className="size-12 rounded-full border border-border flex items-center justify-center font-bold"
+                    style={profileAvatar}
+                    title={profileEmail || profileName}
+                  >
+                    {initialsFor(profileName)}
+                  </div>
                   <div className="min-w-0">
-                    <div className="text-sm font-semibold text-text">Dev Team</div>
-                    <div className="text-xs text-muted">dev.team@automate.io</div>
+                    <div className="text-sm font-semibold text-text truncate">{profileName}</div>
+                    <div className="text-xs text-muted truncate">{profileEmail || "—"}</div>
                   </div>
                   <div className="ml-auto flex items-center gap-3 text-sm">
                     <button

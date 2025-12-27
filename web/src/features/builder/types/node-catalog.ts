@@ -46,6 +46,16 @@ export const NODE_CATALOG: Record<BuilderNodeType, NodeCatalogItem> = {
     defaultConfig: { path: "/incoming", method: "POST" },
     validate: (cfg) => typeof cfg.path === "string" && cfg.path.length > 0,
   },
+  errorTrigger: {
+    type: "errorTrigger",
+    label: "Error Trigger",
+    category: "Triggers",
+    description: "Run when a node fails and routes to the error trigger",
+    accent: "error",
+    op: "trigger.error",
+    fields: [],
+    defaultConfig: {},
+  },
   webhook: {
     type: "webhook",
     label: "Webhook",

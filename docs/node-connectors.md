@@ -64,6 +64,18 @@ Organization actions:
 
 - `github.listOrgRepos`: `org`
 
+## Error Trigger (`errorTrigger`)
+
+Add **Error Trigger** to handle failures inside the same workflow.
+
+- The Error Trigger does not run at the start of a workflow.
+- When a node has **Route to error trigger** enabled and it fails, the workflow jumps to the Error Trigger branch.
+- The Error Trigger output (`data`) contains the error context:
+  - `error`: error message
+  - `failed`: `{run_id, step_key, name, node_id, node_type}`
+  - `inputs`: step inputs
+  - `outputs`: partial outputs (if any)
+
 ## Gmail Send (`gmail`)
 
 Required:

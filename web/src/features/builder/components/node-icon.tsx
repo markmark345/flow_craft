@@ -100,6 +100,43 @@ export function NodeIcon({
           />
         </svg>
       );
+    case "errorTrigger":
+      return (
+        <svg className={common} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path
+            d="M8.5 10.5a1.5 1.5 0 0 0-3 0v.5a1.5 1.5 0 0 0 3 0v-.5Z"
+            fill="currentColor"
+          />
+          <path
+            d="M18.5 10.5a1.5 1.5 0 0 0-3 0v.5a1.5 1.5 0 0 0 3 0v-.5Z"
+            fill="currentColor"
+          />
+          <path
+            d="M8 16c1.2 1.2 2.6 1.8 4 1.8s2.8-.6 4-1.8"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+          />
+          <path
+            d="M10 4h4"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+          />
+          <path
+            d="M12 4v2"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+          />
+          <path
+            d="M7 6.8c-1.8 1.4-3 3.6-3 6 0 4.4 3.6 8 8 8s8-3.6 8-8c0-2.4-1.2-4.6-3-6"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+          />
+        </svg>
+      );
     case "slack":
       return (
         <svg className={common} viewBox="0 0 24 24" fill="none" aria-hidden="true">

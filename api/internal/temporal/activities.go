@@ -302,6 +302,7 @@ func (a *Activities) ExecuteNodeActivity(ctx context.Context, runID string, defi
 	}
 
 	triggers := make([]string, 0, nodeCount)
+	errorTriggers := make([]string, 0, 1)
 	for _, node := range def.Reactflow.Nodes {
 		nodeType := strings.TrimSpace(node.Data.NodeType)
 		if nodeType == "" {
@@ -310,9 +311,16 @@ func (a *Activities) ExecuteNodeActivity(ctx context.Context, runID string, defi
 		switch nodeType {
 		case "cron", "webhook", "httpTrigger", "trigger":
 			triggers = append(triggers, node.ID)
+		case "errorTrigger":
+			errorTriggers = append(errorTriggers, node.ID)
 		}
 	}
 	sort.Slice(triggers, func(i, j int) bool { return nodeIndexByID[triggers[i]] < nodeIndexByID[triggers[j]] })
+	sort.Slice(errorTriggers, func(i, j int) bool { return nodeIndexByID[errorTriggers[i]] < nodeIndexByID[errorTriggers[j]] })
+	errorTriggerID := ""
+	if len(errorTriggers) > 0 {
+		errorTriggerID = errorTriggers[0]
+	}
 
 	startIDs := triggers
 	if len(startIDs) == 0 {
@@ -325,6 +333,7 @@ func (a *Activities) ExecuteNodeActivity(ctx context.Context, runID string, defi
 	visited := make(map[string]struct{}, nodeCount)
 	executed := 0
 	failedButContinued := 0
+	failedRouted := 0
 	outputsByNodeID := make(map[string]any, nodeCount*2)
 
 	var executeNode func(nodeID string, input map[string]any) error
@@ -376,6 +385,28 @@ func (a *Activities) ExecuteNodeActivity(ctx context.Context, runID string, defi
 				return execErr
 			}
 			_ = a.steps.UpdateState(ctx, p.step.ID, "failed", inputsJSON, outputsJSON, logText, execErr.Error())
+
+			routeToError := readBool(p.config, "routeToErrorTrigger")
+			if routeToError && errorTriggerID != "" && errorTriggerID != p.step.NodeID {
+				failedRouted++
+				errorPayload := map[string]any{
+					"error": execErr.Error(),
+					"failed": map[string]any{
+						"run_id":    runID,
+						"step_key":  p.step.StepKey,
+						"name":      p.step.Name,
+						"node_id":   p.step.NodeID,
+						"node_type": p.step.NodeType,
+					},
+					"inputs":  inputs,
+					"outputs": outputs,
+				}
+				if err := executeNode(errorTriggerID, errorPayload); err != nil {
+					return err
+				}
+				return nil
+			}
+
 			if !continueOnFail {
 				return execErr
 			}
@@ -434,7 +465,10 @@ func (a *Activities) ExecuteNodeActivity(ctx context.Context, runID string, defi
 	}
 
 	if failedButContinued > 0 {
-		return fmt.Sprintf("executed %d nodes (%d failed, continued; %d skipped)", executed, failedButContinued, skipped), nil
+		return fmt.Sprintf("executed %d nodes (%d failed, continued; %d routed; %d skipped)", executed, failedButContinued, failedRouted, skipped), nil
+	}
+	if failedRouted > 0 {
+		return fmt.Sprintf("executed %d nodes (%d routed; %d skipped)", executed, failedRouted, skipped), nil
 	}
 	return fmt.Sprintf("executed %d nodes (%d skipped)", executed, skipped), nil
 }
