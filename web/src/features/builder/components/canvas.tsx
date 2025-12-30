@@ -24,6 +24,8 @@ import { useRunStepsQuery } from "@/features/runs/hooks/use-run-steps";
 import { useAppStore } from "@/shared/hooks/use-app-store";
 import { StickyNotesLayer } from "./sticky-notes-layer";
 import { useAuthStore } from "@/features/auth/store/use-auth-store";
+import { WizardModal } from "../wizard/components/wizard-modal";
+import { defaultActionKeyForApp, normalizeAppKey } from "../nodeCatalog/catalog";
 
 export function BuilderCanvas() {
   const nodes = useBuilderStore((s) => s.nodes);
@@ -37,6 +39,7 @@ export function BuilderCanvas() {
   const setSelectedEdge = useBuilderStore((s) => s.setSelectedEdge);
   const setSelectedNote = useBuilderStore((s) => s.setSelectedNote);
   const addNote = useBuilderStore((s) => s.addNote);
+  const addNode = useBuilderStore((s) => s.addNode);
   const activeRunId = useBuilderStore((s) => s.activeRunId);
   const reduceMotion = useAppStore((s) => s.reduceMotion);
   const user = useAuthStore((s) => s.user);
@@ -156,9 +159,18 @@ export function BuilderCanvas() {
         y: event.clientY - bounds.top,
       });
       if (!position) return;
+
+      if (type === "app") {
+        const appKey = normalizeAppKey(event.dataTransfer.getData("application/flowcraft/app-key"));
+        if (appKey) {
+          const actionKey = defaultActionKeyForApp(appKey);
+          addNode(type, position, label, { app: appKey, ...(actionKey ? { action: actionKey } : {}) });
+          return;
+        }
+      }
       createNodeAt(type, label, position);
     },
-    [createNodeAt, rfInstance]
+    [addNode, addNote, createNodeAt, rfInstance, user]
   );
 
   const onMoveEnd = useCallback(() => {
@@ -278,6 +290,7 @@ export function BuilderCanvas() {
         </div>
       </div>
       <Inspector />
+      <WizardModal />
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import { Edge, Node, Viewport } from "reactflow";
+import type { AgentMemoryConfig, AgentModelConfig, AgentToolConfig } from "./agent";
 
 export type BuilderNodeType =
   | "httpTrigger"
@@ -6,6 +7,11 @@ export type BuilderNodeType =
   | "cron"
   | "errorTrigger"
   | "httpRequest"
+  | "aiAgent"
+  | "chatModel"
+  | "openaiChatModel"
+  | "geminiChatModel"
+  | "grokChatModel"
   | "app"
   | "gmail"
   | "gsheets"
@@ -23,6 +29,10 @@ export type FlowNodeData = {
   label: string;
   description?: string;
   config: Record<string, unknown>;
+  // AI Agent sub-config (Prompt 013)
+  model?: AgentModelConfig | null;
+  memory?: AgentMemoryConfig | null;
+  tools?: AgentToolConfig[];
   notes?: string;
   runtimeStatus?: "queued" | "running" | "success" | "failed" | "canceled" | "skipped";
   runtimeStepKey?: string;

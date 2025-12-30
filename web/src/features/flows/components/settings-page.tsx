@@ -142,7 +142,7 @@ export function SettingsPage() {
                     <div className="text-sm font-medium text-muted">Connect apps</div>
                     <div className="text-xs text-muted">Use Gmail, Sheets, and GitHub in your workflows.</div>
                   </div>
-                  <Button size="md" className="rounded-lg" onClick={() => router.push("/settings/credentials")}>
+                  <Button size="md" className="rounded-lg" onClick={() => router.push("/settings/credentials" as any)}>
                     Manage credentials
                   </Button>
                 </div>
@@ -157,7 +157,7 @@ export function SettingsPage() {
                     <div className="text-sm font-medium text-muted">Reusable values</div>
                     <div className="text-xs text-muted">Store keys and values for your personal workflows.</div>
                   </div>
-                  <Button size="md" className="rounded-lg" onClick={() => router.push("/settings/variables")}>
+                  <Button size="md" className="rounded-lg" onClick={() => router.push("/settings/variables" as any)}>
                     Manage variables
                   </Button>
                 </div>

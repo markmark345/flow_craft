@@ -11,6 +11,8 @@ import { FieldRow } from "./inspector-field-row";
 import { ScheduleConfig } from "./inspector-schedule-config";
 import { SlackConfig } from "./inspector-slack-config";
 import { InspectorAppConfig } from "./inspector-app-config";
+import { InspectorChatModelConfig } from "./inspector-chat-model-config";
+import { InspectorAgentConfig } from "./inspector-agent-config";
 
 export function InspectorConfigPanel({
   node,
@@ -22,7 +24,7 @@ export function InspectorConfigPanel({
   updateNodeConfig: (id: string, patch: Record<string, unknown>) => void;
 }) {
   const meta = NODE_CATALOG[node.data.nodeType];
-  const valid = meta?.validate ? meta.validate(node.data.config || {}) : true;
+  const valid = meta?.validate ? meta.validate(node.data) : true;
   const nodeCode = `node_${node.id.slice(0, 5)}`;
   const accent = meta?.accent || "accent";
   const accentVar: Record<string, string> = {
@@ -34,7 +36,65 @@ export function InspectorConfigPanel({
     slack: "var(--slack)",
     neutral: "var(--muted)",
   };
-  const accentColor = accentVar[accent] || "var(--accent)";
+  const baseAccentColor = accentVar[accent] || "var(--accent)";
+  const provider =
+    node.data.nodeType === "chatModel" && typeof node.data.config?.provider === "string"
+      ? String(node.data.config.provider).trim().toLowerCase()
+      : "";
+  const appKey =
+    node.data.nodeType === "app" && typeof node.data.config?.app === "string"
+      ? String(node.data.config.app).trim().toLowerCase()
+      : "";
+  const accentColor =
+    node.data.nodeType === "chatModel"
+      ? provider === "gemini"
+        ? "var(--warning)"
+        : provider === "grok"
+          ? "var(--error)"
+          : "var(--accent)"
+      : node.data.nodeType === "app"
+        ? appKey === "googlesheets" || appKey === "gsheets"
+          ? "var(--success)"
+          : appKey === "gmail"
+            ? "var(--error)"
+            : appKey === "bannerbear" || appKey === "bananabear"
+              ? "var(--warning)"
+              : appKey === "github"
+                ? "var(--accent)"
+                : baseAccentColor
+        : baseAccentColor;
+
+  const iconNodeType = (() => {
+    if (node.data.nodeType === "chatModel") {
+      return provider === "gemini" || provider === "grok" || provider === "openai" ? provider : "openai";
+    }
+    if (node.data.nodeType === "app") {
+      if (appKey === "googlesheets" || appKey === "gsheets" || appKey === "googlesheet") return "googleSheets";
+      if (appKey === "gmail") return "gmail";
+      if (appKey === "github") return "github";
+      if (appKey === "bannerbear" || appKey === "bananabear") return "bannerbear";
+      return "app";
+    }
+    return node.data.nodeType;
+  })();
+  const chatModelProviderLabel = (provider: string) => {
+    const p = provider.trim().toLowerCase();
+    if (p === "gemini") return "Gemini";
+    if (p === "grok") return "Grok";
+    return "OpenAI";
+  };
+  const handleChatModelPatch = (patch: Record<string, unknown>) => {
+    const currentProvider = typeof node.data.config?.provider === "string" ? String(node.data.config.provider) : "openai";
+    const nextProvider = typeof patch.provider === "string" ? String(patch.provider) : currentProvider;
+    if (currentProvider.trim().toLowerCase() !== nextProvider.trim().toLowerCase()) {
+      const prevDefaultLabel = `${chatModelProviderLabel(currentProvider)} Chat Model`;
+      const nextDefaultLabel = `${chatModelProviderLabel(nextProvider)} Chat Model`;
+      if (typeof node.data.label === "string" && node.data.label.trim() === prevDefaultLabel) {
+        updateNodeData(node.id, { label: nextDefaultLabel });
+      }
+    }
+    updateNodeConfig(node.id, patch);
+  };
 
   return (
     <div className="space-y-6">
@@ -47,7 +107,7 @@ export function InspectorConfigPanel({
             borderColor: `color-mix(in srgb, ${accentColor} 20%, transparent)`,
           }}
         >
-          <NodeIcon nodeType={node.data.nodeType} className="h-6 w-6" />
+          <NodeIcon nodeType={iconNodeType} className="h-6 w-6" />
         </div>
         <div className="flex-1 min-w-0">
           <h3 className="text-base font-bold text-text truncate">{meta?.label || "Node"}</h3>
@@ -76,6 +136,10 @@ export function InspectorConfigPanel({
         <SlackConfig config={node.data.config || {}} onPatch={(patch) => updateNodeConfig(node.id, patch)} />
       ) : node.data.nodeType === "app" ? (
         <InspectorAppConfig config={node.data.config || {}} onPatch={(patch) => updateNodeConfig(node.id, patch)} />
+      ) : node.data.nodeType === "aiAgent" ? (
+        <InspectorAgentConfig node={node} updateNodeData={updateNodeData} updateNodeConfig={updateNodeConfig} />
+      ) : node.data.nodeType === "chatModel" ? (
+        <InspectorChatModelConfig config={node.data.config || {}} onPatch={handleChatModelPatch} />
       ) : node.data.nodeType === "cron" ? (
         <ScheduleConfig config={node.data.config || {}} onPatch={(patch) => updateNodeConfig(node.id, patch)} />
       ) : node.data.nodeType === "if" ? (

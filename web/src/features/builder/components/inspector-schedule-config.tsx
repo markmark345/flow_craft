@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 
 import { Input } from "@/shared/components/input";
-import { Icon } from "@/shared/components/icon";
+import { Select, type SelectOption } from "@/shared/components/select";
 
 type ScheduleMode = "every" | "hourly" | "daily" | "weekly" | "monthly" | "cron";
 
@@ -63,21 +63,20 @@ export function ScheduleConfig({
     <div className="space-y-5">
       <div className="space-y-2">
         <label className="block text-xs font-bold text-muted">Schedule</label>
-        <div className="relative">
-          <select
-            className="h-10 w-full rounded-lg bg-surface2 border border-border px-3 text-sm text-text focus:outline-none focus:shadow-focus appearance-none"
-            value={state.mode}
-            onChange={(e) => apply({ mode: e.target.value as ScheduleMode })}
-          >
-            <option value="every">Every N minutes</option>
-            <option value="hourly">Hourly</option>
-            <option value="daily">Daily</option>
-            <option value="weekly">Weekly</option>
-            <option value="monthly">Monthly</option>
-            <option value="cron">Cron (advanced)</option>
-          </select>
-          <Icon name="expand_more" className="absolute right-3 top-2.5 text-muted pointer-events-none text-[20px]" />
-        </div>
+        <Select
+          value={state.mode}
+          options={
+            [
+              { value: "every", label: "Every N minutes" },
+              { value: "hourly", label: "Hourly" },
+              { value: "daily", label: "Daily" },
+              { value: "weekly", label: "Weekly" },
+              { value: "monthly", label: "Monthly" },
+              { value: "cron", label: "Cron (advanced)" },
+            ] satisfies SelectOption[]
+          }
+          onChange={(next) => apply({ mode: next as ScheduleMode })}
+        />
       </div>
 
       {state.mode === "every" ? (
@@ -299,7 +298,7 @@ function parseScheduleExpression(expression: string): ScheduleState {
     };
   }
 
-  if (minNum != null && hourNum != null && domPart != null && dowPart === "*") {
+  if (minNum != null && hourNum != null && domNum != null && dowPart === "*") {
     return {
       ...base,
       mode: "monthly",

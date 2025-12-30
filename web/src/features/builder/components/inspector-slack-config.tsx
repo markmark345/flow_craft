@@ -5,6 +5,7 @@ import { useRef } from "react";
 import { Input } from "@/shared/components/input";
 import { Icon } from "@/shared/components/icon";
 import { useAppStore } from "@/shared/hooks/use-app-store";
+import { Select, type SelectOption } from "@/shared/components/select";
 import { FieldRow } from "./inspector-field-row";
 
 export function SlackConfig({
@@ -38,21 +39,17 @@ export function SlackConfig({
     <form className="space-y-5" onSubmit={(e) => e.preventDefault()}>
       <div className="space-y-1.5">
         <label className="block text-xs font-bold text-muted">Action Type</label>
-        <div className="relative">
-          <select
-            className="w-full appearance-none bg-surface2 border border-border text-text text-sm rounded-lg focus:outline-none focus:shadow-focus py-2 px-3 shadow-soft"
-            value={String(config.actionType || "Post Message")}
-            onChange={(e) => onPatch({ actionType: e.target.value })}
-          >
-            <option>Post Message</option>
-            <option>Upload File</option>
-            <option>Create Channel</option>
-          </select>
-          <Icon
-            name="expand_more"
-            className="absolute right-3 top-2.5 text-muted pointer-events-none text-[20px]"
-          />
-        </div>
+        <Select
+          value={String(config.actionType || "Post Message")}
+          options={
+            [
+              { value: "Post Message", label: "Post Message" },
+              { value: "Upload File", label: "Upload File" },
+              { value: "Create Channel", label: "Create Channel" },
+            ] satisfies SelectOption[]
+          }
+          onChange={(next) => onPatch({ actionType: next })}
+        />
       </div>
 
       <div className="space-y-1.5">
@@ -60,20 +57,17 @@ export function SlackConfig({
           Slack Connection <span className="text-red">*</span>
         </label>
         <div className="flex gap-2">
-          <div className="relative flex-1">
-            <select
-              className="w-full appearance-none bg-surface2 border border-border text-text text-sm rounded-lg focus:outline-none focus:shadow-focus py-2 px-3 shadow-soft"
-              value={String(config.connection || "My Workspace (Default)")}
-              onChange={(e) => onPatch({ connection: e.target.value })}
-            >
-              <option>My Workspace (Default)</option>
-              <option>Marketing Team</option>
-            </select>
-            <Icon
-              name="expand_more"
-              className="absolute right-3 top-2.5 text-muted pointer-events-none text-[20px]"
-            />
-          </div>
+          <Select
+            value={String(config.connection || "My Workspace (Default)")}
+            options={
+              [
+                { value: "My Workspace (Default)", label: "My Workspace (Default)" },
+                { value: "Marketing Team", label: "Marketing Team" },
+              ] satisfies SelectOption[]
+            }
+            onChange={(next) => onPatch({ connection: next })}
+            className="flex-1"
+          />
           <button
             type="button"
             className="p-2 rounded-lg bg-surface2 text-muted hover:text-accent hover:bg-surface border border-border transition-colors"

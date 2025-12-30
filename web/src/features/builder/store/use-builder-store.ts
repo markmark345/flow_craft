@@ -13,6 +13,9 @@ import { FlowNodeData, SerializedFlow, StickyNote } from "../types";
 import { BuilderNodeType } from "../types";
 import { NODE_CATALOG, createDefaultNodeData } from "../types/node-catalog";
 import type { AuthUser } from "@/shared/lib/auth";
+import { migrateAgentSubnodes } from "../lib/migrate-agent-subnodes";
+
+type AgentInspectorTab = "model" | "memory" | "tools";
 
 type State = {
   flowId?: string;
@@ -24,6 +27,7 @@ type State = {
   selectedNodeId?: string;
   selectedEdgeId?: string;
   selectedNoteId?: string;
+  agentInspectorTab: AgentInspectorTab;
   activeRunId?: string;
   dirty: boolean;
   setFlowId: (id: string) => void;
@@ -35,6 +39,7 @@ type State = {
   setSelectedNode: (id?: string) => void;
   setSelectedEdge: (id?: string) => void;
   setSelectedNote: (id?: string) => void;
+  setAgentInspectorTab: (tab: AgentInspectorTab) => void;
   setActiveRunId: (id?: string) => void;
   markDirty: () => void;
   markSaved: () => void;
@@ -43,7 +48,12 @@ type State = {
   onNodesChange: OnNodesChange;
   onEdgesChange: OnEdgesChange;
   onConnect: (connection: Connection) => void;
-  addNode: (nodeType: BuilderNodeType, position: { x: number; y: number }, label?: string) => void;
+  addNode: (
+    nodeType: BuilderNodeType,
+    position: { x: number; y: number },
+    label?: string,
+    configPatch?: Record<string, unknown>
+  ) => void;
   addConnectedNode: (
     fromNodeId: string,
     nodeType: BuilderNodeType,
@@ -64,14 +74,28 @@ const initialViewport: Viewport = { x: 0, y: 0, zoom: 1 };
 function normalizeNode(node: Node<any>): Node<FlowNodeData> {
   const data: any = node.data || {};
   const dataNodeType = data?.nodeType;
-  const inferred =
+  const resolved =
     (typeof dataNodeType === "string" && NODE_CATALOG[dataNodeType as BuilderNodeType]
       ? (dataNodeType as BuilderNodeType)
       : undefined) ||
     (NODE_CATALOG[node.type as BuilderNodeType] ? (node.type as BuilderNodeType) : undefined) ||
     "httpRequest";
 
-  const defaults = createDefaultNodeData(inferred, data?.label);
+  const legacyModelProvider = (() => {
+    if (resolved === "openaiChatModel") return "openai";
+    if (resolved === "geminiChatModel") return "gemini";
+    if (resolved === "grokChatModel") return "grok";
+    return null;
+  })();
+
+  const inferred = legacyModelProvider ? "chatModel" : resolved;
+
+  const defaultLabel =
+    legacyModelProvider && typeof data?.label !== "string"
+      ? `${legacyModelProvider === "gemini" ? "Gemini" : legacyModelProvider === "grok" ? "Grok" : "OpenAI"} Chat Model`
+      : data?.label;
+
+  const defaults = createDefaultNodeData(inferred, defaultLabel);
   return {
     ...node,
     type: "flowNode",
@@ -82,6 +106,7 @@ function normalizeNode(node: Node<any>): Node<FlowNodeData> {
       config: {
         ...(defaults.config || {}),
         ...((data?.config as Record<string, unknown>) || {}),
+        ...(legacyModelProvider ? { provider: legacyModelProvider } : {}),
       },
     },
   };
@@ -131,6 +156,7 @@ export const useBuilderStore = create<State>((set, get) => ({
   selectedNodeId: undefined,
   selectedEdgeId: undefined,
   selectedNoteId: undefined,
+  agentInspectorTab: "model",
   activeRunId: undefined,
   dirty: false,
   setFlowId: (id) =>
@@ -169,21 +195,25 @@ export const useBuilderStore = create<State>((set, get) => ({
         edges: state.edges.map((e) => (e.selected ? { ...e, selected: false } : e)),
       };
     }),
+  setAgentInspectorTab: (tab) => set({ agentInspectorTab: tab }),
   setActiveRunId: (id) => set({ activeRunId: id }),
   markDirty: () => set({ dirty: true }),
   markSaved: () => set({ dirty: false }),
   hydrateFromDefinition: (def, name) => {
+    const normalizedNodes = (def.reactflow?.nodes || []).map(normalizeNode);
+    const normalizedEdges = def.reactflow?.edges || [];
+    const migrated = migrateAgentSubnodes(normalizedNodes, normalizedEdges);
     set({
       flowName: name || def.name || "Untitled Flow",
-      nodes: (def.reactflow?.nodes || []).map(normalizeNode),
-      edges: def.reactflow?.edges || [],
+      nodes: migrated.nodes,
+      edges: migrated.edges,
       viewport: def.reactflow?.viewport || initialViewport,
       notes: (def.notes || []).map(normalizeNote).filter(Boolean) as StickyNote[],
       activeRunId: undefined,
       selectedNodeId: undefined,
       selectedEdgeId: undefined,
       selectedNoteId: undefined,
-      dirty: false,
+      dirty: migrated.didMigrate,
     });
   },
   serializeDefinition: () => {
@@ -234,8 +264,12 @@ export const useBuilderStore = create<State>((set, get) => ({
         dirty: true,
       };
     }),
-  addNode: (nodeType, position, label) => {
+  addNode: (nodeType, position, label, configPatch) => {
     const id = crypto.randomUUID();
+    const baseData = createDefaultNodeData(nodeType, label);
+    const data = configPatch
+      ? { ...baseData, config: { ...(baseData.config || {}), ...configPatch } }
+      : baseData;
     set((state) => ({
       nodes: [
         ...state.nodes,
@@ -243,7 +277,7 @@ export const useBuilderStore = create<State>((set, get) => ({
           id,
           type: "flowNode",
           position,
-          data: createDefaultNodeData(nodeType, label),
+          data,
         },
       ],
       selectedNodeId: id,

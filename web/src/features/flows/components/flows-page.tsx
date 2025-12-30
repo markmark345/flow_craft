@@ -251,12 +251,12 @@ export function FlowsPage() {
             onRowOpen={(id) => router.push(`/flows/${id}/builder`)}
             onRunFlow={onRunFlow}
             running={running}
-            runningFlowId={runningFlowId}
+            runningFlowId={runningFlowId ?? null}
             runMetaForFlow={runMetaForFlow}
             duplicateExistingFlow={duplicateExistingFlow}
-            duplicatingId={duplicatingId}
-            archivingId={archivingId}
-            deletingId={deletingId}
+            duplicatingId={duplicatingId ?? null}
+            archivingId={archivingId ?? null}
+            deletingId={deletingId ?? null}
             onArchive={(flow) => setConfirm({ type: "archive", flow })}
             onDelete={(flow) => setConfirm({ type: "delete", flow })}
             onCopied={() => showSuccess("Copied", "Flow ID copied to clipboard.")}

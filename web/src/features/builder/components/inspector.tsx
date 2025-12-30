@@ -101,7 +101,7 @@ export function Inspector() {
           )
         ) : tab === "io" ? (
           <InspectorIoPanel
-            activeRunId={activeRunId}
+            activeRunId={activeRunId ?? null}
             selectedNode={selectedNode}
             selectedNodeStep={selectedNodeStep}
             selectedEdge={selectedEdge}

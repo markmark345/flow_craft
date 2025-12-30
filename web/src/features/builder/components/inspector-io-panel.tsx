@@ -41,7 +41,7 @@ export function InspectorIoPanel({
 
               <div className="space-y-2">
                 <div className="text-xs font-bold uppercase tracking-wide text-muted">Inputs</div>
-                <pre className="text-xs whitespace-pre break-words rounded-lg bg-surface2 border border-border p-3 font-mono text-text overflow-auto max-h-[24vh]">
+                <pre className="text-xs whitespace-pre break-words rounded-lg bg-surface2 border border-border p-3 font-mono text-text overflow-auto fc-scrollbar max-h-[24vh]">
                   {pretty(selectedNodeStep.inputs) || "—"}
                 </pre>
               </div>
@@ -49,7 +49,7 @@ export function InspectorIoPanel({
               {selectedNodeStep.error ? (
                 <div className="space-y-2">
                   <div className="text-xs font-bold uppercase tracking-wide text-muted">Error</div>
-                  <pre className="text-xs whitespace-pre break-words rounded-lg bg-[color-mix(in_srgb,var(--red)_10%,var(--surface2))] border border-[color-mix(in_srgb,var(--red)_35%,var(--border))] p-3 font-mono text-red overflow-auto max-h-[18vh]">
+                  <pre className="text-xs whitespace-pre break-words rounded-lg bg-[color-mix(in_srgb,var(--red)_10%,var(--surface2))] border border-[color-mix(in_srgb,var(--red)_35%,var(--border))] p-3 font-mono text-red overflow-auto fc-scrollbar max-h-[18vh]">
                     {selectedNodeStep.error}
                   </pre>
                 </div>
@@ -57,7 +57,7 @@ export function InspectorIoPanel({
 
               <div className="space-y-2">
                 <div className="text-xs font-bold uppercase tracking-wide text-muted">Outputs</div>
-                <pre className="text-xs whitespace-pre break-words rounded-lg bg-surface2 border border-border p-3 font-mono text-text overflow-auto max-h-[24vh]">
+                <pre className="text-xs whitespace-pre break-words rounded-lg bg-surface2 border border-border p-3 font-mono text-text overflow-auto fc-scrollbar max-h-[24vh]">
                   {pretty(selectedNodeStep.outputs) || "—"}
                 </pre>
               </div>
@@ -95,7 +95,7 @@ export function InspectorIoPanel({
             ) : null}
           </div>
           <div className="text-sm text-text truncate">{sourceNode?.data.label || selectedEdge.source}</div>
-          <pre className="text-xs whitespace-pre break-words rounded-lg bg-surface2 border border-border p-3 font-mono text-text overflow-auto max-h-[22vh]">
+          <pre className="text-xs whitespace-pre break-words rounded-lg bg-surface2 border border-border p-3 font-mono text-text overflow-auto fc-scrollbar max-h-[22vh]">
             {pretty(sourceStep?.outputs) || "—"}
           </pre>
         </div>
@@ -114,7 +114,7 @@ export function InspectorIoPanel({
 
           <div className="space-y-2">
             <div className="text-[11px] font-bold uppercase tracking-wide text-muted">Inputs</div>
-            <pre className="text-xs whitespace-pre break-words rounded-lg bg-surface2 border border-border p-3 font-mono text-text overflow-auto max-h-[18vh]">
+            <pre className="text-xs whitespace-pre break-words rounded-lg bg-surface2 border border-border p-3 font-mono text-text overflow-auto fc-scrollbar max-h-[18vh]">
               {pretty(targetStep?.inputs) || "—"}
             </pre>
           </div>
@@ -122,7 +122,7 @@ export function InspectorIoPanel({
           {targetStep?.error ? (
             <div className="space-y-2">
               <div className="text-[11px] font-bold uppercase tracking-wide text-muted">Error</div>
-              <pre className="text-xs whitespace-pre break-words rounded-lg bg-[color-mix(in_srgb,var(--red)_10%,var(--surface2))] border border-[color-mix(in_srgb,var(--red)_35%,var(--border))] p-3 font-mono text-red overflow-auto max-h-[18vh]">
+              <pre className="text-xs whitespace-pre break-words rounded-lg bg-[color-mix(in_srgb,var(--red)_10%,var(--surface2))] border border-[color-mix(in_srgb,var(--red)_35%,var(--border))] p-3 font-mono text-red overflow-auto fc-scrollbar max-h-[18vh]">
                 {targetStep.error}
               </pre>
             </div>
@@ -130,7 +130,7 @@ export function InspectorIoPanel({
 
           <div className="space-y-2">
             <div className="text-[11px] font-bold uppercase tracking-wide text-muted">Outputs</div>
-            <pre className="text-xs whitespace-pre break-words rounded-lg bg-surface2 border border-border p-3 font-mono text-text overflow-auto max-h-[18vh]">
+            <pre className="text-xs whitespace-pre break-words rounded-lg bg-surface2 border border-border p-3 font-mono text-text overflow-auto fc-scrollbar max-h-[18vh]">
               {pretty(targetStep?.outputs) || "—"}
             </pre>
           </div>

@@ -25,3 +25,32 @@ a {
   background-image: radial-gradient(var(--grid) 1px, transparent 0);
   background-size: 24px 24px;
 }
+
+.fc-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--muted) 45%, transparent) transparent;
+}
+
+.fc-scrollbar::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+.fc-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.fc-scrollbar::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--muted) 38%, transparent);
+  border-radius: 999px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+
+.fc-scrollbar:hover::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--muted) 55%, transparent);
+}
+
+.fc-scrollbar::-webkit-scrollbar-corner {
+  background: transparent;
+}

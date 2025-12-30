@@ -51,6 +51,41 @@ func buildStepInputs(nodeType string, config map[string]any, runID string, stepK
 		if strings.TrimSpace(body) != "" {
 			inputs["body"] = parseJSONOrString(body)
 		}
+	case "aiAgent":
+		if prompt := readString(config, "prompt"); strings.TrimSpace(prompt) != "" {
+			inputs["prompt"] = prompt
+		}
+		if sys := readString(config, "systemPrompt"); strings.TrimSpace(sys) != "" {
+			inputs["system_prompt"] = sys
+		}
+		if raw, ok := config["temperature"]; ok && raw != nil {
+			inputs["temperature"] = raw
+		}
+		if raw, ok := config["maxTokens"]; ok && raw != nil {
+			inputs["max_tokens"] = raw
+		}
+		if modelCfg, ok := config["model"].(map[string]any); ok {
+			provider := strings.TrimSpace(readString(modelCfg, "provider"))
+			modelName := strings.TrimSpace(readString(modelCfg, "model"))
+			if provider != "" || modelName != "" {
+				inputs["model"] = map[string]any{
+					"provider": provider,
+					"model":    modelName,
+				}
+			}
+		} else if ref, ok := config["__model"].(map[string]any); ok {
+			nodeID := strings.TrimSpace(readAnyString(ref["nodeId"]))
+			nodeType := strings.TrimSpace(readAnyString(ref["nodeType"]))
+			modelName := ""
+			if cfg, ok := ref["config"].(map[string]any); ok {
+				modelName = strings.TrimSpace(readString(cfg, "model"))
+			}
+			inputs["model"] = map[string]any{
+				"node_id":   nodeID,
+				"node_type": nodeType,
+				"model":     modelName,
+			}
+		}
 	case "cron":
 		if expr := readString(config, "expression"); expr != "" {
 			inputs["expression"] = expr
@@ -120,6 +155,8 @@ func executeStep(
 		return simulateStep(ctx, map[string]any{"status": 200, "data": map[string]any{"scheduled_at": now}})
 	case "webhook":
 		return simulateStep(ctx, map[string]any{"status": 200, "data": sampleWebhookPayload()})
+	case "aiAgent":
+		return executeAIAgent(ctx, config, input, steps, deps)
 	case "if":
 		return executeIf(ctx, config, input, steps)
 	case "errorTrigger":

@@ -10,7 +10,6 @@ export function useBuilderLoad(flowId?: string) {
   const [error, setError] = useState<string | undefined>(undefined);
   const hydrate = useBuilderStore((s) => s.hydrateFromDefinition);
   const setFlowId = useBuilderStore((s) => s.setFlowId);
-  const markSaved = useBuilderStore((s) => s.markSaved);
   const showError = useAppStore((s) => s.showError);
   const setScope = useWorkspaceStore((s) => s.setScope);
   const setActiveProject = useWorkspaceStore((s) => s.setActiveProject);
@@ -46,7 +45,6 @@ export function useBuilderLoad(flowId?: string) {
           };
         }
         hydrate(def, data.name);
-        markSaved();
       } catch (err: any) {
         const msg = err?.message || "Failed to load flow";
         setError(msg);
@@ -56,7 +54,7 @@ export function useBuilderLoad(flowId?: string) {
       }
     };
     run();
-  }, [flowId, hydrate, markSaved, setActiveProject, setFlowId, setScope, showError]);
+  }, [flowId, hydrate, setActiveProject, setFlowId, setScope, showError]);
 
   return { loading, error };
 }

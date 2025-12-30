@@ -125,6 +125,7 @@ func NewRouter(cfg config.Config, db *sql.DB, logger zerolog.Logger, temporalCli
 	if credSvc != nil {
 		credentialHandler = NewCredentialHandler(credSvc, cfg)
 	}
+	nodeTestHandler := NewNodeTestHandler(credSvc, cfg)
 
 	authHandler.Register(apiPublic)
 
@@ -169,6 +170,7 @@ func NewRouter(cfg config.Config, db *sql.DB, logger zerolog.Logger, temporalCli
 		credentialHandler.Register(apiProtected)
 	}
 	variableHandler.Register(apiProtected)
+	nodeTestHandler.Register(apiProtected)
 	apiProtected.POST("/flows/:id/run", runHandler.CreateForFlow)
 	apiProtected.POST("/workflows/:id/run", runHandler.CreateForFlow)
 

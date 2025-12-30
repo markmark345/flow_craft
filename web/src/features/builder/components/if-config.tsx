@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 import { Input } from "@/shared/components/input";
 import { Icon } from "@/shared/components/icon";
+import { Select, type SelectOption } from "@/shared/components/select";
 
 export type IfConditionType = "string" | "number" | "datetime" | "boolean" | "array" | "object";
 export type IfCombine = "AND" | "OR";
@@ -201,37 +202,34 @@ export function IfConfig({
           return (
             <div key={cond.id} className="rounded-lg bg-surface2 border border-border p-3 space-y-3">
               <div className="flex items-center gap-2">
-                <select
+                <Select
                   value={cond.type}
-                  onChange={(e) => {
-                    const nextType = coerceConditionType(e.target.value);
+                  options={
+                    [
+                      { value: "string", label: "String" },
+                      { value: "number", label: "Number" },
+                      { value: "datetime", label: "Date & Time" },
+                      { value: "boolean", label: "Boolean" },
+                      { value: "array", label: "Array" },
+                      { value: "object", label: "Object" },
+                    ] satisfies SelectOption[]
+                  }
+                  onChange={(next) => {
+                    const nextType = coerceConditionType(next);
                     const nextOperator = OPERATORS[nextType]?.[0]?.label || "is equal to";
                     updateCondition(cond.id, { type: nextType, operator: nextOperator });
                   }}
-                  className="h-9 w-[130px] rounded-lg bg-panel border border-border px-2 text-xs font-semibold text-text focus:outline-none focus:shadow-focus"
-                >
-                  <option value="string">String</option>
-                  <option value="number">Number</option>
-                  <option value="datetime">Date &amp; Time</option>
-                  <option value="boolean">Boolean</option>
-                  <option value="array">Array</option>
-                  <option value="object">Object</option>
-                </select>
+                  className="w-[160px]"
+                />
 
-                <div className="relative flex-1">
-                  <select
-                    value={cond.operator}
-                    onChange={(e) => updateCondition(cond.id, { operator: e.target.value })}
-                    className="h-9 w-full appearance-none rounded-lg bg-panel border border-border pl-3 pr-9 text-xs font-semibold text-text focus:outline-none focus:shadow-focus"
-                  >
-                    {OPERATORS[cond.type].map((op) => (
-                      <option key={op.label} value={op.label}>
-                        {op.label}
-                      </option>
-                    ))}
-                  </select>
-                  <Icon name="expand_more" className="absolute right-2.5 top-2 text-muted pointer-events-none text-[18px]" />
-                </div>
+                <Select
+                  value={cond.operator}
+                  options={OPERATORS[cond.type].map<SelectOption>((op) => ({ value: op.label, label: op.label }))}
+                  onChange={(next) => updateCondition(cond.id, { operator: next })}
+                  className="flex-1"
+                  searchable={OPERATORS[cond.type].length > 8}
+                  searchPlaceholder="Search operators..."
+                />
 
                 <button
                   type="button"
@@ -278,17 +276,11 @@ export function IfConfig({
         <div className="grid grid-cols-2 gap-2">
           <div className="space-y-1.5">
             <label className="block text-xs font-bold text-muted">Combine</label>
-            <div className="relative">
-              <select
-                value={state.combine}
-                onChange={(e) => onPatch({ combine: coerceCombine(e.target.value) })}
-                className="h-10 w-full appearance-none rounded-lg bg-surface2 border border-border pl-3 pr-9 text-sm font-semibold text-text focus:outline-none focus:shadow-focus"
-              >
-                <option value="AND">AND</option>
-                <option value="OR">OR</option>
-              </select>
-              <Icon name="expand_more" className="absolute right-3 top-2.5 text-muted pointer-events-none text-[20px]" />
-            </div>
+            <Select
+              value={state.combine}
+              options={[{ value: "AND", label: "AND" }, { value: "OR", label: "OR" }]}
+              onChange={(next) => onPatch({ combine: coerceCombine(next) })}
+            />
           </div>
         </div>
 

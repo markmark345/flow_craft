@@ -2,6 +2,7 @@
 
 import { Input } from "@/shared/components/input";
 import { Icon } from "@/shared/components/icon";
+import { Select, type SelectOption } from "@/shared/components/select";
 import { NodeField } from "../types/node-catalog";
 import { useCredentialOptions } from "@/features/credentials/hooks/use-credential-options";
 
@@ -18,12 +19,18 @@ export function FieldRow({
   const v = value ?? "";
   const credentialOptions = useCredentialOptions(field.provider, field.type === "credential");
 
-  const label = (
-    <label htmlFor={id} className="block text-xs font-bold text-muted">
-      {field.label}
-      {field.required ? <span className="text-red"> *</span> : null}
-    </label>
-  );
+  const label =
+    field.type === "select" || field.type === "credential" ? (
+      <div className="block text-xs font-bold text-muted">
+        {field.label}
+        {field.required ? <span className="text-red"> *</span> : null}
+      </div>
+    ) : (
+      <label htmlFor={id} className="block text-xs font-bold text-muted">
+        {field.label}
+        {field.required ? <span className="text-red"> *</span> : null}
+      </label>
+    );
 
   if (field.type === "keyValue") {
     const pairs = coerceKeyValuePairs(value);
@@ -107,21 +114,18 @@ export function FieldRow({
   }
 
   if (field.type === "select") {
+    const options = (field.options || []).map<SelectOption>((opt) => ({ value: opt, label: opt }));
     return (
       <div className="space-y-2">
         {label}
-        <select
-          id={id}
+        <Select
           value={String(v)}
-          onChange={(e) => onChange(e.target.value)}
-          className="h-10 w-full rounded-lg bg-surface2 border border-border px-3 text-sm text-text focus:outline-none focus:shadow-focus"
-        >
-          {(field.options || []).map((opt) => (
-            <option key={opt} value={opt}>
-              {opt}
-            </option>
-          ))}
-        </select>
+          options={options}
+          onChange={(next) => onChange(next)}
+          placeholder={field.placeholder || "Select..."}
+          searchable={options.length > 8}
+          searchPlaceholder="Search..."
+        />
         {field.helpText ? <div className="text-xs text-muted">{field.helpText}</div> : null}
       </div>
     );
@@ -129,22 +133,22 @@ export function FieldRow({
 
   if (field.type === "credential") {
     const { options, loading, error } = credentialOptions;
+    const selectOptions = options.map<SelectOption>((opt) => ({
+      value: opt.id,
+      label: opt.label,
+      description: opt.accountEmail ? `${opt.provider} • ${opt.accountEmail}` : opt.provider,
+    }));
     return (
       <div className="space-y-2">
         {label}
-        <select
-          id={id}
+        <Select
           value={String(v)}
-          onChange={(e) => onChange(e.target.value)}
-          className="h-10 w-full rounded-lg bg-surface2 border border-border px-3 text-sm text-text focus:outline-none focus:shadow-focus"
-        >
-          <option value="">Select credential...</option>
-          {options.map((opt) => (
-            <option key={opt.id} value={opt.id}>
-              {opt.label}
-            </option>
-          ))}
-        </select>
+          options={selectOptions}
+          onChange={(next) => onChange(next)}
+          placeholder="Select credential..."
+          searchable={selectOptions.length > 6}
+          searchPlaceholder="Search credentials..."
+        />
         {loading ? <div className="text-xs text-muted">Loading credentials...</div> : null}
         {!loading && options.length === 0 ? (
           <div className="text-xs text-muted">No credentials connected yet.</div>

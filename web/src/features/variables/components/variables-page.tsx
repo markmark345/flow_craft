@@ -200,7 +200,7 @@ export function VariablesPage({ scope, projectId }: { scope: "personal" | "proje
               {projectNavItems.map((item) => (
                 <Link
                   key={item.id}
-                  href={item.href}
+                  href={item.href as any}
                   onClick={item.onClick}
                   className={cn(
                     "pb-3 text-sm font-medium transition-colors whitespace-nowrap",

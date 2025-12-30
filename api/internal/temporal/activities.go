@@ -75,6 +75,9 @@ func (a *Activities) ExecuteNodeActivity(ctx context.Context, runID string, defi
 					NodeType string         `json:"nodeType"`
 					Label    string         `json:"label"`
 					Config   map[string]any `json:"config"`
+					Model    map[string]any `json:"model"`
+					Memory   map[string]any `json:"memory"`
+					Tools    []map[string]any `json:"tools"`
 				} `json:"data"`
 			} `json:"nodes"`
 			Edges []struct {
@@ -99,11 +102,64 @@ func (a *Activities) ExecuteNodeActivity(ctx context.Context, runID string, defi
 		source       string
 		target       string
 		sourceHandle string
+		targetHandle string
 	}
 
 	nodeIndexByID := make(map[string]int, nodeCount)
 	for idx, n := range def.Reactflow.Nodes {
 		nodeIndexByID[n.ID] = idx
+	}
+
+	nodeTypeByID := make(map[string]string, nodeCount)
+	nodeConfigByID := make(map[string]map[string]any, nodeCount)
+	runnableByID := make(map[string]struct{}, nodeCount)
+	isRunnableNodeType := func(nodeType string) bool {
+		switch strings.ToLower(strings.TrimSpace(nodeType)) {
+		case "chatmodel", "openaichatmodel", "geminichatmodel", "grokchatmodel":
+			return false
+		default:
+			return true
+		}
+	}
+	isRefEdge := func(targetHandle string) bool {
+		switch strings.ToLower(strings.TrimSpace(targetHandle)) {
+		case "model", "memory", "tool":
+			return true
+		default:
+			return false
+		}
+	}
+
+	for _, n := range def.Reactflow.Nodes {
+		nodeType := strings.TrimSpace(n.Data.NodeType)
+		if nodeType == "" {
+			nodeType = strings.TrimSpace(n.Type)
+		}
+		nodeTypeByID[n.ID] = nodeType
+		cfg := n.Data.Config
+		if cfg == nil {
+			cfg = map[string]any{}
+		}
+		if nodeType == "aiAgent" {
+			merged := make(map[string]any, len(cfg)+4)
+			for k, v := range cfg {
+				merged[k] = v
+			}
+			if n.Data.Model != nil {
+				merged["model"] = n.Data.Model
+			}
+			if n.Data.Memory != nil {
+				merged["memory"] = n.Data.Memory
+			}
+			if n.Data.Tools != nil {
+				merged["tools"] = n.Data.Tools
+			}
+			cfg = merged
+		}
+		nodeConfigByID[n.ID] = cfg
+		if isRunnableNodeType(nodeType) {
+			runnableByID[n.ID] = struct{}{}
+		}
 	}
 
 	orderedIDs := make([]string, 0, nodeCount)
@@ -120,14 +176,23 @@ func (a *Activities) ExecuteNodeActivity(ctx context.Context, runID string, defi
 
 		indegree := make(map[string]int, nodeCount)
 		adj := make(map[string][]string, nodeCount)
-		for _, n := range def.Reactflow.Nodes {
-			indegree[n.ID] = 0
+		for id := range runnableByID {
+			indegree[id] = 0
 		}
 		for _, e := range def.Reactflow.Edges {
+			if isRefEdge(e.TargetHandle) {
+				continue
+			}
 			if _, ok := nodeIndexByID[e.Source]; !ok {
 				continue
 			}
 			if _, ok := nodeIndexByID[e.Target]; !ok {
+				continue
+			}
+			if _, ok := runnableByID[e.Source]; !ok {
+				continue
+			}
+			if _, ok := runnableByID[e.Target]; !ok {
 				continue
 			}
 			adj[e.Source] = append(adj[e.Source], e.Target)
@@ -174,6 +239,9 @@ func (a *Activities) ExecuteNodeActivity(ctx context.Context, runID string, defi
 		}
 
 		for _, n := range def.Reactflow.Nodes {
+			if _, ok := runnableByID[n.ID]; !ok {
+				continue
+			}
 			if indegree[n.ID] == 0 {
 				rootIDs = append(rootIDs, n.ID)
 			}
@@ -182,6 +250,9 @@ func (a *Activities) ExecuteNodeActivity(ctx context.Context, runID string, defi
 
 		queue := make([]string, 0, nodeCount)
 		for _, n := range def.Reactflow.Nodes {
+			if _, ok := runnableByID[n.ID]; !ok {
+				continue
+			}
 			if indegree[n.ID] == 0 {
 				queue = append(queue, n.ID)
 			}
@@ -206,9 +277,13 @@ func (a *Activities) ExecuteNodeActivity(ctx context.Context, runID string, defi
 			}
 		}
 
-		if len(orderedIDs) < nodeCount {
-			rest := make([]string, 0, nodeCount-len(orderedIDs))
+		runnableCount := len(runnableByID)
+		if len(orderedIDs) < runnableCount {
+			rest := make([]string, 0, runnableCount-len(orderedIDs))
 			for _, n := range def.Reactflow.Nodes {
+				if _, ok := runnableByID[n.ID]; !ok {
+					continue
+				}
 				if _, ok := seen[n.ID]; ok {
 					continue
 				}
@@ -263,7 +338,7 @@ func (a *Activities) ExecuteNodeActivity(ctx context.Context, runID string, defi
 					NodeID:   node.ID,
 					NodeType: nodeType,
 				},
-				config: node.Data.Config,
+				config: nodeConfigByID[node.ID],
 			})
 		}
 	}
@@ -286,9 +361,30 @@ func (a *Activities) ExecuteNodeActivity(ctx context.Context, runID string, defi
 	}
 
 	execEdges := make(map[string][]edge, nodeCount)
+	refEdgesByTarget := make(map[string][]edge, nodeCount)
 	incomingByTarget := make(map[string][]string, nodeCount)
 	for _, e := range def.Reactflow.Edges {
-		execEdges[e.Source] = append(execEdges[e.Source], edge{source: e.Source, target: e.Target, sourceHandle: e.SourceHandle})
+		if isRefEdge(e.TargetHandle) {
+			refEdgesByTarget[e.Target] = append(refEdgesByTarget[e.Target], edge{
+				source:       e.Source,
+				target:       e.Target,
+				sourceHandle: e.SourceHandle,
+				targetHandle: e.TargetHandle,
+			})
+			continue
+		}
+		if _, ok := runnableByID[e.Source]; !ok {
+			continue
+		}
+		if _, ok := runnableByID[e.Target]; !ok {
+			continue
+		}
+		execEdges[e.Source] = append(execEdges[e.Source], edge{
+			source:       e.Source,
+			target:       e.Target,
+			sourceHandle: e.SourceHandle,
+			targetHandle: e.TargetHandle,
+		})
 		if _, ok := nodeIndexByID[e.Source]; ok {
 			if _, ok := nodeIndexByID[e.Target]; ok {
 				incomingByTarget[e.Target] = append(incomingByTarget[e.Target], e.Source)
@@ -355,7 +451,31 @@ func (a *Activities) ExecuteNodeActivity(ctx context.Context, runID string, defi
 		visited[nodeID] = struct{}{}
 		executed++
 
-		inputs := buildStepInputs(p.step.NodeType, p.config, runID, p.step.StepKey, input)
+		stepConfig := p.config
+		if p.step.NodeType == "aiAgent" {
+			stepConfig = make(map[string]any, len(p.config)+4)
+			for k, v := range p.config {
+				stepConfig[k] = v
+			}
+
+			refs := refEdgesByTarget[nodeID]
+			modelNodeID := ""
+			for _, e := range refs {
+				if strings.EqualFold(strings.TrimSpace(e.targetHandle), "model") {
+					modelNodeID = e.source
+					break
+				}
+			}
+			if modelNodeID != "" {
+				stepConfig["__model"] = map[string]any{
+					"nodeId":   modelNodeID,
+					"nodeType": nodeTypeByID[modelNodeID],
+					"config":   nodeConfigByID[modelNodeID],
+				}
+			}
+		}
+
+		inputs := buildStepInputs(p.step.NodeType, stepConfig, runID, p.step.StepKey, input)
 		inputsJSON, _ := json.Marshal(inputs)
 
 		if err := a.steps.UpdateState(ctx, p.step.ID, "running", inputsJSON, nil, p.step.Name+" started", ""); err != nil {
@@ -363,7 +483,7 @@ func (a *Activities) ExecuteNodeActivity(ctx context.Context, runID string, defi
 		}
 
 		deps := stepDependencies{cfg: a.cfg, creds: a.creds, credsKey: a.credsKey}
-		outputs, logText, execErr := executeStep(ctx, p.step.NodeType, p.config, input, outputsByNodeID, deps)
+		outputs, logText, execErr := executeStep(ctx, p.step.NodeType, stepConfig, input, outputsByNodeID, deps)
 		outputsJSON, _ := json.Marshal(outputs)
 
 		if p.step.NodeID != "" {

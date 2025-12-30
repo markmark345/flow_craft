@@ -98,7 +98,7 @@ export function LogsDrawer() {
           </button>
         </div>
       </div>
-      <div className="flex-1 overflow-auto p-4 text-xs text-muted font-mono">
+      <div className="flex-1 overflow-auto p-4 text-xs text-muted font-mono fc-scrollbar">
         {!flowId ? (
           "No flow loaded."
         ) : !runId ? (

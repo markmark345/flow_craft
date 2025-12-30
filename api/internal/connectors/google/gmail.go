@@ -55,6 +55,44 @@ func SendEmail(ctx context.Context, accessToken string, from string, to string, 
 	return out, nil
 }
 
+func GetProfile(ctx context.Context, accessToken string) (map[string]any, error) {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, "https://gmail.googleapis.com/gmail/v1/users/me/profile", nil)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Authorization", "Bearer "+accessToken)
+	req.Header.Set("Accept", "application/json")
+	client := &http.Client{Timeout: 10 * time.Second}
+	res, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+	if res.StatusCode >= 300 {
+		bodyBytes, _ := io.ReadAll(io.LimitReader(res.Body, 64*1024))
+		if len(bodyBytes) > 0 {
+			var payload map[string]any
+			if err := json.Unmarshal(bodyBytes, &payload); err == nil {
+				if errObj, ok := payload["error"].(map[string]any); ok {
+					if msg, ok := errObj["message"].(string); ok && strings.TrimSpace(msg) != "" {
+						return nil, errors.New(msg)
+					}
+				}
+				if msg, ok := payload["message"].(string); ok && strings.TrimSpace(msg) != "" {
+					return nil, errors.New(msg)
+				}
+			}
+			return nil, fmt.Errorf("gmail profile error: %s (%s)", res.Status, strings.TrimSpace(string(bodyBytes)))
+		}
+		return nil, fmt.Errorf("gmail profile error: %s", res.Status)
+	}
+	var out map[string]any
+	if err := json.NewDecoder(res.Body).Decode(&out); err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func buildRawEmail(from string, to string, subject string, bodyText string, bodyHTML string) string {
 	var b strings.Builder
 	if from != "" {

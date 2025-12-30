@@ -91,7 +91,7 @@ export function CredentialsPage({ scope, projectId }: { scope: "personal" | "pro
       showSuccess("Connected", `${connected} credential added.`);
     }
     reload();
-    router.replace(returnPath);
+    router.replace(returnPath as any);
   }, [connected, connectError, reload, returnPath, router, showError, showSuccess]);
 
   useEffect(() => {
@@ -253,7 +253,7 @@ export function CredentialsPage({ scope, projectId }: { scope: "personal" | "pro
               {projectNavItems.map((item) => (
                 <Link
                   key={item.id}
-                  href={item.href}
+                  href={item.href as any}
                   onClick={item.onClick}
                   className={cn(
                     "pb-3 text-sm font-medium transition-colors whitespace-nowrap",

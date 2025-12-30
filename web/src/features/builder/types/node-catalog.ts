@@ -1,4 +1,5 @@
 import { BuilderNodeType, FlowNodeData } from ".";
+import { isValidAgentModelConfig } from "./agent";
 
 export type NodeFieldType = "text" | "number" | "textarea" | "select" | "toggle" | "keyValue" | "credential";
 
@@ -12,7 +13,7 @@ export type NodeField = {
   options?: string[];
   required?: boolean;
   helpText?: string;
-  provider?: "google" | "github";
+  provider?: string;
 };
 
 export type NodeCategory = "Triggers" | "Actions" | "Utilities";
@@ -26,7 +27,7 @@ export type NodeCatalogItem = {
   description: string;
   accent: NodeAccent;
   op?: string;
-  validate?: (config: Record<string, unknown>) => boolean;
+  validate?: (node: FlowNodeData) => boolean;
   fields: NodeField[];
   defaultConfig: Record<string, unknown>;
 };
@@ -44,7 +45,7 @@ export const NODE_CATALOG: Record<BuilderNodeType, NodeCatalogItem> = {
       { key: "method", label: "Method", type: "select", options: ["GET", "POST", "PUT", "DELETE"] },
     ],
     defaultConfig: { path: "/incoming", method: "POST" },
-    validate: (cfg) => typeof cfg.path === "string" && cfg.path.length > 0,
+    validate: (node) => typeof node.config.path === "string" && node.config.path.length > 0,
   },
   errorTrigger: {
     type: "errorTrigger",
@@ -68,7 +69,7 @@ export const NODE_CATALOG: Record<BuilderNodeType, NodeCatalogItem> = {
       { key: "secret", label: "Secret", type: "text", placeholder: "optional" },
     ],
     defaultConfig: { path: "/webhook", secret: "" },
-    validate: (cfg) => typeof cfg.path === "string" && cfg.path.length > 0,
+    validate: (node) => typeof node.config.path === "string" && node.config.path.length > 0,
   },
   cron: {
     type: "cron",
@@ -79,7 +80,7 @@ export const NODE_CATALOG: Record<BuilderNodeType, NodeCatalogItem> = {
     op: "schedule.cron",
     fields: [{ key: "expression", label: "Expression", type: "text", placeholder: "0 * * * *" }],
     defaultConfig: { expression: "0 * * * *" },
-    validate: (cfg) => typeof cfg.expression === "string" && cfg.expression.length > 0,
+    validate: (node) => typeof node.config.expression === "string" && node.config.expression.length > 0,
   },
   httpRequest: {
     type: "httpRequest",
@@ -108,7 +109,196 @@ export const NODE_CATALOG: Record<BuilderNodeType, NodeCatalogItem> = {
       { key: "body", label: "Body", type: "textarea", placeholder: "{\"hello\":\"world\"}" },
     ],
     defaultConfig: { url: "", method: "GET", queryParams: [], headers: [], body: "" },
-    validate: (cfg) => typeof cfg.url === "string" && cfg.url.length > 0,
+    validate: (node) => typeof node.config.url === "string" && node.config.url.length > 0,
+  },
+  aiAgent: {
+    type: "aiAgent",
+    label: "AI Agent",
+    category: "Actions",
+    description: "Generate text with an AI model",
+    accent: "neutral",
+    op: "ai.agent",
+    fields: [
+      {
+        key: "systemPrompt",
+        label: "System prompt (optional)",
+        type: "textarea",
+        placeholder: "You are a helpful assistant.",
+      },
+      {
+        key: "prompt",
+        label: "Prompt",
+        type: "textarea",
+        placeholder: "Write something... {{input}}",
+        helpText: "Use {{input}} to include the previous node output in the prompt.",
+      },
+      {
+        key: "temperature",
+        label: "Temperature",
+        type: "number",
+        placeholder: "0.7",
+        helpText: "Higher = more creative, lower = more deterministic.",
+      },
+      {
+        key: "maxTokens",
+        label: "Max tokens",
+        type: "number",
+        placeholder: "512",
+      },
+    ],
+    defaultConfig: {
+      systemPrompt: "",
+      prompt: "{{input}}",
+      temperature: 0.7,
+      maxTokens: 512,
+    },
+    validate: (node) => isValidAgentModelConfig(node.model),
+  },
+  chatModel: {
+    type: "chatModel",
+    label: "Chat Model",
+    category: "Utilities",
+    description: "Provide a model connection for AI Agent",
+    accent: "neutral",
+    op: "ai.model",
+    fields: [],
+    defaultConfig: {
+      provider: "openai",
+      credentialId: "",
+      apiKey: "",
+      model: "gpt-4o-mini",
+      baseUrl: "https://api.openai.com/v1",
+    },
+    validate: (node) => {
+      const cfg = node.config as any;
+      const provider = typeof cfg?.provider === "string" ? String(cfg.provider).trim() : "";
+      const model = typeof cfg?.model === "string" ? String(cfg.model).trim() : "";
+      const credentialId = typeof cfg?.credentialId === "string" ? String(cfg.credentialId).trim() : "";
+      const apiKey = typeof cfg?.apiKey === "string" ? String(cfg.apiKey).trim() : "";
+      return provider.length > 0 && model.length > 0 && (credentialId.length > 0 || apiKey.length > 0);
+    },
+  },
+  openaiChatModel: {
+    type: "openaiChatModel",
+    label: "OpenAI Chat Model",
+    category: "Utilities",
+    description: "Provide an OpenAI model connection for AI Agent",
+    accent: "neutral",
+    op: "ai.model.openai",
+    fields: [
+      {
+        key: "credentialId",
+        label: "Credential (optional)",
+        type: "credential",
+        provider: "openai",
+        helpText: "Create an OpenAI credential in Credentials (API key).",
+      },
+      {
+        key: "apiKey",
+        label: "API key (optional)",
+        type: "text",
+        placeholder: "sk-...",
+        helpText: "If set, overrides the credential API key.",
+      },
+      { key: "model", label: "Model", type: "text", placeholder: "gpt-4o-mini", required: true },
+      {
+        key: "baseUrl",
+        label: "Base URL (optional)",
+        type: "text",
+        placeholder: "https://api.openai.com/v1",
+      },
+    ],
+    defaultConfig: { credentialId: "", apiKey: "", model: "gpt-4o-mini", baseUrl: "https://api.openai.com/v1" },
+    validate: (node) => {
+      const cfg = node.config as any;
+      const model = typeof cfg?.model === "string" ? String(cfg.model).trim() : "";
+      const credentialId = typeof cfg?.credentialId === "string" ? String(cfg.credentialId).trim() : "";
+      const apiKey = typeof cfg?.apiKey === "string" ? String(cfg.apiKey).trim() : "";
+      return model.length > 0 && (credentialId.length > 0 || apiKey.length > 0);
+    },
+  },
+  geminiChatModel: {
+    type: "geminiChatModel",
+    label: "Gemini Chat Model",
+    category: "Utilities",
+    description: "Provide a Gemini model connection for AI Agent",
+    accent: "neutral",
+    op: "ai.model.gemini",
+    fields: [
+      {
+        key: "credentialId",
+        label: "Credential (optional)",
+        type: "credential",
+        provider: "gemini",
+        helpText: "Create a Gemini credential in Credentials (API key).",
+      },
+      {
+        key: "apiKey",
+        label: "API key (optional)",
+        type: "text",
+        placeholder: "AIza...",
+        helpText: "If set, overrides the credential API key.",
+      },
+      { key: "model", label: "Model", type: "text", placeholder: "gemini-1.5-flash", required: true },
+      {
+        key: "baseUrl",
+        label: "Base URL (optional)",
+        type: "text",
+        placeholder: "https://generativelanguage.googleapis.com",
+      },
+    ],
+    defaultConfig: {
+      credentialId: "",
+      apiKey: "",
+      model: "gemini-1.5-flash",
+      baseUrl: "https://generativelanguage.googleapis.com",
+    },
+    validate: (node) => {
+      const cfg = node.config as any;
+      const model = typeof cfg?.model === "string" ? String(cfg.model).trim() : "";
+      const credentialId = typeof cfg?.credentialId === "string" ? String(cfg.credentialId).trim() : "";
+      const apiKey = typeof cfg?.apiKey === "string" ? String(cfg.apiKey).trim() : "";
+      return model.length > 0 && (credentialId.length > 0 || apiKey.length > 0);
+    },
+  },
+  grokChatModel: {
+    type: "grokChatModel",
+    label: "Grok Chat Model",
+    category: "Utilities",
+    description: "Provide a Grok model connection for AI Agent",
+    accent: "neutral",
+    op: "ai.model.grok",
+    fields: [
+      {
+        key: "credentialId",
+        label: "Credential (optional)",
+        type: "credential",
+        provider: "grok",
+        helpText: "Create a Grok credential in Credentials (API key).",
+      },
+      {
+        key: "apiKey",
+        label: "API key (optional)",
+        type: "text",
+        placeholder: "xai-...",
+        helpText: "If set, overrides the credential API key.",
+      },
+      { key: "model", label: "Model", type: "text", placeholder: "grok-2-latest", required: true },
+      {
+        key: "baseUrl",
+        label: "Base URL (optional)",
+        type: "text",
+        placeholder: "https://api.x.ai/v1",
+      },
+    ],
+    defaultConfig: { credentialId: "", apiKey: "", model: "grok-2-latest", baseUrl: "https://api.x.ai/v1" },
+    validate: (node) => {
+      const cfg = node.config as any;
+      const model = typeof cfg?.model === "string" ? String(cfg.model).trim() : "";
+      const credentialId = typeof cfg?.credentialId === "string" ? String(cfg.credentialId).trim() : "";
+      const apiKey = typeof cfg?.apiKey === "string" ? String(cfg.apiKey).trim() : "";
+      return model.length > 0 && (credentialId.length > 0 || apiKey.length > 0);
+    },
   },
   app: {
     type: "app",
@@ -126,11 +316,16 @@ export const NODE_CATALOG: Record<BuilderNodeType, NodeCatalogItem> = {
       sheetName: "Sheet1",
       values: "",
     },
-    validate: (cfg) => {
-      const app = typeof (cfg as any)?.app === "string" ? String((cfg as any).app).trim() : "";
-      const action = typeof (cfg as any)?.action === "string" ? String((cfg as any).action).trim() : "";
-      const credentialId =
-        typeof (cfg as any)?.credentialId === "string" ? String((cfg as any).credentialId).trim() : "";
+    validate: (node) => {
+      const cfg = node.config as any;
+      const app = typeof cfg?.app === "string" ? String(cfg.app).trim() : "";
+      const action = typeof cfg?.action === "string" ? String(cfg.action).trim() : "";
+      const credentialId = typeof cfg?.credentialId === "string" ? String(cfg.credentialId).trim() : "";
+      const apiKey = typeof cfg?.apiKey === "string" ? String(cfg.apiKey).trim() : "";
+      const appKey = app.toLowerCase();
+      if (appKey === "bannerbear" || appKey === "bananabear") {
+        return app.length > 0 && action.length > 0 && (credentialId.length > 0 || apiKey.length > 0);
+      }
       return app.length > 0 && action.length > 0 && credentialId.length > 0;
     },
   },
@@ -164,13 +359,17 @@ export const NODE_CATALOG: Record<BuilderNodeType, NodeCatalogItem> = {
       bodyText: "",
       bodyHtml: "",
     },
-    validate: (cfg) =>
-      typeof cfg.credentialId === "string" &&
-      cfg.credentialId.length > 0 &&
-      typeof cfg.to === "string" &&
-      cfg.to.length > 0 &&
-      typeof cfg.subject === "string" &&
-      cfg.subject.length > 0,
+    validate: (node) => {
+      const cfg = node.config as any;
+      return (
+        typeof cfg.credentialId === "string" &&
+        cfg.credentialId.length > 0 &&
+        typeof cfg.to === "string" &&
+        cfg.to.length > 0 &&
+        typeof cfg.subject === "string" &&
+        cfg.subject.length > 0
+      );
+    },
   },
   gsheets: {
     type: "gsheets",
@@ -199,12 +398,16 @@ export const NODE_CATALOG: Record<BuilderNodeType, NodeCatalogItem> = {
       },
     ],
     defaultConfig: { credentialId: "", spreadsheetId: "", sheetName: "Sheet1", values: "" },
-    validate: (cfg) =>
-      typeof cfg.credentialId === "string" &&
-      cfg.credentialId.length > 0 &&
-      typeof cfg.spreadsheetId === "string" &&
-      cfg.spreadsheetId.length > 0 &&
-      ((typeof cfg.values === "string" && cfg.values.length > 0) || Array.isArray(cfg.values)),
+    validate: (node) => {
+      const cfg = node.config as any;
+      return (
+        typeof cfg.credentialId === "string" &&
+        cfg.credentialId.length > 0 &&
+        typeof cfg.spreadsheetId === "string" &&
+        cfg.spreadsheetId.length > 0 &&
+        ((typeof cfg.values === "string" && cfg.values.length > 0) || Array.isArray(cfg.values))
+      );
+    },
   },
   github: {
     type: "github",
@@ -228,15 +431,19 @@ export const NODE_CATALOG: Record<BuilderNodeType, NodeCatalogItem> = {
       { key: "body", label: "Body", type: "textarea", placeholder: "Issue details..." },
     ],
     defaultConfig: { credentialId: "", owner: "", repo: "", title: "", body: "" },
-    validate: (cfg) =>
-      typeof cfg.credentialId === "string" &&
-      cfg.credentialId.length > 0 &&
-      typeof cfg.owner === "string" &&
-      cfg.owner.length > 0 &&
-      typeof cfg.repo === "string" &&
-      cfg.repo.length > 0 &&
-      typeof cfg.title === "string" &&
-      cfg.title.length > 0,
+    validate: (node) => {
+      const cfg = node.config as any;
+      return (
+        typeof cfg.credentialId === "string" &&
+        cfg.credentialId.length > 0 &&
+        typeof cfg.owner === "string" &&
+        cfg.owner.length > 0 &&
+        typeof cfg.repo === "string" &&
+        cfg.repo.length > 0 &&
+        typeof cfg.title === "string" &&
+        cfg.title.length > 0
+      );
+    },
   },
   slack: {
     type: "slack",
@@ -283,13 +490,17 @@ export const NODE_CATALOG: Record<BuilderNodeType, NodeCatalogItem> = {
       message: "",
       sendAsBot: true,
     },
-    validate: (cfg) =>
-      typeof cfg.connection === "string" &&
-      cfg.connection.length > 0 &&
-      typeof cfg.channelId === "string" &&
-      cfg.channelId.length > 0 &&
-      typeof cfg.message === "string" &&
-      cfg.message.length > 0,
+    validate: (node) => {
+      const cfg = node.config as any;
+      return (
+        typeof cfg.connection === "string" &&
+        cfg.connection.length > 0 &&
+        typeof cfg.channelId === "string" &&
+        cfg.channelId.length > 0 &&
+        typeof cfg.message === "string" &&
+        cfg.message.length > 0
+      );
+    },
   },
   transform: {
     type: "transform",
@@ -335,8 +546,9 @@ export const NODE_CATALOG: Record<BuilderNodeType, NodeCatalogItem> = {
       ignoreCase: false,
       convertTypes: false,
     },
-    validate: (cfg) => {
-      const raw = (cfg as any)?.conditions;
+    validate: (node) => {
+      const cfg = node.config as any;
+      const raw = cfg?.conditions;
       if (!Array.isArray(raw) || raw.length === 0) return false;
       const first = raw[0];
       if (!first || typeof first !== "object") return false;
@@ -382,15 +594,42 @@ export const NODE_CATEGORIES: Array<{ id: NodeCategory; label: string; items: No
         n.type !== "github"
     ),
   },
-  { id: "Utilities", label: "Utilities", items: Object.values(NODE_CATALOG).filter((n) => n.category === "Utilities") },
+  {
+    id: "Utilities",
+    label: "Utilities",
+    items: Object.values(NODE_CATALOG).filter(
+      (n) =>
+        n.category === "Utilities" &&
+        // Keep legacy nodes working for existing flows, but hide them from the palette.
+        n.type !== "chatModel" &&
+        n.type !== "openaiChatModel" &&
+        n.type !== "geminiChatModel" &&
+        n.type !== "grokChatModel"
+    ),
+  },
 ];
 
 export function createDefaultNodeData(nodeType: BuilderNodeType, label?: string): FlowNodeData {
   const meta = NODE_CATALOG[nodeType];
-  return {
+  if (nodeType === "chatModel" && !label) {
+    const provider = typeof meta.defaultConfig.provider === "string" ? meta.defaultConfig.provider : "openai";
+    const providerLabel =
+      provider === "gemini" ? "Gemini" : provider === "grok" ? "Grok" : provider === "openai" ? "OpenAI" : "Chat";
+    label = `${providerLabel} Chat Model`;
+  }
+  const base: FlowNodeData = {
     nodeType,
     label: label || meta.label,
     description: meta.description,
     config: { ...meta.defaultConfig },
   };
+  if (nodeType === "aiAgent") {
+    return {
+      ...base,
+      model: null,
+      memory: null,
+      tools: [],
+    };
+  }
+  return base;
 }
