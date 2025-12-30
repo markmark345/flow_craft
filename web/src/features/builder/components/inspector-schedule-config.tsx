@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 
 import { Input } from "@/shared/components/input";
 import { Select, type SelectOption } from "@/shared/components/select";
+import { TimePicker } from "@/shared/components/time-picker";
 
 type ScheduleMode = "every" | "hourly" | "daily" | "weekly" | "monthly" | "cron";
 
@@ -37,8 +38,6 @@ export function ScheduleConfig({
     setState(next);
     onPatch({ expression: nextExpr });
   };
-
-  const timeValue = `${String(state.hour).padStart(2, "0")}:${String(state.minute).padStart(2, "0")}`;
 
   const dayLabels: Array<{ id: number; label: string }> = [
     { id: 1, label: "Mon" },
@@ -127,14 +126,10 @@ export function ScheduleConfig({
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-2">
             <label className="block text-xs font-bold text-muted">At time</label>
-            <Input
-              type="time"
-              value={timeValue}
-              onChange={(e) => {
-                const [h, m] = parseTimeHHMM(e.target.value);
-                apply({ hour: h, minute: m });
-              }}
-              className="h-10 rounded-lg bg-surface2 font-mono"
+            <TimePicker
+              hour={state.hour}
+              minute={state.minute}
+              onChange={({ hour, minute }) => apply({ hour, minute })}
             />
           </div>
 
@@ -211,13 +206,6 @@ export function ScheduleConfig({
 function clampInt(v: number, min: number, max: number) {
   if (!Number.isFinite(v)) return min;
   return Math.max(min, Math.min(max, Math.trunc(v)));
-}
-
-function parseTimeHHMM(v: string): [number, number] {
-  const [hRaw, mRaw] = v.split(":");
-  const h = clampInt(Number(hRaw), 0, 23);
-  const m = clampInt(Number(mRaw), 0, 59);
-  return [h, m];
 }
 
 function parseScheduleExpression(expression: string): ScheduleState {

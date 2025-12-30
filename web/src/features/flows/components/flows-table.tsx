@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 
 import { Badge } from "@/shared/components/badge";
+import { Checkbox } from "@/shared/components/checkbox";
 import { Icon } from "@/shared/components/icon";
 import { cn } from "@/shared/lib/cn";
 import { FlowDTO } from "@/shared/types/dto";
@@ -71,14 +72,12 @@ export function FlowsTable({
     <div className="bg-panel border border-border rounded-xl shadow-soft">
       <div className="grid grid-cols-12 gap-4 px-6 py-3 pr-36 bg-surface2 border-b border-border items-center text-xs font-semibold text-muted uppercase tracking-wider">
         <div className="col-span-4 flex items-center gap-3">
-          <input
-            type="checkbox"
-            className="size-4 rounded border-border text-accent focus:shadow-focus"
+          <Checkbox
             checked={allSelectedOnPage}
-            onChange={toggleSelectAllOnPage}
+            onCheckedChange={() => toggleSelectAllOnPage()}
             disabled={pageItems.length === 0}
             aria-label="Select all flows on page"
-            onClick={(e) => e.stopPropagation()}
+            stopPropagation
           />
           <span>Name</span>
         </div>
@@ -108,16 +107,12 @@ export function FlowsTable({
                 }}
               >
                 <div className="col-span-4 flex items-center gap-3 min-w-0">
-                  <input
-                    type="checkbox"
-                    className={cn(
-                      "size-4 rounded border-border text-accent focus:shadow-focus transition-opacity",
-                      isSelected ? "opacity-100" : "opacity-0 group-hover:opacity-100"
-                    )}
+                  <Checkbox
                     checked={isSelected}
-                    onChange={(e) => toggleSelectFlow(flow.id, e.target.checked)}
+                    onCheckedChange={(next) => toggleSelectFlow(flow.id, next)}
                     aria-label={`Select ${flow.name}`}
-                    onClick={(e) => e.stopPropagation()}
+                    stopPropagation
+                    className={cn("transition-opacity", isSelected ? "opacity-100" : "opacity-0 group-hover:opacity-100")}
                   />
                   <div className="flex flex-col min-w-0">
                     <span className="text-sm font-semibold text-text truncate group-hover:text-accent transition-colors">

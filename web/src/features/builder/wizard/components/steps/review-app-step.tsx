@@ -22,7 +22,7 @@ export function AppReviewStep() {
           <div
             className="w-10 h-10 rounded-lg border flex items-center justify-center"
             style={{
-              background: "color-mix(in srgb, var(--accent) 10%, transparent)",
+              background: "color-mix(in srgb, var(--accent) var(--accent-tint, 10%), transparent)",
               borderColor: "color-mix(in srgb, var(--accent) 18%, transparent)",
               color: "var(--accent)",
             }}
@@ -65,4 +65,3 @@ export function AppReviewStep() {
     </div>
   );
 }
-

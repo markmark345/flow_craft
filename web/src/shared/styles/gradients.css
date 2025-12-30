@@ -16,7 +16,7 @@
 }
 
 .fc-nav-active {
-  background: color-mix(in srgb, var(--accent) 10%, var(--surface));
+  background: color-mix(in srgb, var(--accent) var(--accent-tint, 10%), var(--surface));
   color: var(--text);
   box-shadow: var(--shadow-soft);
   position: relative;

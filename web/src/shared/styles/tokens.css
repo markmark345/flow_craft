@@ -3,16 +3,18 @@
   --bg: #f5f7f8;
   --panel: #ffffff;
   --surface: #ffffff;
-  --surface-2: #f8fafc;
-  --border: #e5e7eb;
+  --surface-2: #f1f5f9;
+  --border: #d1d5db;
   --text: #0f172a;
-  --muted: #64748b;
+  --muted: #475569;
   --accent: #0099ff;
   --accent-strong: #2563eb;
   --success: #22c55e;
   --warning: #f59e0b;
   --error: #ef4444;
   --grid: #cbd5e1;
+
+  --accent-tint: 18%;
 
   /* Extra semantic colors (builder) */
   --trigger: #a855f7;
@@ -37,7 +39,7 @@
   --radius-pill: 999px;
 
   /* Shadows */
-  --shadow-soft: 0 2px 8px rgba(0, 0, 0, 0.04);
+  --shadow-soft: 0 2px 10px rgba(0, 0, 0, 0.06);
   --shadow-lift: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
   --shadow-focus: 0 0 0 2px rgba(0, 153, 255, 0.32);
   --glow-accent: 0 0 0 3px rgba(0, 153, 255, 0.16);
@@ -69,6 +71,8 @@
   --warning: #fbbf24;
   --error: #f87171;
   --grid: #334155;
+
+  --accent-tint: 10%;
 
   --trigger: #a855f7;
   --slack: #ff4081;

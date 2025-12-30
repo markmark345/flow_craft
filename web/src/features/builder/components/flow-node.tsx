@@ -362,7 +362,7 @@ export function FlowNode({ id, data, selected }: NodeProps<FlowNodeData>) {
                 style={{
                   color: hasModel ? "var(--accent)" : "var(--error)",
                   background: hasModel
-                    ? "color-mix(in srgb, var(--accent) 10%, transparent)"
+                    ? "color-mix(in srgb, var(--accent) var(--accent-tint, 10%), transparent)"
                     : "color-mix(in srgb, var(--error) 12%, transparent)",
                   borderColor: hasModel
                     ? "color-mix(in srgb, var(--accent) 18%, transparent)"

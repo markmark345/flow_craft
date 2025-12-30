@@ -108,7 +108,7 @@ export function Sidebar() {
                   )}
                   style={
                     isActive
-                      ? { background: "color-mix(in srgb, var(--accent) 10%, transparent)" }
+                      ? { background: "color-mix(in srgb, var(--accent) var(--accent-tint, 10%), transparent)" }
                       : undefined
                   }
                 >
@@ -144,7 +144,7 @@ export function Sidebar() {
               )}
               style={
                 workspaceScope === "personal"
-                  ? { background: "color-mix(in srgb, var(--accent) 10%, transparent)" }
+                  ? { background: "color-mix(in srgb, var(--accent) var(--accent-tint, 10%), transparent)" }
                   : undefined
               }
             >
@@ -201,7 +201,9 @@ export function Sidebar() {
                             isActive ? "text-accent" : "text-muted hover:bg-surface2 hover:text-text"
                           )}
                           style={
-                            isActive ? { background: "color-mix(in srgb, var(--accent) 10%, transparent)" } : undefined
+                            isActive
+                              ? { background: "color-mix(in srgb, var(--accent) var(--accent-tint, 10%), transparent)" }
+                              : undefined
                           }
                         >
                           <button

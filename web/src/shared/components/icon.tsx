@@ -111,6 +111,7 @@ const paths: Record<string, ReactNode> = {
       <path d="M5 12h14" />
     </>
   ),
+  check: <path d="M5 13l4 4L19 7" />,
   remove: <path d="M5 12h14" />,
   download: (
     <>
