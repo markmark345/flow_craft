@@ -1,55 +1,29 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-
-import { useBuilderStore } from "../store/use-builder-store";
-import { useRunStepsStore } from "@/features/runs/store/use-run-steps-store";
-import { RunStepDTO } from "@/shared/types/dto";
-
 import { InspectorConfigPanel } from "./inspector-config-panel";
 import { InspectorEdgeSummary } from "./inspector-edge-summary";
 import { InspectorIoPanel } from "./inspector-io-panel";
 import { InspectorNotesPanel } from "./inspector-notes-panel";
 import { InspectorFooter } from "./inspector-footer";
+import { useInspector } from "../hooks/use-inspector";
 
 export function Inspector() {
-  const [tab, setTab] = useState("config");
-  const selectedNodeId = useBuilderStore((s) => s.selectedNodeId);
-  const selectedEdgeId = useBuilderStore((s) => s.selectedEdgeId);
-  const nodes = useBuilderStore((s) => s.nodes);
-  const edges = useBuilderStore((s) => s.edges);
-  const activeRunId = useBuilderStore((s) => s.activeRunId);
-  const updateNodeData = useBuilderStore((s) => s.updateNodeData);
-  const updateNodeConfig = useBuilderStore((s) => s.updateNodeConfig);
-  const deleteNode = useBuilderStore((s) => s.deleteNode);
-  const duplicateNode = useBuilderStore((s) => s.duplicateNode);
-
-  const selectedNode = useMemo(
-    () => nodes.find((n) => n.id === selectedNodeId),
-    [nodes, selectedNodeId]
-  );
-  const selectedEdge = useMemo(() => edges.find((e) => e.id === selectedEdgeId), [edges, selectedEdgeId]);
-
-  useEffect(() => {
-    if (!selectedEdge) return;
-    setTab("io");
-  }, [selectedEdgeId, selectedEdge]);
-
-  const steps =
-    useRunStepsStore((s) => (activeRunId ? s.stepsByRunId[activeRunId] : undefined)) || [];
-  const stepByNodeId = useMemo(() => {
-    const map = new Map<string, RunStepDTO>();
-    for (const step of steps) {
-      if (step.nodeId) map.set(step.nodeId, step);
-    }
-    return map;
-  }, [steps]);
-
-  const selectedNodeStep = selectedNode ? stepByNodeId.get(selectedNode.id) : undefined;
-  const sourceNode = selectedEdge ? nodes.find((n) => n.id === selectedEdge.source) : undefined;
-  const targetNode = selectedEdge ? nodes.find((n) => n.id === selectedEdge.target) : undefined;
-  const sourceStep = selectedEdge ? stepByNodeId.get(selectedEdge.source) : undefined;
-  const targetStep = selectedEdge ? stepByNodeId.get(selectedEdge.target) : undefined;
+  const {
+    tab,
+    setTab,
+    selectedNode,
+    selectedEdge,
+    sourceNode,
+    targetNode,
+    selectedNodeStep,
+    sourceStep,
+    targetStep,
+    activeRunId,
+    updateNodeData,
+    updateNodeConfig,
+    deleteNode,
+    duplicateNode,
+  } = useInspector();
 
   return (
     <aside className="w-80 bg-panel border-l border-border flex flex-col z-20 shadow-[0_4px_24px_-12px_rgba(0,0,0,0.1)]">
