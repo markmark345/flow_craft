@@ -1,7 +1,5 @@
 "use client";
 
-import { useMemo } from "react";
-
 import { StickyNote } from "@/features/builder/types";
 import { cn } from "@/shared/lib/cn";
 import { Icon } from "@/shared/components/icon";
@@ -13,9 +11,9 @@ import {
   NOTE_COLOR_OPTIONS,
   NOTE_PREVIEW_BG,
   NOTE_VARIANTS,
-  splitTitleAndBody,
   StickyNoteTheme,
 } from "@/features/builder/lib/sticky-note-utils";
+import { useStickyNoteCard } from "../hooks/use-sticky-note-card";
 
 type Props = {
   note: StickyNote;
@@ -47,7 +45,7 @@ export function StickyNoteCard({
   const innerBorder = `color-mix(in srgb, ${variant.border} 55%, var(--border))`;
   const metaColor = `color-mix(in srgb, ${variant.fg} 55%, transparent)`;
 
-  const titleBody = useMemo(() => splitTitleAndBody(note.text), [note.text]);
+  const { titleBody } = useStickyNoteCard(note.text);
   const showTitle = true;
   const by = note.updatedBy || note.createdBy;
   const when = note.updatedAt || note.createdAt;
