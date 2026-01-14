@@ -1,21 +1,17 @@
 "use client";
 
+import { useEffect, useState } from "react";
+
 import { Input } from "@/shared/components/input";
 import { Select, type SelectOption } from "@/shared/components/select";
 import { TimePicker } from "@/shared/components/time-picker";
-import { useInspectorScheduleConfig } from "../hooks/use-inspector-schedule-config";
-
-type ScheduleMode = "every" | "hourly" | "daily" | "weekly" | "monthly" | "cron";
-
-type ScheduleState = {
-  mode: ScheduleMode;
-  everyMinutes: number;
-  minute: number;
-  hour: number;
-  days: number[];
-  dayOfMonth: number;
-  cron: string;
-};
+import { clampInt } from "@/shared/lib/number-utils";
+import {
+  type ScheduleMode,
+  type ScheduleState,
+  parseScheduleExpression,
+  scheduleStateToExpression,
+} from "../lib/schedule-utils";
 
 export function ScheduleConfig({
   config,
@@ -24,12 +20,38 @@ export function ScheduleConfig({
   config: Record<string, unknown>;
   onPatch: (patch: Record<string, unknown>) => void;
 }) {
-  const { state, apply, toggleDay, dayLabels } = useInspectorScheduleConfig(
-    config,
-    onPatch,
-    parseScheduleExpression,
-    scheduleStateToExpression
-  );
+  const expr = typeof config.expression === "string" ? config.expression : "";
+  const [state, setState] = useState<ScheduleState>(() => parseScheduleExpression(expr));
+
+  useEffect(() => {
+    setState(parseScheduleExpression(expr));
+  }, [expr]);
+
+  const apply = (patch: Partial<ScheduleState>) => {
+    const next = { ...state, ...patch };
+    const nextExpr = scheduleStateToExpression(next);
+    setState(next);
+    onPatch({ expression: nextExpr });
+  };
+
+  const dayLabels: Array<{ id: number; label: string }> = [
+    { id: 1, label: "Mon" },
+    { id: 2, label: "Tue" },
+    { id: 3, label: "Wed" },
+    { id: 4, label: "Thu" },
+    { id: 5, label: "Fri" },
+    { id: 6, label: "Sat" },
+    { id: 0, label: "Sun" },
+  ];
+
+  const toggleDay = (day: number) => {
+    const set = new Set(state.days);
+    if (set.has(day)) set.delete(day);
+    else set.add(day);
+    const nextDays = Array.from(set);
+    nextDays.sort((a, b) => a - b);
+    apply({ days: nextDays.length ? nextDays : [1] });
+  };
 
   return (
     <div className="space-y-5">
@@ -174,148 +196,4 @@ export function ScheduleConfig({
       ) : null}
     </div>
   );
-}
-
-function clampInt(v: number, min: number, max: number) {
-  if (!Number.isFinite(v)) return min;
-  return Math.max(min, Math.min(max, Math.trunc(v)));
-}
-
-function parseScheduleExpression(expression: string): ScheduleState {
-  const raw = String(expression || "").trim();
-  if (!raw) {
-    return {
-      mode: "hourly",
-      everyMinutes: 5,
-      minute: 0,
-      hour: 0,
-      days: [1],
-      dayOfMonth: 1,
-      cron: "",
-    };
-  }
-
-  const parts = raw.split(/\s+/).filter(Boolean);
-  const p = parts.length === 6 ? parts.slice(1) : parts;
-  if (p.length !== 5) {
-    return {
-      mode: "cron",
-      everyMinutes: 5,
-      minute: 0,
-      hour: 0,
-      days: [1],
-      dayOfMonth: 1,
-      cron: raw,
-    };
-  }
-
-  const [minPart, hourPart, domPart, monPart, dowPart] = p;
-  const base: ScheduleState = {
-    mode: "cron",
-    everyMinutes: 5,
-    minute: 0,
-    hour: 0,
-    days: [1],
-    dayOfMonth: 1,
-    cron: raw,
-  };
-
-  if (monPart !== "*") return base;
-
-  if (minPart === "*" && hourPart === "*" && domPart === "*" && dowPart === "*") {
-    return { ...base, mode: "every", everyMinutes: 1 };
-  }
-
-  const everyMatch = minPart.match(/^\*\/(\d{1,2})$/);
-  if (everyMatch && hourPart === "*" && domPart === "*" && dowPart === "*") {
-    return { ...base, mode: "every", everyMinutes: clampInt(Number(everyMatch[1]), 1, 59) };
-  }
-
-  const minNum = toInt(minPart);
-  const hourNum = toInt(hourPart);
-  const domNum = toInt(domPart);
-
-  if (minNum != null && hourPart === "*" && domPart === "*" && dowPart === "*") {
-    return { ...base, mode: "hourly", minute: clampInt(minNum, 0, 59) };
-  }
-
-  if (minNum != null && hourNum != null && domPart === "*" && dowPart === "*") {
-    return {
-      ...base,
-      mode: "daily",
-      minute: clampInt(minNum, 0, 59),
-      hour: clampInt(hourNum, 0, 23),
-    };
-  }
-
-  if (minNum != null && hourNum != null && domPart === "*" && dowPart !== "*") {
-    const days = parseDowList(dowPart);
-    return {
-      ...base,
-      mode: "weekly",
-      minute: clampInt(minNum, 0, 59),
-      hour: clampInt(hourNum, 0, 23),
-      days: days.length ? days : [1],
-    };
-  }
-
-  if (minNum != null && hourNum != null && domNum != null && dowPart === "*") {
-    return {
-      ...base,
-      mode: "monthly",
-      minute: clampInt(minNum, 0, 59),
-      hour: clampInt(hourNum, 0, 23),
-      dayOfMonth: clampInt(domNum, 1, 31),
-    };
-  }
-
-  return base;
-}
-
-function toInt(v: string) {
-  if (!/^\d+$/.test(v)) return null;
-  const n = Number(v);
-  return Number.isFinite(n) ? n : null;
-}
-
-function parseDowList(v: string): number[] {
-  const parts = v.split(",").map((p) => p.trim()).filter(Boolean);
-  const out: number[] = [];
-  for (const p of parts) {
-    const n = toInt(p);
-    if (n == null) continue;
-    out.push(clampInt(n, 0, 6));
-  }
-  const unique = Array.from(new Set(out));
-  unique.sort((a, b) => a - b);
-  return unique;
-}
-
-function scheduleStateToExpression(state: ScheduleState): string {
-  const minute = clampInt(state.minute, 0, 59);
-  const hour = clampInt(state.hour, 0, 23);
-  const dom = clampInt(state.dayOfMonth, 1, 31);
-
-  switch (state.mode) {
-    case "every": {
-      const n = clampInt(state.everyMinutes, 1, 59);
-      if (n === 1) return "* * * * *";
-      return `*/${n} * * * *`;
-    }
-    case "hourly":
-      return `${minute} * * * *`;
-    case "daily":
-      return `${minute} ${hour} * * *`;
-    case "weekly": {
-      const days = (state.days || []).map((d) => clampInt(d, 0, 6));
-      const unique = Array.from(new Set(days)).sort((a, b) => a - b);
-      const dow = unique.length ? unique.join(",") : "1";
-      return `${minute} ${hour} * * ${dow}`;
-    }
-    case "monthly":
-      return `${minute} ${hour} ${dom} * *`;
-    case "cron":
-    default:
-      return String(state.cron || "").trim();
-  }
 }

@@ -1,17 +1,19 @@
 "use client";
 
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Handle, NodeProps, Position } from "reactflow";
 import { FlowNodeData } from "../types";
-import { NODE_CATALOG } from "../types/node-catalog";
+import { NODE_CATALOG, NODE_CATEGORIES } from "../types/node-catalog";
 import { cn } from "@/shared/lib/cn";
 import { Input } from "@/shared/components/input";
+import { BuilderNodeType } from "../types";
 import { useBuilderStore } from "../store/use-builder-store";
 import { NodeIcon } from "./node-icon";
 import { Icon } from "@/shared/components/icon";
 import { isValidAgentModelConfig, type AgentMemoryConfig, type AgentToolConfig } from "../types/agent";
 import { APP_CATALOG, findAppAction, normalizeAppKey } from "../nodeCatalog/catalog";
 import { useWizardStore } from "../wizard/store/use-wizard-store";
-import { useFlowNode } from "../hooks/use-flow-node";
+import { appLabelFromConfig, actionLabelFromConfig, isAppActionConfigured } from "../lib/node-utils";
 
 const accentVar: Record<string, string> = {
   accent: "var(--accent)",
@@ -22,58 +24,6 @@ const accentVar: Record<string, string> = {
   slack: "var(--slack)",
   neutral: "var(--muted)",
 };
-
-function appLabelFromConfig(config: Record<string, unknown>) {
-  const key = normalizeAppKey(config.app);
-  if (!key) return typeof config.app === "string" ? config.app : "";
-  return APP_CATALOG[key]?.label || "";
-}
-
-function actionLabelFromConfig(config: Record<string, unknown>) {
-  const key = normalizeAppKey(config.app);
-  if (!key) return "";
-  const actionKey = typeof config.action === "string" ? config.action.trim() : "";
-  if (!actionKey) return "";
-  return findAppAction(key, actionKey)?.label || "";
-}
-
-function isConfiguredValue(value: unknown) {
-  if (value === null || value === undefined) return false;
-  if (typeof value === "string") return value.trim().length > 0;
-  if (typeof value === "number") return Number.isFinite(value);
-  if (typeof value === "boolean") return true;
-  if (Array.isArray(value)) return value.length > 0;
-  if (typeof value === "object") return Object.keys(value as any).length > 0;
-  return false;
-}
-
-function isAppActionConfigured(config: Record<string, unknown>) {
-  const key = normalizeAppKey(config.app);
-  if (!key) return false;
-  const def = APP_CATALOG[key];
-  const actionKey = typeof config.action === "string" ? config.action.trim() : "";
-  if (!actionKey) return false;
-  const action = findAppAction(key, actionKey);
-  if (!action) return false;
-  const schema: Array<{ key: string; label: string; required?: boolean }> = [
-    ...(def?.baseFields || []),
-    ...(action?.fields || []),
-  ];
-
-  const errors: string[] = [];
-  for (const field of schema) {
-    if (!field.required) continue;
-    if (!isConfiguredValue(config[field.key])) errors.push(field.key);
-  }
-
-  if (key === "bannerbear") {
-    const credentialId = typeof config.credentialId === "string" ? config.credentialId.trim() : "";
-    const apiKey = typeof (config as any).apiKey === "string" ? String((config as any).apiKey).trim() : "";
-    if (!credentialId && !apiKey) errors.push("credentialId");
-  }
-
-  return errors.length === 0;
-}
 
 export function FlowNode({ id, data, selected }: NodeProps<FlowNodeData>) {
   const meta = NODE_CATALOG[data.nodeType];
@@ -98,14 +48,13 @@ export function FlowNode({ id, data, selected }: NodeProps<FlowNodeData>) {
     data.nodeType === "geminiChatModel" ||
     data.nodeType === "grokChatModel";
   const hasMainInput = !isTrigger && !isModelNode;
+  const addConnectedNode = useBuilderStore((s) => s.addConnectedNode);
   const isValid = meta?.validate ? meta.validate(data) : true;
   const runtimeStatus = data.runtimeStatus;
   const runtimeStepKey = data.runtimeStepKey;
   const runtimePulse = data.runtimePulse;
   const flowId = useBuilderStore((s) => s.flowId);
   const openAddAgentTool = useWizardStore((s) => s.openAddAgentTool);
-  const setSelectedNode = useBuilderStore((s) => s.setSelectedNode);
-  const setAgentInspectorTab = useBuilderStore((s) => s.setAgentInspectorTab);
 
   const runtimeTone = (() => {
     if (!runtimeStatus) return undefined;
@@ -116,17 +65,47 @@ export function FlowNode({ id, data, selected }: NodeProps<FlowNodeData>) {
     return "var(--muted)";
   })();
 
-  const {
-    pickerRef,
-    pickerOpen,
-    setPickerOpen,
-    query,
-    setQuery,
-    pickerSourceHandle,
-    setPickerSourceHandle,
-    groups,
-    onQuickAdd,
-  } = useFlowNode(id, data.nodeType, selected);
+  const pickerRef = useRef<HTMLDivElement | null>(null);
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const [pickerSourceHandle, setPickerSourceHandle] = useState<string | undefined>(undefined);
+  const setSelectedNode = useBuilderStore((s) => s.setSelectedNode);
+  const setAgentInspectorTab = useBuilderStore((s) => s.setAgentInspectorTab);
+
+  useEffect(() => {
+    if (!pickerOpen) return;
+    const onDown = (e: MouseEvent) => {
+      const target = e.target as Node | null;
+      if (!target) return;
+      if (!pickerRef.current?.contains(target)) setPickerOpen(false);
+    };
+    window.addEventListener("mousedown", onDown);
+    return () => window.removeEventListener("mousedown", onDown);
+  }, [pickerOpen]);
+
+  const groups = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return NODE_CATEGORIES;
+    return NODE_CATEGORIES.map((cat) => ({
+      ...cat,
+      items: cat.items.filter((item) => {
+        const label = item.label.toLowerCase();
+        const desc = item.description.toLowerCase();
+        return label.includes(q) || desc.includes(q);
+      }),
+    })).filter((cat) => cat.items.length > 0);
+  }, [query]);
+
+  const onQuickAdd = (nodeType: BuilderNodeType) => {
+    const sourceHandle = pickerSourceHandle || (data.nodeType === "if" ? "true" : undefined);
+    addConnectedNode(id, nodeType, { sourceHandle });
+    setPickerOpen(false);
+    setQuery("");
+  };
+
+  useEffect(() => {
+    if (!selected) setPickerOpen(false);
+  }, [selected]);
 
   const isIf = data.nodeType === "if";
   const branchOffsetPx = 14;

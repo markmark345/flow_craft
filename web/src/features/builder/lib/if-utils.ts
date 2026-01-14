@@ -119,13 +119,9 @@ export function coerceIfConfig(config: Record<string, unknown>): IfNodeConfig {
 }
 
 /**
- * Check if operator requires a right-hand value
- * @param type - Condition type
- * @param operator - Operator string
- * @returns True if operator needs value
+ * Available operators for each condition type
  */
-export function operatorNeedsValue(type: IfConditionType, operator: string): boolean {
-  const OPERATORS: Record<IfConditionType, Array<{ label: string; needsValue: boolean }>> = {
+export const OPERATORS: Record<IfConditionType, Array<{ label: string; needsValue: boolean }>> = {
     string: [
       { label: "exists", needsValue: false },
       { label: "does not exist", needsValue: false },
@@ -188,7 +184,14 @@ export function operatorNeedsValue(type: IfConditionType, operator: string): boo
       { label: "is empty", needsValue: false },
       { label: "is not empty", needsValue: false },
     ],
-  };
+};
 
+/**
+ * Check if operator requires a right-hand value
+ * @param type - Condition type
+ * @param operator - Operator string
+ * @returns True if operator needs value
+ */
+export function operatorNeedsValue(type: IfConditionType, operator: string): boolean {
   return Boolean(OPERATORS[type]?.find((o) => o.label === operator)?.needsValue);
 }
