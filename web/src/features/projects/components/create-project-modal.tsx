@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect } from "react";
 import { Button } from "@/shared/components/button";
 import { Input } from "@/shared/components/input";
 import { Icon } from "@/shared/components/icon";
+import { useCreateProjectModal } from "../hooks/use-create-project-modal";
 
 type Props = {
   open: boolean;
@@ -26,18 +26,9 @@ export function CreateProjectModal({
   onClose,
   onCreate,
 }: Props) {
-  useEffect(() => {
-    if (!open) return;
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") onClose();
-    };
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [open, onClose]);
+  const { disabled } = useCreateProjectModal(open, name, creating, onClose);
 
   if (!open) return null;
-
-  const disabled = creating || !name.trim();
 
   return (
     <div
