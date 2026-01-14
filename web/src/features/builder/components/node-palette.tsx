@@ -1,15 +1,14 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
 import { Input } from "@/shared/components/input";
 import { CollapsibleSection } from "@/shared/components/collapsible-section";
 import { useNodeDnd } from "../hooks/use-node-dnd";
-import { NODE_CATEGORIES } from "../types/node-catalog";
+import { useNodePalette } from "../hooks/use-node-palette";
 import { NodeIcon } from "./node-icon";
 import { Icon } from "@/shared/components/icon";
 import { useBuilderStore } from "../store/use-builder-store";
 import { useWizardStore } from "../wizard/store/use-wizard-store";
-import { APP_CATALOG, listAppActions } from "../nodeCatalog/catalog";
+import { APP_CATALOG } from "../nodeCatalog/catalog";
 import type { AppKey } from "../nodeCatalog/catalog";
 import type { BuilderNodeType } from "../types";
 
@@ -23,96 +22,25 @@ const accentVar: Record<string, string> = {
   neutral: "var(--muted)",
 };
 
-const COLLAPSE_STORAGE_KEY = "flowcraft.palette.collapsed.v1";
-
 export function NodePalette() {
-  const [query, setQuery] = useState("");
-  const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
   const { onDragStart } = useNodeDnd();
   const flowId = useBuilderStore((s) => s.flowId);
   const viewport = useBuilderStore((s) => s.viewport);
   const addNode = useBuilderStore((s) => s.addNode);
   const openAddAppNode = useWizardStore((s) => s.openAddAppNode);
   const openAddAgent = useWizardStore((s) => s.openAddAgent);
-  const forceExpand = query.trim().length > 0;
 
-  useEffect(() => {
-    try {
-      const raw = localStorage.getItem(COLLAPSE_STORAGE_KEY);
-      if (!raw) return;
-      const parsed = JSON.parse(raw);
-      if (parsed && typeof parsed === "object") setCollapsed(parsed);
-    } catch {
-      // ignore
-    }
-  }, []);
-
-  useEffect(() => {
-    try {
-      localStorage.setItem(COLLAPSE_STORAGE_KEY, JSON.stringify(collapsed));
-    } catch {
-      // ignore
-    }
-  }, [collapsed]);
-
-  const isCollapsed = (key: string) => !forceExpand && Boolean(collapsed[key]);
-
-  const setSectionOpen = (key: string, open: boolean) =>
-    setCollapsed((prev) => ({ ...prev, [key]: !open }));
-
-  const canvasItems = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    const items = [
-      {
-        type: "stickyNote" as const,
-        label: "Sticky Note",
-        description: "Add an annotation on the canvas",
-        accent: "warning",
-      },
-    ];
-    if (!q) return items;
-    return items.filter((i) => `${i.label} ${i.description}`.toLowerCase().includes(q));
-  }, [query]);
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return NODE_CATEGORIES;
-    return NODE_CATEGORIES.map((cat) => ({
-      ...cat,
-      items: cat.items.filter((item) => {
-        const label = item.label.toLowerCase();
-        const desc = item.description.toLowerCase();
-        return label.includes(q) || desc.includes(q);
-      }),
-    })).filter((cat) => cat.items.length > 0);
-  }, [query]);
-
-  const appItems = useMemo(() => {
-    const items = Object.values(APP_CATALOG).map((app) => {
-      const actionText = listAppActions(app.appKey)
-        .map((a) => a.label)
-        .join(" ");
-      return {
-        appKey: app.appKey,
-        label: app.label,
-        description: app.description,
-        icon: app.icon,
-        searchable: `${app.label} ${app.description} ${app.appKey} ${actionText}`.toLowerCase(),
-      };
-    });
-    const q = query.trim().toLowerCase();
-    if (!q) return items;
-    return items.filter((i) => i.searchable.includes(q));
-  }, [query]);
-
-  const computeCenter = () => {
-    const zoom = viewport?.zoom || 1;
-    const el = typeof document !== "undefined" ? document.querySelector<HTMLElement>(".fc-canvas") : null;
-    if (!el) return { x: 0, y: 0 };
-    const rect = el.getBoundingClientRect();
-    const screenX = rect.width / 2;
-    const screenY = rect.height / 2;
-    return { x: (screenX - (viewport?.x || 0)) / zoom, y: (screenY - (viewport?.y || 0)) / zoom };
-  };
+  const {
+    query,
+    setQuery,
+    forceExpand,
+    isCollapsed,
+    setSectionOpen,
+    canvasItems,
+    filtered,
+    appItems,
+    computeCenter,
+  } = useNodePalette(viewport);
 
   return (
     <aside className="w-72 bg-panel border-r border-border flex flex-col z-20 shadow-[4px_0_24px_-12px_rgba(0,0,0,0.1)]">
