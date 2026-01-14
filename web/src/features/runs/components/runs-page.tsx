@@ -1,107 +1,46 @@
 "use client";
 
-import { useRunsStore } from "../store/use-runs-store";
-import { useRunsQuery } from "../hooks/use-runs";
 import { Button } from "@/shared/components/button";
 import { Input } from "@/shared/components/input";
 import { Badge } from "@/shared/components/badge";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { RunDTO } from "@/shared/types/dto";
-import { useRouter } from "next/navigation";
 import { Icon } from "@/shared/components/icon";
-import { useRunFlow } from "../hooks/use-run-flow";
-import { useAppStore } from "@/shared/hooks/use-app-store";
-import { useFlowsQuery } from "@/features/flows/hooks/use-flows";
-import { useFlowsStore } from "@/features/flows/store/use-flows-store";
+import { useRunsPage } from "../hooks/use-runs-page";
 
 export function RunsPage() {
-  const { loading: runsLoading, error: runsError, reload: reloadRuns } = useRunsQuery();
-  const { loading: flowsLoading, reload: reloadFlows } = useFlowsQuery();
-  const runs = useRunsStore((s) => s.items);
-  const flows = useFlowsStore((s) => s.items);
-  const { startRun, running, runningFlowId } = useRunFlow();
-  const showSuccess = useAppStore((s) => s.showSuccess);
-  const showInfo = useAppStore((s) => s.showInfo);
-  const router = useRouter();
-
-  const [query, setQuery] = useState("");
-  const [status, setStatus] = useState<"all" | RunDTO["status"]>("all");
-  const [timeframe, setTimeframe] = useState<"24h" | "7d" | "30d" | "all">("24h");
-  const [flowId, setFlowId] = useState<string>("all");
-  const [pageSize, setPageSize] = useState(20);
-  const [page, setPage] = useState(1);
-  const [autoRefresh, setAutoRefresh] = useState(false);
-
-  useEffect(() => {
-    if (!autoRefresh) return;
-    const id = window.setInterval(() => {
-      void reloadRuns();
-    }, 5000);
-    return () => window.clearInterval(id);
-  }, [autoRefresh, reloadRuns]);
-
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    const cutoff = cutoffFor(timeframe);
-
-    const flowsById = new Map(flows.map((f) => [f.id, f]));
-
-    return runs
-      .filter((r) => (status === "all" ? true : r.status === status))
-      .filter((r) => (flowId === "all" ? true : r.flowId === flowId))
-      .filter((r) => {
-        if (!cutoff) return true;
-        const t = parseTime(r.createdAt || r.startedAt);
-        return t ? t >= cutoff : true;
-      })
-      .filter((r) => {
-        if (!q) return true;
-        const name = flowsById.get(r.flowId)?.name || "";
-        return (
-          r.id.toLowerCase().includes(q) ||
-          r.flowId.toLowerCase().includes(q) ||
-          name.toLowerCase().includes(q)
-        );
-      })
-      .sort((a, b) => (b.createdAt || b.startedAt || "").localeCompare(a.createdAt || a.startedAt || ""));
-  }, [flows, flowId, query, runs, status, timeframe]);
-
-  useEffect(() => setPage(1), [query, status, timeframe, flowId, pageSize]);
-
-  const pageCount = Math.max(1, Math.ceil(filtered.length / pageSize));
-  const pageSafe = Math.min(page, pageCount);
-  const pageStartIdx = (pageSafe - 1) * pageSize;
-  const pageItems = filtered.slice(pageStartIdx, pageStartIdx + pageSize);
-
-  const tone = (s: RunDTO["status"]) => {
-    if (s === "success") return "success";
-    if (s === "failed") return "danger";
-    if (s === "running") return "warning";
-    if (s === "canceled") return "default";
-    return "default";
-  };
-
-  const flowsById = useMemo(() => new Map(flows.map((f) => [f.id, f.name])), [flows]);
-
-  const refreshAll = async () => {
-    await Promise.all([reloadRuns(), reloadFlows()]);
-  };
-
-  const exportLogs = () => {
-    try {
-      const filename = `flowcraft-runs-${new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-")}.json`;
-      const blob = new Blob([JSON.stringify(filtered, null, 2)], { type: "application/json" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = filename;
-      a.click();
-      URL.revokeObjectURL(url);
-      showSuccess("Exported", `Downloaded ${filtered.length} executions.`);
-    } catch {
-      showInfo("Export", "Unable to export logs in this environment.");
-    }
-  };
+  const {
+    runsLoading,
+    flowsLoading,
+    runsError,
+    running,
+    runningFlowId,
+    filtered,
+    pageItems,
+    flowsById,
+    flows,
+    query,
+    status,
+    timeframe,
+    flowId,
+    autoRefresh,
+    pageSize,
+    pageSafe,
+    pageStartIdx,
+    pageCount,
+    setQuery,
+    setStatus,
+    setTimeframe,
+    setFlowId,
+    setPageSize,
+    setPage,
+    setAutoRefresh,
+    refreshAll,
+    exportLogs,
+    startRunForFlow,
+    navigateToRun,
+    getTone,
+  } = useRunsPage();
 
   const runningAny = runsLoading || flowsLoading;
 
@@ -242,10 +181,10 @@ export function RunsPage() {
                       <tr
                         key={run.id}
                         className="hover:bg-surface2 transition-colors cursor-pointer"
-                        onClick={() => router.push(`/runs/${run.id}`)}
+                        onClick={() => navigateToRun(run.id)}
                       >
                         <td className="px-4 py-3">
-                          <Badge label={run.status} tone={tone(run.status)} />
+                          <Badge label={run.status} tone={getTone(run.status)} />
                         </td>
                         <td className="px-4 py-3 font-medium text-text">{flowsById.get(run.flowId) || "Unknown flow"}</td>
                         <td className="px-4 py-3 font-mono text-xs text-muted">{shortId(run.id)}</td>
@@ -267,7 +206,7 @@ export function RunsPage() {
                               className="h-8 w-8 rounded-md border border-border bg-surface hover:bg-surface2 flex items-center justify-center"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                router.push(`/runs/${run.id}`);
+                                navigateToRun(run.id);
                               }}
                               title="View run"
                             >
@@ -280,9 +219,7 @@ export function RunsPage() {
                               onClick={async (e) => {
                                 e.stopPropagation();
                                 try {
-                                  const created = await startRun(run.flowId);
-                                  showSuccess("Run started", "Redirecting to run detail…");
-                                  router.push(`/runs/${created.id}`);
+                                  await startRunForFlow(run.flowId);
                                 } catch {}
                               }}
                               title="Rerun"
@@ -324,7 +261,7 @@ export function RunsPage() {
                   <option value={50}>50 per page</option>
                 </select>
 
-                <Pagination page={pageSafe} pageCount={pageCount} onChange={setPage} />
+                <Pagination page={pageSafe} pageCount={pageCount} onChange={(p) => setPage(p)} />
               </div>
             </div>
           </div>

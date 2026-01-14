@@ -1,176 +1,38 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-
 import { Button } from "@/shared/components/button";
 import { ConfirmDialog } from "@/shared/components/confirm-dialog";
 import { Icon } from "@/shared/components/icon";
 import { Input } from "@/shared/components/input";
 import { Panel } from "@/shared/components/panel";
 import { Select } from "@/shared/components/select";
-import { useAppStore } from "@/shared/hooks/use-app-store";
-import { useWorkspaceStore } from "@/features/workspaces/store/use-workspace-store";
-import { CredentialDTO, ProjectDTO } from "@/shared/types/dto";
 import { cn } from "@/shared/lib/cn";
 import Link from "next/link";
-
-import { deleteCredential, listCredentials, startCredentialOAuth } from "../services/credentialsApi";
-import { getProject } from "@/features/projects/services/projectsApi";
-
-type SortKey = "updated" | "created" | "name";
+import { useCredentialsPage } from "../hooks/use-credentials-page";
 
 export function CredentialsPage({ scope, projectId }: { scope: "personal" | "project"; projectId?: string }) {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const showError = useAppStore((s) => s.showError);
-  const showSuccess = useAppStore((s) => s.showSuccess);
-  const setActiveProject = useWorkspaceStore((s) => s.setActiveProject);
-  const setScope = useWorkspaceStore((s) => s.setScope);
-
-  const [items, setItems] = useState<CredentialDTO[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [project, setProject] = useState<ProjectDTO | null>(null);
-  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [deleting, setDeleting] = useState(false);
-  const [query, setQuery] = useState("");
-  const [sortKey, setSortKey] = useState<SortKey>("updated");
-  const [menuOpen, setMenuOpen] = useState(false);
-  const menuRef = useRef<HTMLDivElement | null>(null);
-
-  const headerTitle = scope === "project" ? `Project Credentials` : "Credentials";
-  const isAdmin = scope !== "project" || project?.role === "admin";
-  const connected = searchParams.get("connected");
-  const connectError = searchParams.get("error");
-
-  const returnPath = useMemo(() => {
-    if (typeof window === "undefined") return "/";
-    return window.location.pathname;
-  }, []);
-
-  const reload = useCallback(async () => {
-    if (scope === "project" && !projectId) return;
-    setLoading(true);
-    try {
-      const data = await listCredentials(scope, projectId);
-      setItems(data);
-    } catch (err: any) {
-      showError("Load failed", err?.message || "Unable to load credentials");
-      setItems([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [projectId, scope, showError]);
-
-  useEffect(() => {
-    reload();
-  }, [reload]);
-
-  useEffect(() => {
-    if (scope === "project" && projectId) {
-      setActiveProject(projectId);
-      void (async () => {
-        try {
-          const p = await getProject(projectId);
-          setProject(p);
-        } catch {
-          setProject(null);
-        }
-      })();
-    } else {
-      setScope("personal");
-    }
-  }, [projectId, scope, setActiveProject, setScope]);
-
-  useEffect(() => {
-    if (!connected && !connectError) return;
-    if (connectError) {
-      showError("Connection failed", connectError);
-    } else if (connected) {
-      showSuccess("Connected", `${connected} credential added.`);
-    }
-    reload();
-    router.replace(returnPath as any);
-  }, [connected, connectError, reload, returnPath, router, showError, showSuccess]);
-
-  useEffect(() => {
-    if (!menuOpen) return;
-    const onMouseDown = (event: MouseEvent) => {
-      const root = menuRef.current;
-      if (!root) return;
-      if (event.target instanceof Node && !root.contains(event.target)) {
-        setMenuOpen(false);
-      }
-    };
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setMenuOpen(false);
-    };
-    window.addEventListener("mousedown", onMouseDown);
-    window.addEventListener("keydown", onKeyDown);
-    return () => {
-      window.removeEventListener("mousedown", onMouseDown);
-      window.removeEventListener("keydown", onKeyDown);
-    };
-  }, [menuOpen]);
-
-  const onConnect = async (provider: "google" | "github") => {
-    try {
-      const res = await startCredentialOAuth(provider, {
-        scope,
-        projectId,
-        returnTo: returnPath,
-      });
-      window.location.href = res.url;
-    } catch (err: any) {
-      showError("Connection failed", err?.message || "Unable to start OAuth flow");
-    }
-  };
-
-  const onDelete = async () => {
-    if (!selectedId) return;
-    setDeleting(true);
-    try {
-      await deleteCredential(selectedId);
-      showSuccess("Credential removed");
-      setItems((prev) => prev.filter((item) => item.id !== selectedId));
-    } catch (err: any) {
-      showError("Delete failed", err?.message || "Unable to delete credential");
-    } finally {
-      setDeleting(false);
-      setConfirmDeleteOpen(false);
-      setSelectedId(null);
-    }
-  };
-
-  const projectNavItems = useMemo(() => {
-    if (scope !== "project" || !projectId) return [];
-    return [
-      { id: "workflows", label: "Workflows", href: "/flows", onClick: () => setActiveProject(projectId) },
-      { id: "credentials", label: "Credentials", href: `/projects/${projectId}/credentials`, active: true },
-      { id: "executions", label: "Executions", href: "/runs", onClick: () => setActiveProject(projectId) },
-      { id: "variables", label: "Variables", href: `/projects/${projectId}/variables` },
-      { id: "settings", label: "Project Settings", href: `/projects/${projectId}/settings` },
-    ];
-  }, [projectId, scope, setActiveProject]);
-
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    const list = q
-      ? items.filter((item) => {
-          const hay = `${item.name} ${item.provider} ${item.accountEmail || ""}`.toLowerCase();
-          return hay.includes(q);
-        })
-      : items;
-    const sorted = [...list];
-    sorted.sort((a, b) => {
-      if (sortKey === "name") return (a.name || "").localeCompare(b.name || "");
-      const aTime = sortKey === "created" ? a.createdAt : a.updatedAt;
-      const bTime = sortKey === "created" ? b.createdAt : b.updatedAt;
-      return (bTime || "").localeCompare(aTime || "");
-    });
-    return sorted;
-  }, [items, query, sortKey]);
+  const {
+    filtered,
+    project,
+    loading,
+    menuOpen,
+    menuRef,
+    confirmDeleteOpen,
+    deleting,
+    isAdmin,
+    headerTitle,
+    query,
+    sortKey,
+    projectNavItems,
+    setQuery,
+    setSortKey,
+    setMenuOpen,
+    setConfirmDeleteOpen,
+    setSelectedId,
+    reload,
+    onConnect,
+    onDelete,
+  } = useCredentialsPage(scope, projectId);
 
   return (
     <div className="min-h-screen bg-bg">
@@ -290,7 +152,7 @@ export function CredentialsPage({ scope, projectId }: { scope: "personal" | "pro
                   { value: "created", label: "Sort by created" },
                   { value: "name", label: "Sort by name" },
                 ]}
-                onChange={(value) => setSortKey(value as SortKey)}
+                onChange={(value) => setSortKey(value as "updated" | "created" | "name")}
                 className="min-w-[200px]"
               />
               <button
