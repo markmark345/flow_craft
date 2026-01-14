@@ -9,7 +9,9 @@
       "Bash(find:*)",
       "Bash(while read file)",
       "Bash(do if grep -q \"useState\\\\|useEffect\\\\|useMemo\\\\|useCallback\" \"$file\")",
-      "Bash(then echo \"$file\" fi done)"
+      "Bash(then echo \"$file\" fi done)",
+      "Bash(git push:*)",
+      "Bash(gh pr create:*)"
     ]
   }
 }
