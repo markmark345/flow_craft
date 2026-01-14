@@ -1,12 +1,10 @@
 "use client";
 
-import { useMemo, useState } from "react";
-
 import { Input } from "@/shared/components/input";
 import { cn } from "@/shared/lib/cn";
-
-import { APP_CATALOG, listAppActions, type AppActionListItem, type AppKey } from "../nodeCatalog/catalog";
+import { APP_CATALOG, type AppKey } from "../nodeCatalog/catalog";
 import { NodeIcon } from "./node-icon";
+import { useAppActionList } from "../hooks/use-app-action-list";
 
 type Props = {
   appKey: AppKey;
@@ -16,34 +14,10 @@ type Props = {
 
 export function AppActionList({ appKey, selectedActionKey, onSelect }: Props) {
   const app = APP_CATALOG[appKey];
-  const [query, setQuery] = useState("");
-
-  const allItems = useMemo(() => listAppActions(appKey), [appKey]);
-
-  const actionCount = useMemo(
-    () => allItems.filter((i) => (i.kind || "action") === "action").length,
-    [allItems]
+  const { query, setQuery, actionCount, filteredByCategory, selectedMeta } = useAppActionList(
+    appKey,
+    selectedActionKey
   );
-
-  const filteredByCategory = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return app.categories;
-    return app.categories
-      .map((cat) => ({
-        ...cat,
-        items: cat.items.filter((item) => {
-          const text = `${item.label} ${item.description} ${item.actionKey}`.toLowerCase();
-          return text.includes(q);
-        }),
-      }))
-      .filter((cat) => cat.items.length > 0);
-  }, [app.categories, query]);
-
-  const selectedMeta = useMemo<AppActionListItem | null>(() => {
-    const actionKey = String(selectedActionKey || "").trim();
-    if (!actionKey) return null;
-    return allItems.find((item) => item.actionKey === actionKey) || null;
-  }, [allItems, selectedActionKey]);
 
   return (
     <div className="space-y-4">
