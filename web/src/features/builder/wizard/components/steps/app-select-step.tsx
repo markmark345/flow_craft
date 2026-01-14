@@ -1,26 +1,18 @@
 "use client";
 
-import { useMemo, useState } from "react";
-
-import { APP_CATALOG, defaultActionKeyForApp, findAppAction, type AppKey } from "@/features/builder/nodeCatalog/catalog";
+import { defaultActionKeyForApp, findAppAction, type AppKey } from "@/features/builder/nodeCatalog/catalog";
 import { NodeIcon } from "@/features/builder/components/node-icon";
 import { Input } from "@/shared/components/input";
 import { cn } from "@/shared/lib/cn";
-
 import { useWizardStore, type AppNodeDraft } from "../../store/use-wizard-store";
+import { useAppSelectStep } from "../../hooks/use-app-select-step";
 
 export function AppSelectStep() {
   const draft = useWizardStore((s) => s.draft) as AppNodeDraft;
   const setDraft = useWizardStore((s) => s.setDraft);
   const errors = useWizardStore((s) => s.validationErrors);
-  const [query, setQuery] = useState("");
 
-  const apps = useMemo(() => {
-    const all = Object.values(APP_CATALOG);
-    const q = query.trim().toLowerCase();
-    if (!q) return all;
-    return all.filter((app) => `${app.label} ${app.description} ${app.appKey}`.toLowerCase().includes(q));
-  }, [query]);
+  const { query, setQuery, apps } = useAppSelectStep();
 
   const selectApp = (app: AppKey) => {
     const firstAction = defaultActionKeyForApp(app) || null;
