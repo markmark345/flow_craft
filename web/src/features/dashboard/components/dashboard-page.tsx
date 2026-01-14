@@ -1,34 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo } from "react";
 import { Badge } from "@/shared/components/badge";
 import { Button } from "@/shared/components/button";
-import { useFlowsQuery } from "@/features/flows/hooks/use-flows";
-import { useFlowsStore } from "@/features/flows/store/use-flows-store";
-import { useRunsQuery } from "@/features/runs/hooks/use-runs";
-import { useRunsStore } from "@/features/runs/store/use-runs-store";
-import { useRouter } from "next/navigation";
-import { useAppStore } from "@/shared/hooks/use-app-store";
 import { Icon } from "@/shared/components/icon";
+import { useDashboardPage } from "../hooks/use-dashboard-page";
 
 export function DashboardPage() {
-  useFlowsQuery();
-  useRunsQuery();
-  const flows = useFlowsStore((s) => s.items);
-  const runs = useRunsStore((s) => s.items);
-  const router = useRouter();
-  const showInfo = useAppStore((s) => s.showInfo);
-
-  const recentFlows = useMemo(
-    () => [...flows].sort((a, b) => (b.updatedAt || "").localeCompare(a.updatedAt || "")).slice(0, 5),
-    [flows]
-  );
-
-  const recentRuns = useMemo(
-    () => [...runs].sort((a, b) => (b.createdAt || "").localeCompare(a.createdAt || "")).slice(0, 6),
-    [runs]
-  );
+  const { recentFlows, recentRuns, showInfo, navigateToFlow } = useDashboardPage();
 
   return (
     <div className="min-h-screen bg-bg">
@@ -79,9 +58,9 @@ export function DashboardPage() {
                     className="group bg-panel rounded-lg border border-border p-4 shadow-soft hover:shadow-lift hover:border-accent transition-all cursor-pointer relative"
                     role="button"
                     tabIndex={0}
-                    onClick={() => router.push(`/flows/${flow.id}/builder`)}
+                    onClick={() => navigateToFlow(flow.id)}
                     onKeyDown={(e) => {
-                      if (e.key === "Enter") router.push(`/flows/${flow.id}/builder`);
+                      if (e.key === "Enter") navigateToFlow(flow.id);
                     }}
                   >
                     <div className="flex items-start justify-between mb-3">
