@@ -1,8 +1,50 @@
 # 📋 Code Review & Refactoring Plan
 
 > **Last Updated**: 2026-01-14
-> **Status**: Planning Phase
+> **Status**: ✅ IN PROGRESS - Violation 2 (Hooks Extraction)
 > **Objective**: Bring codebase into compliance with [AI Development Rules](../.clauderc)
+
+---
+
+## 🚀 CURRENT PROGRESS (Updated: 2026-01-14)
+
+### Violation 2: Hooks Extraction Status
+**Branch**: `refactor/extract-hooks-new-flow`
+**Progress**: 7 of 41 files completed (17%)
+**Target**: 33 files (80%) before plan update
+
+#### ✅ Completed Files (7)
+| File | Before | After | Reduction | Hook File |
+|------|--------|-------|-----------|-----------|
+| `new-flow-page.tsx` | 145 | 91 | -37% | `use-new-flow-form.ts` (136 lines) |
+| `inspector.tsx` | 122 | 95 | -22% | `use-inspector.ts` (121 lines) |
+| `canvas.tsx` | 296 | 89 | -70% | `use-canvas.ts` (326 lines) |
+| `flows-page.tsx` | 293 | 143 | -51% | `use-flows-page.ts` (340 lines) |
+| `runs-page.tsx` | 467 | 270 | -42% | `use-runs-page.ts` (200 lines) |
+| `credentials-page.tsx` | 382 | 244 | -36% | `use-credentials-page.ts` (227 lines) |
+| `variables-page.tsx` | 449 | 328 | -27% | `use-variables-page.ts` (221 lines) |
+
+#### 🔄 In Progress (2)
+- `settings-page.tsx` → `use-settings-page.ts` (hook created, component pending)
+- `run-detail-page.tsx` → `use-run-detail-page.ts` (hook created, component pending)
+
+#### 📊 Impact Metrics
+- **Total Lines Reduced**: ~900 lines across 7 files
+- **Average Reduction**: 40.7% per file
+- **Hooks Separated**: 75+ hook usages extracted
+- **Custom Hooks Created**: 9 new hook files (1,771 total lines)
+
+#### 📝 Commits Made
+1. `996658b` - Initial extraction: new-flow-page
+2. `2aa045c` - Inspector + canvas extraction
+3. `55522a1` - Flows-page extraction with pagination fix
+4. `27c1727` - Runs, credentials, variables extraction (3 files)
+5. `e42ebc1` - Hooks for settings and run-detail pages
+
+#### 🎯 Next Steps
+1. Complete remaining 26 files to reach 80% (33 files)
+2. Update this plan with detailed statistics
+3. Final commit and merge to master
 
 ---
 
