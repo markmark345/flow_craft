@@ -1,48 +1,15 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import type { Route } from "next";
-import { useSearchParams } from "next/navigation";
-
 import { BrandLogo } from "@/shared/components/BrandLogo";
 import { Button } from "@/shared/components/button";
 import { Input } from "@/shared/components/input";
 import { Panel } from "@/shared/components/panel";
-import { useAppStore } from "@/shared/hooks/use-app-store";
-
-import { requestPasswordReset } from "../services/authApi";
+import { useForgotPasswordPage } from "../hooks/use-forgot-password-page";
 
 export function ForgotPasswordPage() {
-  const searchParams = useSearchParams();
-  const next = searchParams.get("next") || "/login";
-  const showSuccess = useAppStore((s) => s.showSuccess);
-  const showError = useAppStore((s) => s.showError);
-
-  const [email, setEmail] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [done, setDone] = useState(false);
-  const [inlineError, setInlineError] = useState<string | null>(null);
-
-  const onSubmit = async () => {
-    setInlineError(null);
-    const trimmed = email.trim();
-    if (!trimmed) {
-      setInlineError("Email is required.");
-      return;
-    }
-    setLoading(true);
-    try {
-      const lang = typeof navigator !== "undefined" && navigator.language.toLowerCase().startsWith("th") ? "th" : "en";
-      await requestPasswordReset(trimmed, lang);
-      setDone(true);
-      showSuccess("Check your inbox", "If the account exists, we sent a reset link.");
-    } catch (err: any) {
-      showError("Request failed", err?.message || "Unable to send reset email");
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { email, loading, done, inlineError, next, inputErrorStyle, setEmail, onSubmit } = useForgotPasswordPage();
 
   return (
     <div className="min-h-screen grid-background flex flex-col items-center justify-center px-4 py-12">
@@ -73,15 +40,12 @@ export function ForgotPasswordPage() {
                 <label className="text-xs font-semibold text-muted uppercase tracking-wide">Email</label>
                 <Input
                   value={email}
-                  onChange={(e) => {
-                    setEmail(e.target.value);
-                    if (inlineError) setInlineError(null);
-                  }}
+                  onChange={(e) => setEmail(e.target.value)}
                   placeholder="name@company.com"
                   autoComplete="email"
                   className="h-11 rounded-lg bg-surface2"
                   aria-invalid={Boolean(inlineError)}
-                  style={inlineError ? ({ borderColor: "var(--error)" } as const) : undefined}
+                  style={inputErrorStyle}
                 />
               </div>
 

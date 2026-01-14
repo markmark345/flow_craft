@@ -1,12 +1,8 @@
 "use client";
 
-import { useMemo } from "react";
-
 import { SchemaForm } from "@/shared/components/SchemaForm/SchemaForm";
-import type { SchemaField } from "@/shared/components/SchemaForm/types";
-import { AGENT_TOOL_CATALOG, findAppAction } from "@/features/builder/nodeCatalog/catalog";
-
 import { useWizardStore, type AppNodeDraft, type AgentToolDraft } from "../../store/use-wizard-store";
+import { useWizardConfigureStep } from "../../hooks/use-wizard-configure-step";
 
 export function WizardConfigureStep() {
   const mode = useWizardStore((s) => s.mode);
@@ -14,16 +10,7 @@ export function WizardConfigureStep() {
   const setDraft = useWizardStore((s) => s.setDraft);
   const errors = useWizardStore((s) => s.validationErrors);
 
-  const schema = useMemo<SchemaField[]>(() => {
-    if (mode === "add-agent-tool") {
-      const d = draft as AgentToolDraft;
-      const tool = AGENT_TOOL_CATALOG.find((t) => t.toolKey === d.toolKey);
-      return tool?.fields || [];
-    }
-    const d = draft as AppNodeDraft;
-    if (!d.app || !d.action) return [];
-    return findAppAction(d.app, d.action)?.fields || [];
-  }, [draft, mode]);
+  const { schema } = useWizardConfigureStep(mode, draft);
 
   if (mode === "add-app-node" && (!(draft as AppNodeDraft).app || !(draft as AppNodeDraft).action)) {
     return <div className="text-sm text-muted">Choose an app and action first.</div>;

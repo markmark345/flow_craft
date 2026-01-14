@@ -2,79 +2,24 @@
 
 import { Button } from "@/shared/components/button";
 import { Input } from "@/shared/components/input";
-import { useEffect, useMemo, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useCreateFlow } from "../hooks/use-create-flow";
-import { useAppStore, useMounted } from "@/shared/hooks/use-app-store";
 import { Select } from "@/shared/components/select";
-import { useWorkspaceStore, type WorkspaceScope } from "@/features/workspaces/store/use-workspace-store";
+import type { WorkspaceScope } from "@/features/workspaces/store/use-workspace-store";
+import { useNewFlowForm } from "../hooks/use-new-flow-form";
 
 export function NewFlowPage() {
-  const [name, setName] = useState("");
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const mounted = useMounted();
-  const { createFlow, loading } = useCreateFlow();
-  const showSuccess = useAppStore((s) => s.showSuccess);
-  const showError = useAppStore((s) => s.showError);
-  const projects = useWorkspaceStore((s) => s.projects);
-  const loadProjects = useWorkspaceStore((s) => s.loadProjects);
-
-  const [scope, setScope] = useState<WorkspaceScope>("personal");
-  const [projectId, setProjectId] = useState<string | null>(null);
-
-  useEffect(() => {
-    loadProjects().catch(() => {});
-  }, [loadProjects]);
-
-  useEffect(() => {
-    if (!mounted) return;
-    const paramScope = (searchParams.get("scope") || "").toLowerCase();
-    const paramProjectId = searchParams.get("projectId");
-    const nextScope: WorkspaceScope = paramScope === "project" ? "project" : "personal";
-    setScope(nextScope);
-    setProjectId(paramProjectId || null);
-  }, [mounted, searchParams]);
-
-  useEffect(() => {
-    if (scope !== "project") return;
-    if (!projectId) {
-      if (projects.length === 1) setProjectId(projects[0].id);
-      return;
-    }
-    if (!projects.some((p) => p.id === projectId)) setProjectId(null);
-  }, [projectId, projects, scope]);
-
-  const projectOptions = useMemo(
-    () =>
-      projects.map((p) => ({
-        value: p.id,
-        label: p.name,
-        description: p.role === "admin" ? "Admin" : "Member",
-      })),
-    [projects]
-  );
-
-  const handleCreate = async () => {
-    const trimmed = name.trim();
-    if (!trimmed) return;
-    try {
-      if (scope === "project" && !projectId) {
-        showError("Create failed", "Select a project first.");
-        return;
-      }
-      const flow = await createFlow(trimmed, { scope, projectId });
-      if (scope === "project" && projectId) {
-        useWorkspaceStore.getState().setActiveProject(projectId);
-      } else {
-        useWorkspaceStore.getState().setScope("personal");
-      }
-      showSuccess("Flow created", flow.name);
-      router.push(`/flows/${flow.id}/builder`);
-    } catch (err: any) {
-      showError("Create failed", err?.message || "Unable to create flow");
-    }
-  };
+  const {
+    name,
+    scope,
+    projectId,
+    loading,
+    projects,
+    projectOptions,
+    isFormValid,
+    setName,
+    setScope,
+    setProjectId,
+    handleCreate,
+  } = useNewFlowForm();
 
   return (
     <div className="min-h-screen bg-bg">
@@ -131,7 +76,7 @@ export function NewFlowPage() {
             <div className="flex justify-end">
               <Button
                 onClick={handleCreate}
-                disabled={!name.trim() || loading || (scope === "project" && !projectId)}
+                disabled={!isFormValid}
                 className="rounded-lg"
               >
                 {loading ? "Creating..." : "Create"}

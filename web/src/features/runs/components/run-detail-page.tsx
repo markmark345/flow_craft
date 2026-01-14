@@ -2,77 +2,46 @@
 
 import { Badge } from "@/shared/components/badge";
 import { Button } from "@/shared/components/button";
-import { useRunDetailQuery } from "../hooks/use-run-detail";
-import { RunDTO, RunStepDTO } from "@/shared/types/dto";
-import { useRunStepsQuery } from "../hooks/use-run-steps";
-import { useCancelRun } from "../hooks/use-cancel-run";
-import { useRunFlow } from "../hooks/use-run-flow";
+import { RunStepDTO } from "@/shared/types/dto";
 import { Icon } from "@/shared/components/icon";
 import { Tabs } from "@/shared/components/tabs";
 import { Input } from "@/shared/components/input";
 import Link from "next/link";
-import { useFlowDetailQuery } from "@/features/flows/hooks/use-flow-detail";
-import { useAppStore } from "@/shared/hooks/use-app-store";
-import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useRunDetailPage } from "../hooks/use-run-detail-page";
 
 type Props = { runId: string };
 
 export function RunDetailPage({ runId }: Props) {
-  const router = useRouter();
-  const { run, loading: runLoading, error: runError, reload: reloadRun } = useRunDetailQuery(runId, { pollMs: 2000 });
-  const { steps, loading: stepsLoading, error: stepsError, reload: reloadSteps } = useRunStepsQuery(runId, { pollMs: 2000 });
-  const { cancel, canceling } = useCancelRun();
-  const { startRun, running, runningFlowId } = useRunFlow();
-  const { flow } = useFlowDetailQuery(run?.flowId);
-  const showSuccess = useAppStore((s) => s.showSuccess);
-  const showError = useAppStore((s) => s.showError);
-  const showInfo = useAppStore((s) => s.showInfo);
-
-  const [activeTab, setActiveTab] = useState<"inputs" | "outputs" | "logs" | "errors">("outputs");
-  const [selectedStepId, setSelectedStepId] = useState<string | undefined>(undefined);
-  const [logQuery, setLogQuery] = useState("");
-
-  const tone = (s: RunDTO["status"]): "default" | "success" | "warning" | "danger" => {
-    if (s === "success") return "success";
-    if (s === "failed") return "danger";
-    if (s === "running" || s === "queued") return "warning";
-    return "default";
-  };
-
-  useEffect(() => {
-    if (!steps.length) return;
-    if (selectedStepId && steps.some((s) => s.id === selectedStepId)) return;
-    setSelectedStepId(steps[0].id);
-  }, [selectedStepId, steps]);
-
-  const selectedStep = useMemo<RunStepDTO | undefined>(() => {
-    if (!steps.length) return undefined;
-    return steps.find((s) => s.id === selectedStepId) || steps[0];
-  }, [selectedStepId, steps]);
-
-  const refreshAll = async () => {
-    await Promise.all([reloadRun(), reloadSteps()]);
-  };
-
-  const cancelable = run?.status === "queued" || run?.status === "running";
-
-  const onCancel = async () => {
-    if (!run) return;
-    try {
-      await cancel(run.id);
-      await refreshAll();
-    } catch {}
-  };
-
-  const onRerun = async () => {
-    if (!run) return;
-    try {
-      const created = await startRun(run.flowId);
-      showSuccess("Run started", "Redirecting to run detail…");
-      router.push(`/runs/${created.id}`);
-    } catch {}
-  };
+  const {
+    run,
+    flow,
+    steps,
+    selectedStep,
+    runLoading,
+    stepsLoading,
+    runError,
+    stepsError,
+    canceling,
+    running,
+    runningFlowId,
+    activeTab,
+    selectedStepId,
+    logQuery,
+    cancelable,
+    setActiveTab,
+    setSelectedStepId,
+    setLogQuery,
+    refreshAll,
+    reloadSteps,
+    onCancel,
+    onRerun,
+    getTone,
+    getTabText,
+    filterLogText,
+    showSuccess,
+    showError,
+    showInfo,
+  } = useRunDetailPage(runId);
 
   if (runLoading && !run) return <p className="text-muted">Loading run…</p>;
   if (!run) return <p className="text-muted">{runError ? runError : "Run not found"}</p>;
@@ -116,7 +85,7 @@ export function RunDetailPage({ runId }: Props) {
                 <h1 className="text-xl md:text-2xl font-bold tracking-tight text-text truncate">
                   {flow?.name || "Workflow Run"}
                 </h1>
-                <Badge label={run.status} tone={tone(run.status)} />
+                <Badge label={run.status} tone={getTone(run.status)} />
               </div>
               <div className="mt-1 flex flex-wrap items-center gap-x-6 gap-y-1 text-sm text-muted">
                 <span className="inline-flex items-center gap-2">
@@ -237,7 +206,7 @@ export function RunDetailPage({ runId }: Props) {
                     type="button"
                     className="h-9 w-9 rounded-lg border border-border bg-surface hover:bg-surface2 flex items-center justify-center"
                     onClick={async () => {
-                      const text = tabText(selectedStep, activeTab, run.log);
+                      const text = getTabText(selectedStep, activeTab);
                       if (!text) return;
                       try {
                         await navigator.clipboard.writeText(text);
@@ -276,7 +245,7 @@ export function RunDetailPage({ runId }: Props) {
                     ) : null}
 
                     <pre className="text-xs whitespace-pre break-words rounded-xl bg-surface2 border border-border p-4 font-mono text-text overflow-auto max-h-[60vh]">
-                      {filterLogText(tabText(selectedStep, activeTab, run.log), logQuery) || "—"}
+                      {filterLogText(getTabText(selectedStep, activeTab)) || "—"}
                     </pre>
                   </>
                 ) : (
@@ -330,29 +299,4 @@ function formatDuration(startedAt?: string, finishedAt?: string) {
 function shortId(id: string) {
   if (id.length <= 12) return id;
   return `${id.slice(0, 8)}…${id.slice(-4)}`;
-}
-
-function tabText(step: RunStepDTO | undefined, tab: "inputs" | "outputs" | "logs" | "errors", runLog?: string) {
-  if (!step) return "";
-  if (tab === "inputs") return pretty(step.inputs);
-  if (tab === "outputs") return pretty(step.outputs);
-  if (tab === "logs") return [step.log, runLog].filter(Boolean).join("\n");
-  return step.error || (step.status === "failed" ? "Step failed" : "");
-}
-
-function pretty(v: unknown) {
-  if (v === undefined || v === null) return "";
-  try {
-    return JSON.stringify(v, null, 2);
-  } catch {
-    return String(v);
-  }
-}
-
-function filterLogText(text: string, query: string) {
-  const q = query.trim().toLowerCase();
-  if (!q) return text;
-  const lines = text.split("\n");
-  const filtered = lines.filter((l) => l.toLowerCase().includes(q));
-  return filtered.join("\n");
 }

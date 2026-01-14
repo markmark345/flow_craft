@@ -1,13 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
-
 import { Badge } from "@/shared/components/badge";
 import { Checkbox } from "@/shared/components/checkbox";
 import { Icon } from "@/shared/components/icon";
 import { cn } from "@/shared/lib/cn";
 import { FlowDTO } from "@/shared/types/dto";
 import { RunMeta, avatarStyle, formatUpdatedAt, initialsFor, ownerForFlow, statusTone } from "./flows-page-utils";
+import { useFlowsTable } from "../hooks/use-flows-table";
 
 export function FlowsTable({
   flowsLoading,
@@ -54,19 +53,7 @@ export function FlowsTable({
   onCopyFailed: () => void;
   emptyStateMessage: string;
 }) {
-  const [menuOpenFor, setMenuOpenFor] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!menuOpenFor) return;
-    const onDown = (e: MouseEvent) => {
-      const target = e.target as Node | null;
-      if (!target) return;
-      const el = document.querySelector(`[data-flow-menu-root="${menuOpenFor}"]`);
-      if (!el || !el.contains(target)) setMenuOpenFor(null);
-    };
-    window.addEventListener("mousedown", onDown);
-    return () => window.removeEventListener("mousedown", onDown);
-  }, [menuOpenFor]);
+  const { menuOpenFor, setMenuOpenFor } = useFlowsTable();
 
   return (
     <div className="bg-panel border border-border rounded-xl shadow-soft">

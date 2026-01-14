@@ -1,12 +1,10 @@
 "use client";
 
-import { useMemo } from "react";
-
 import { Button } from "@/shared/components/button";
 import { Icon } from "@/shared/components/icon";
 import { cn } from "@/shared/lib/cn";
-
 import { useWizardStore } from "../store/use-wizard-store";
+import { useWizardModal } from "../hooks/use-wizard-modal";
 import { AppSelectStep } from "./steps/app-select-step";
 import { ActionSelectStep } from "./steps/action-select-step";
 import { WizardCredentialStep } from "./steps/credential-step";
@@ -21,8 +19,6 @@ import { AgentReviewStep } from "./steps/review-agent-step";
 import { ToolSelectStep } from "./steps/tool-select-step";
 import { ToolReviewStep } from "./steps/review-tool-step";
 
-type StepDef = { key: string; title: string };
-
 export function WizardModal() {
   const isOpen = useWizardStore((s) => s.isOpen);
   const mode = useWizardStore((s) => s.mode);
@@ -34,37 +30,7 @@ export function WizardModal() {
   const isSubmitting = useWizardStore((s) => s.isSubmitting);
   const confirm = useWizardStore((s) => s.confirm);
 
-  const steps = useMemo<StepDef[]>(() => {
-    if (mode === "add-agent") {
-      return [
-        { key: "agent", title: "Agent" },
-        { key: "model", title: "Model" },
-        { key: "memory", title: "Memory" },
-        { key: "tools", title: "Tools" },
-        { key: "review", title: "Review" },
-      ];
-    }
-    if (mode === "add-agent-tool") {
-      return [
-        { key: "tool", title: "Tool" },
-        { key: "credential", title: "Credential" },
-        { key: "configure", title: "Configure" },
-        { key: "test", title: "Test" },
-        { key: "review", title: "Review" },
-      ];
-    }
-    return [
-      { key: "app", title: "App" },
-      { key: "action", title: "Action" },
-      { key: "credential", title: "Credential" },
-      { key: "configure", title: "Configure" },
-      { key: "test", title: "Test" },
-      { key: "review", title: "Review" },
-    ];
-  }, [mode]);
-
-  const isLast = stepIndex >= steps.length - 1;
-  const confirmLabel = mode === "add-agent-tool" ? "Add tool" : "Add node";
+  const { steps, isLast, confirmLabel } = useWizardModal(mode, stepIndex);
 
   const renderStep = () => {
     if (mode === "add-agent") {
@@ -186,4 +152,3 @@ export function WizardModal() {
     </div>
   );
 }
-

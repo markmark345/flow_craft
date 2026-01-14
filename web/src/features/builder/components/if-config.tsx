@@ -1,9 +1,9 @@
 "use client";
 
-import { useMemo } from "react";
 import { Input } from "@/shared/components/input";
 import { Icon } from "@/shared/components/icon";
 import { Select, type SelectOption } from "@/shared/components/select";
+import { useIfConfig } from "../hooks/use-if-config";
 
 export type IfConditionType = "string" | "number" | "datetime" | "boolean" | "array" | "object";
 export type IfCombine = "AND" | "OR";
@@ -167,26 +167,7 @@ export function IfConfig({
   config: Record<string, unknown>;
   onPatch: (patch: Record<string, unknown>) => void;
 }) {
-  const state = useMemo(() => coerceIfConfig(config), [config]);
-
-  const updateCondition = (id: string, patch: Partial<IfCondition>) => {
-    const next = state.conditions.map((c) => (c.id === id ? { ...c, ...patch } : c));
-    onPatch({ conditions: next });
-  };
-
-  const removeCondition = (id: string) => {
-    const next = state.conditions.filter((c) => c.id !== id);
-    onPatch({ conditions: next.length ? next : [{ id: crypto.randomUUID(), type: "string", operator: "is equal to", left: "", right: "" }] });
-  };
-
-  const addCondition = () => {
-    onPatch({
-      conditions: [
-        ...state.conditions,
-        { id: crypto.randomUUID(), type: "string", operator: "is equal to", left: "", right: "" },
-      ],
-    });
-  };
+  const { state, updateCondition, removeCondition, addCondition } = useIfConfig(config, onPatch, coerceIfConfig);
 
   return (
     <div className="space-y-5">

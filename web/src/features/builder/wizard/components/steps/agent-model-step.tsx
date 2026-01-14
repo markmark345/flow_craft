@@ -1,14 +1,12 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
-
 import { Input } from "@/shared/components/input";
 import { Select, type SelectOption } from "@/shared/components/select";
 import { useCredentialOptions } from "@/features/credentials/hooks/use-credential-options";
 import { NodeIcon } from "@/features/builder/components/node-icon";
 import { MODEL_PROVIDERS } from "@/features/builder/nodeCatalog/catalog";
-
 import { useWizardStore, type AgentDraft } from "../../store/use-wizard-store";
+import { useAgentModelStep } from "../../hooks/use-agent-model-step";
 
 const providerOptions: SelectOption[] = MODEL_PROVIDERS.map((p) => ({
   value: p.key,
@@ -21,44 +19,19 @@ export function AgentModelStep() {
   const setDraft = useWizardStore((s) => s.setDraft);
   const errors = useWizardStore((s) => s.validationErrors);
 
-  useEffect(() => {
-    if (draft.model) return;
-    const openai = MODEL_PROVIDERS.find((p) => p.key === "openai")!;
-    setDraft({
-      model: {
-        provider: openai.key,
-        model: openai.defaultModel,
-        baseUrl: openai.defaultBaseUrl,
-        credentialId: "",
-        apiKeyOverride: "",
-      } as any,
-    });
-  }, [draft.model, setDraft]);
+  const {
+    provider,
+    providerMeta,
+    credentialProvider,
+    credentialOptions,
+    model,
+    baseUrl,
+    credentialId,
+    apiKeyOverride,
+    patchModel,
+  } = useAgentModelStep(draft, setDraft, useCredentialOptions(credentialProvider, provider !== "custom"));
 
-  const provider = (draft.model?.provider || "openai") as any;
-  const providerMeta = MODEL_PROVIDERS.find((p) => p.key === provider) || MODEL_PROVIDERS[0];
-
-  const credentialProvider = provider === "custom" ? undefined : provider;
-  const { options, loading, error } = useCredentialOptions(credentialProvider, provider !== "custom");
-  const credentialOptions = useMemo<SelectOption[]>(
-    () =>
-      options.map((opt) => ({
-        value: opt.id,
-        label: opt.label,
-        description: opt.accountEmail ? `${opt.provider} • ${opt.accountEmail}` : opt.provider,
-      })),
-    [options]
-  );
-
-  const model = draft.model?.model || "";
-  const baseUrl = draft.model?.baseUrl || "";
-  const credentialId = draft.model?.credentialId || "";
-  const apiKeyOverride = draft.model?.apiKeyOverride || "";
-
-  const patchModel = (patch: Record<string, unknown>) => {
-    const next = { ...(draft.model || {}), ...patch } as any;
-    setDraft({ model: next });
-  };
+  const { loading, error } = useCredentialOptions(credentialProvider, provider !== "custom");
 
   return (
     <div className="space-y-5">

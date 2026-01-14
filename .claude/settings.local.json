@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git checkout:*)",
+      "Bash(npx tsc:*)",
+      "Bash(git commit:*)",
+      "Bash(wc:*)",
+      "Bash(git restore:*)",
+      "Bash(find:*)",
+      "Bash(while read file)",
+      "Bash(do if grep -q \"useState\\\\|useEffect\\\\|useMemo\\\\|useCallback\" \"$file\")",
+      "Bash(then echo \"$file\" fi done)"
+    ]
+  }
+}

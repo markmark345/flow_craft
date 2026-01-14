@@ -1,19 +1,14 @@
 "use client";
 
 import { ConfirmDialog } from "@/shared/components/confirm-dialog";
-import { useWorkspaceStore } from "@/features/workspaces/store/use-workspace-store";
-import { useMemo } from "react";
-
-import { useProjectSettings } from "@/features/projects/hooks/use-project-settings";
-import { ProjectDangerZoneCard } from "@/features/projects/components/project-settings/project-danger-zone-card";
-import { ProjectDocsCard } from "@/features/projects/components/project-settings/project-docs-card";
-import { ProjectInfoCard } from "@/features/projects/components/project-settings/project-info-card";
-import { ProjectMembersCard } from "@/features/projects/components/project-settings/project-members-card";
-import { ProjectSettingsHeader } from "@/features/projects/components/project-settings/project-settings-header";
+import { useProjectSettingsPage } from "../hooks/use-project-settings-page";
+import { ProjectDangerZoneCard } from "./project-settings/project-danger-zone-card";
+import { ProjectDocsCard } from "./project-settings/project-docs-card";
+import { ProjectInfoCard } from "./project-settings/project-info-card";
+import { ProjectMembersCard } from "./project-settings/project-members-card";
+import { ProjectSettingsHeader } from "./project-settings/project-settings-header";
 
 export function ProjectSettingsPage({ projectId }: { projectId: string }) {
-  const setActiveProject = useWorkspaceStore((s) => s.setActiveProject);
-
   const {
     addingMember,
     confirmDeleteOpen,
@@ -38,38 +33,10 @@ export function ProjectSettingsPage({ projectId }: { projectId: string }) {
     setMemberIdentifier,
     setMemberRole,
     setName,
-  } = useProjectSettings(projectId);
-
-  const navItems = useMemo(
-    () => [
-      { id: "workflows", label: "Workflows", href: "/flows", onClick: () => setActiveProject(projectId) },
-      {
-        id: "credentials",
-        label: "Credentials",
-        href: `/projects/${projectId}/credentials`,
-        onClick: () => setActiveProject(projectId),
-      },
-      { id: "executions", label: "Executions", href: "/runs", onClick: () => setActiveProject(projectId) },
-      { id: "variables", label: "Variables", href: `/projects/${projectId}/variables` },
-      { id: "settings", label: "Project Settings", href: `/projects/${projectId}/settings`, active: true },
-    ],
-    [projectId, setActiveProject]
-  );
-
-  const docsLinks = useMemo(
-    () => [
-      { label: "Managing Access Control", href: "/docs/authentication", icon: "person" },
-      { label: "API Usage for Projects", href: "/docs/resources/workflows", icon: "terminal" },
-      { label: "Exporting Project Data", href: "/docs/resources/executions", icon: "download" },
-    ],
-    []
-  );
-
-  const projectInitials = useMemo(() => {
-    const value = (project?.name || "").trim();
-    if (!value) return "PR";
-    return value.slice(0, 2).toUpperCase();
-  }, [project?.name]);
+    navItems,
+    docsLinks,
+    projectInitials,
+  } = useProjectSettingsPage(projectId);
 
   if (loading) {
     return (

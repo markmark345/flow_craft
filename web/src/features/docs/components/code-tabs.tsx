@@ -1,9 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
 import { cn } from "@/shared/lib/cn";
 import { Icon } from "@/shared/components/icon";
-import { useAppStore } from "@/shared/hooks/use-app-store";
+import { useCodeTabs } from "../hooks/use-code-tabs";
 
 export type CodeTab = {
   id: string;
@@ -12,15 +11,8 @@ export type CodeTab = {
 };
 
 export function CodeTabs({ tabs, initialTabId }: { tabs: CodeTab[]; initialTabId?: string }) {
-  const showSuccess = useAppStore((s) => s.showSuccess);
-  const showError = useAppStore((s) => s.showError);
+  const { activeId, active, setActiveId, copyCode } = useCodeTabs(tabs, initialTabId);
 
-  const defaultTabId = useMemo(() => initialTabId ?? tabs[0]?.id, [initialTabId, tabs]);
-  const [activeId, setActiveId] = useState<string | undefined>(defaultTabId);
-
-  useEffect(() => setActiveId(defaultTabId), [defaultTabId]);
-
-  const active = useMemo(() => tabs.find((t) => t.id === activeId) ?? tabs[0], [activeId, tabs]);
   if (!active) return null;
 
   return (
@@ -57,14 +49,7 @@ export function CodeTabs({ tabs, initialTabId }: { tabs: CodeTab[]; initialTabId
           type="button"
           className="inline-flex items-center justify-center size-8 rounded-lg text-muted hover:text-text hover:bg-surface2 transition-colors"
           title="Copy"
-          onClick={async () => {
-            try {
-              await navigator.clipboard.writeText(active.code);
-              showSuccess("Copied", "Code copied to clipboard.");
-            } catch (err: any) {
-              showError("Copy failed", err?.message || "Unable to copy");
-            }
-          }}
+          onClick={copyCode}
         >
           <Icon name="content_copy" className="text-[18px]" />
         </button>

@@ -1,103 +1,34 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState } from "react";
 import type { Route } from "next";
-import { useRouter } from "next/navigation";
 import { cn } from "@/shared/lib/cn";
 import { Icon } from "@/shared/components/icon";
 import { Button } from "@/shared/components/button";
 import { Input } from "@/shared/components/input";
-import { DOCS_FOOTER_LINKS, DOCS_NAV, DOCS_ORDER, getDocsPage } from "../lib/docs-data";
+import { DOCS_FOOTER_LINKS, getDocsPage } from "../lib/docs-data";
 import { ThemeToggle } from "./theme-toggle";
-import { useAuthStore } from "@/features/auth/store/use-auth-store";
-import { useLogout } from "@/features/auth/hooks/use-logout";
-import { useMounted } from "@/shared/hooks/use-app-store";
+import { useDocsApp } from "../hooks/use-docs-app";
 
 export function DocsApp({ href }: { href: string }) {
-  const router = useRouter();
-  const mounted = useMounted();
-  const page = useMemo(() => getDocsPage(href) ?? getDocsPage("/docs/introduction"), [href]);
-  const [query, setQuery] = useState("");
-  const [activeSectionId, setActiveSectionId] = useState<string | undefined>(page?.sections[0]?.id);
-  const scrollRef = useRef<HTMLDivElement | null>(null);
-  const authUser = useAuthStore((s) => s.user);
-  const user = mounted ? authUser : undefined;
-  const { signOut, loading: signingOut } = useLogout();
-  const [menuOpen, setMenuOpen] = useState(false);
-  const menuRef = useRef<HTMLDivElement | null>(null);
-
-  const initials = useMemo(() => {
-    const n = (user?.name || "").trim();
-    if (n) {
-      const parts = n.split(/\s+/).filter(Boolean);
-      return ((parts[0]?.[0] || "") + (parts[1]?.[0] || parts[0]?.[1] || "")).toUpperCase() || "U";
-    }
-    const e = (user?.email || "").trim();
-    if (e) return e.slice(0, 2).toUpperCase();
-    return "U";
-  }, [user?.email, user?.name]);
-
-  useEffect(() => {
-    if (!menuOpen) return;
-    const onDown = (e: MouseEvent) => {
-      if (!menuRef.current) return;
-      if (menuRef.current.contains(e.target as Node)) return;
-      setMenuOpen(false);
-    };
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setMenuOpen(false);
-    };
-    window.addEventListener("mousedown", onDown);
-    window.addEventListener("keydown", onKey);
-    return () => {
-      window.removeEventListener("mousedown", onDown);
-      window.removeEventListener("keydown", onKey);
-    };
-  }, [menuOpen]);
-
-  useEffect(() => {
-    setActiveSectionId(page?.sections[0]?.id);
-  }, [page]);
-
-  useEffect(() => {
-    const root = scrollRef.current;
-    if (!root || !page) return;
-
-    const ids = page.sections.map((s) => s.id);
-    const elements = ids
-      .map((id) => document.getElementById(id))
-      .filter((el): el is HTMLElement => Boolean(el));
-
-    if (!elements.length) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visible = entries
-          .filter((e) => e.isIntersecting)
-          .sort((a, b) => (a.boundingClientRect.top ?? 0) - (b.boundingClientRect.top ?? 0));
-        const first = visible[0]?.target as HTMLElement | undefined;
-        if (first?.id) setActiveSectionId(first.id);
-      },
-      { root, rootMargin: "-20% 0px -70% 0px", threshold: [0, 1] }
-    );
-
-    elements.forEach((el) => observer.observe(el));
-    return () => observer.disconnect();
-  }, [page]);
-
-  const filteredNav = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return DOCS_NAV;
-    return DOCS_NAV.map((g) => ({
-      ...g,
-      items: g.items.filter((i) => i.label.toLowerCase().includes(q)),
-    })).filter((g) => g.items.length > 0);
-  }, [query]);
-
-  const navIndex = useMemo(() => DOCS_ORDER.indexOf(href), [href]);
-  const previousHref = navIndex > 0 ? DOCS_ORDER[navIndex - 1] : undefined;
-  const nextHref = navIndex >= 0 && navIndex < DOCS_ORDER.length - 1 ? DOCS_ORDER[navIndex + 1] : undefined;
+  const {
+    router,
+    page,
+    query,
+    setQuery,
+    activeSectionId,
+    scrollRef,
+    user,
+    signOut,
+    signingOut,
+    menuOpen,
+    setMenuOpen,
+    menuRef,
+    initials,
+    filteredNav,
+    previousHref,
+    nextHref,
+  } = useDocsApp(href);
 
   if (!page) {
     return (
@@ -165,7 +96,7 @@ export function DocsApp({ href }: { href: string }) {
               className="inline-flex items-center justify-center size-9 rounded-full border border-border bg-surface2 text-xs font-bold text-muted hover:text-text hover:bg-surface transition-colors"
               title={user?.email || "Account"}
               aria-label="Account menu"
-              onClick={() => setMenuOpen((v) => !v)}
+              onClick={() => setMenuOpen(!menuOpen)}
             >
               {initials}
             </button>

@@ -1,6 +1,5 @@
 "use client";
 
-import { useMemo } from "react";
 import { useViewport } from "reactflow";
 
 import { useAuthStore } from "@/features/auth/store/use-auth-store";
@@ -8,6 +7,7 @@ import { useAppStore } from "@/shared/hooks/use-app-store";
 
 import { useBuilderStore } from "../store/use-builder-store";
 import { useStickyNoteInteractions } from "../hooks/use-sticky-note-interactions";
+import { useStickyNotesLayer } from "../hooks/use-sticky-notes-layer";
 import { StickyNoteTheme } from "../lib/sticky-note-utils";
 import { StickyNoteCard } from "./sticky-note-card";
 
@@ -23,11 +23,7 @@ export function StickyNotesLayer() {
   const theme = useAppStore((s) => s.theme) as StickyNoteTheme;
   const user = useAuthStore((s) => s.user);
 
-  const zoom = viewport.zoom || 1;
-  const transform = useMemo(
-    () => `translate(${viewport.x}px, ${viewport.y}px) scale(${viewport.zoom})`,
-    [viewport.x, viewport.y, viewport.zoom]
-  );
+  const { transform, zoom } = useStickyNotesLayer(viewport);
 
   const { beginAction } = useStickyNoteInteractions({
     deleteNote,

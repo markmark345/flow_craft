@@ -1,24 +1,16 @@
 "use client";
 
-import { useMemo, useState } from "react";
-
-import { AGENT_TOOL_CATALOG } from "@/features/builder/nodeCatalog/catalog";
 import { Input } from "@/shared/components/input";
 import { cn } from "@/shared/lib/cn";
-
 import { useWizardStore, type AgentToolDraft } from "../../store/use-wizard-store";
+import { useToolSelectStep } from "../../hooks/use-tool-select-step";
 
 export function ToolSelectStep() {
   const draft = useWizardStore((s) => s.draft) as AgentToolDraft;
   const setDraft = useWizardStore((s) => s.setDraft);
   const errors = useWizardStore((s) => s.validationErrors);
-  const [query, setQuery] = useState("");
 
-  const tools = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return AGENT_TOOL_CATALOG;
-    return AGENT_TOOL_CATALOG.filter((t) => `${t.label} ${t.toolKey}`.toLowerCase().includes(q));
-  }, [query]);
+  const { query, setQuery, tools } = useToolSelectStep();
 
   return (
     <div className="space-y-4">
@@ -55,4 +47,3 @@ export function ToolSelectStep() {
     </div>
   );
 }
-

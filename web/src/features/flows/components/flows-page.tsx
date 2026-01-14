@@ -1,202 +1,70 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-
-import { useFlowsQuery } from "../hooks/use-flows";
-import { useFlowActions } from "../hooks/use-flow-actions";
-import { useFlowsStore } from "../store/use-flows-store";
-
-import { useRunsQuery } from "@/features/runs/hooks/use-runs";
-import { useRunFlow } from "@/features/runs/hooks/use-run-flow";
-import { useRunsStore } from "@/features/runs/store/use-runs-store";
-
 import { Button } from "@/shared/components/button";
 import { ConfirmDialog } from "@/shared/components/confirm-dialog";
-import { useAppStore, useMounted } from "@/shared/hooks/use-app-store";
-import { FlowDTO, RunDTO } from "@/shared/types/dto";
-import { useWorkspaceStore } from "@/features/workspaces/store/use-workspace-store";
-
 import { FlowsHeader } from "./flows-header";
 import { FlowsPagination } from "./flows-pagination";
 import { FlowsTable } from "./flows-table";
-import { ownerForFlow, runMeta, runSortTime } from "./flows-page-utils";
-
-type ConfirmState = { type: "archive" | "delete"; flow: FlowDTO } | null;
+import { useFlowsPage } from "../hooks/use-flows-page";
+import { useFlowActions } from "../hooks/use-flow-actions";
 
 export function FlowsPage() {
-  const { loading: flowsLoading, error: flowsError, reload: reloadFlows } = useFlowsQuery();
-  const { loading: runsLoading, reload: reloadRuns } = useRunsQuery();
-
-  const flows = useFlowsStore((s) => s.items);
-  const runs = useRunsStore((s) => s.items);
-
   const router = useRouter();
-  const mounted = useMounted();
-  const scopeRaw = useWorkspaceStore((s) => s.activeScope);
-  const activeProjectIdRaw = useWorkspaceStore((s) => s.activeProjectId);
-  const projects = useWorkspaceStore((s) => s.projects);
-  const scope = mounted ? scopeRaw : "personal";
-  const activeProjectId = mounted ? activeProjectIdRaw : null;
-  const activeProject = useMemo(
-    () => projects.find((p) => p.id === activeProjectId) || null,
-    [activeProjectId, projects]
-  );
-
-  const pageTitle =
-    scope === "project" ? (activeProject ? `Project: ${activeProject.name}` : "Project Workflows") : "Personal Workflows";
-  const pageSubtitle =
-    scope === "project"
-      ? activeProject
-        ? "Workflows shared within this project."
-        : "Select a project to view project workflows."
-      : "Workflows owned by you.";
-  const showSuccess = useAppStore((s) => s.showSuccess);
-  const showError = useAppStore((s) => s.showError);
-  const showInfo = useAppStore((s) => s.showInfo);
-
   const {
-    importFlowFromFile,
+    flowsLoading,
+    runsLoading,
+    flowsError,
     importing,
-    duplicateExistingFlow,
     duplicatingId,
-    archiveExistingFlow,
     archivingId,
-    deleteExistingFlow,
     deletingId,
-  } = useFlowActions();
-  const { startRun, running, runningFlowId } = useRunFlow();
+    running,
+    runningFlowId,
+    flows,
+    filtered,
+    pageItems,
+    pageCount,
+    pageSize,
+    pageStartIdx,
+    pageSafe,
+    query,
+    status,
+    owner,
+    ownerOptions,
+    selectedIds,
+    allSelectedOnPage,
+    scope,
+    activeProject,
+    pageTitle,
+    pageSubtitle,
+    canCreateProject,
+    projectLabel,
+    confirm,
+    confirmTitle,
+    confirmDesc,
+    confirmLoading,
+    showSuccess,
+    showError,
+    showInfo,
+    setQuery,
+    setStatus,
+    setOwner,
+    setPageSize,
+    setPage,
+    toggleSelectFlow,
+    toggleSelectAllOnPage,
+    onImportFile,
+    onReload,
+    onRunFlow,
+    runMetaForFlow,
+    setConfirm,
+    onConfirm,
+    onCreatePersonal,
+    onCreateProject,
+  } = useFlowsPage();
 
-  const [query, setQuery] = useState("");
-  const [status, setStatus] = useState<"all" | FlowDTO["status"]>("all");
-  const [owner, setOwner] = useState<string>("all");
-  const [pageSize, setPageSize] = useState(10);
-  const [page, setPage] = useState(1);
-  const [selectedIds, setSelectedIds] = useState(() => new Set<string>());
-  const [confirm, setConfirm] = useState<ConfirmState>(null);
-
-  const ownerOptions = useMemo(() => {
-    const unique = new Set<string>();
-    for (const flow of flows) unique.add(ownerForFlow(flow));
-    return ["all", ...Array.from(unique).sort((a, b) => a.localeCompare(b))];
-  }, [flows]);
-
-  useEffect(() => {
-    if (owner === "all") return;
-    if (ownerOptions.includes(owner)) return;
-    setOwner("all");
-  }, [owner, ownerOptions]);
-
-  const lastRunByFlowId = useMemo(() => {
-    const map = new Map<string, RunDTO>();
-    for (const run of runs) {
-      const t = runSortTime(run);
-      const existing = map.get(run.flowId);
-      if (!existing || t > runSortTime(existing)) map.set(run.flowId, run);
-    }
-    return map;
-  }, [runs]);
-
-  const runMetaForFlow = (flowId: string) => runMeta(lastRunByFlowId.get(flowId));
-
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    return flows
-      .filter((flow) => (status === "all" ? true : flow.status === status))
-      .filter((flow) => (owner === "all" ? true : ownerForFlow(flow) === owner))
-      .filter((flow) => (!q ? true : flow.name.toLowerCase().includes(q) || flow.id.toLowerCase().includes(q)))
-      .sort((a, b) => (b.updatedAt || "").localeCompare(a.updatedAt || ""));
-  }, [flows, owner, query, status]);
-
-  useEffect(() => setPage(1), [query, status, owner, pageSize]);
-
-  const pageCount = Math.max(1, Math.ceil(filtered.length / pageSize));
-  const pageSafe = Math.min(page, pageCount);
-  const pageStartIdx = (pageSafe - 1) * pageSize;
-  const pageItems = filtered.slice(pageStartIdx, pageStartIdx + pageSize);
-
-  useEffect(() => {
-    if (page !== pageSafe) setPage(pageSafe);
-  }, [page, pageSafe]);
-
-  const allSelectedOnPage = pageItems.length > 0 && pageItems.every((flow) => selectedIds.has(flow.id));
-
-  const toggleSelectFlow = (flowId: string, next?: boolean) => {
-    setSelectedIds((prev) => {
-      const copy = new Set(prev);
-      const shouldSelect = next ?? !copy.has(flowId);
-      if (shouldSelect) copy.add(flowId);
-      else copy.delete(flowId);
-      return copy;
-    });
-  };
-
-  const toggleSelectAllOnPage = () => {
-    setSelectedIds((prev) => {
-      const copy = new Set(prev);
-      const shouldSelectAll = !allSelectedOnPage;
-      for (const flow of pageItems) {
-        if (shouldSelectAll) copy.add(flow.id);
-        else copy.delete(flow.id);
-      }
-      return copy;
-    });
-  };
-
-  const onImportFile = async (file: File) => {
-    const { flow } = await importFlowFromFile(file);
-    router.push(`/flows/${flow.id}/builder`);
-  };
-
-  const onReload = () => {
-    reloadFlows();
-    reloadRuns();
-  };
-
-  const onRunFlow = async (flowId: string) => {
-    try {
-      const run = await startRun(flowId);
-      showSuccess("Run started", run.id.slice(0, 8));
-      router.push(`/runs/${run.id}`);
-    } catch (err: any) {
-      showError("Run failed", err?.message || "Unable to start run");
-    }
-  };
-
-  const confirmTitle =
-    confirm?.type === "archive" ? "Archive flow?" : confirm?.type === "delete" ? "Delete flow?" : "";
-
-  const confirmDesc =
-    confirm?.type === "archive"
-      ? `This will mark "${confirm.flow.name}" as archived.`
-      : confirm?.type === "delete"
-        ? `This will permanently delete "${confirm.flow.name}".`
-        : undefined;
-
-  const confirmLoading =
-    (confirm?.type === "archive" && archivingId === confirm.flow.id) ||
-    (confirm?.type === "delete" && deletingId === confirm.flow.id);
-
-  const onConfirm = async () => {
-    if (!confirm) return;
-    try {
-      if (confirm.type === "archive") await archiveExistingFlow(confirm.flow);
-      if (confirm.type === "delete") await deleteExistingFlow(confirm.flow);
-      setConfirm(null);
-    } catch {
-      // toasts handled by hooks
-    }
-  };
-
-  const canCreateProject = scope === "project" && Boolean(activeProjectId);
-  const projectLabel =
-    scope === "project" && activeProject ? `Project workflow (${activeProject.name})` : "Project workflow";
-
-  const onCreatePersonal = () => router.push("/flows/new?scope=personal");
-  const onCreateProject = () => {
-    if (!activeProjectId) return;
-    router.push(`/flows/new?scope=project&projectId=${encodeURIComponent(activeProjectId)}`);
-  };
+  const { duplicateExistingFlow } = useFlowActions();
 
   const emptyStateMessage =
     scope === "project"
@@ -272,8 +140,8 @@ export function FlowsPage() {
             pageCount={pageCount}
             pageSize={pageSize}
             onPageSizeChange={setPageSize}
-            onPrev={() => setPage((p) => Math.max(1, p - 1))}
-            onNext={() => setPage((p) => Math.min(pageCount, p + 1))}
+            onPrev={() => setPage(Math.max(1, pageSafe - 1))}
+            onNext={() => setPage(Math.min(pageCount, pageSafe + 1))}
           />
         </div>
       </div>

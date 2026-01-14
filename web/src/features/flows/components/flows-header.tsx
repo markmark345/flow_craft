@@ -1,13 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-
 import { Button } from "@/shared/components/button";
 import { Icon } from "@/shared/components/icon";
 import { Input } from "@/shared/components/input";
 import { Select } from "@/shared/components/select";
 import { cn } from "@/shared/lib/cn";
 import type { FlowDTO } from "@/shared/types/dto";
+import { useFlowsHeader } from "../hooks/use-flows-header";
 
 export function FlowsHeader({
   pageTitle,
@@ -50,37 +49,8 @@ export function FlowsHeader({
   runsLoading: boolean;
   onShowInfo: (title: string, message: string) => void;
 }) {
-  const [createMenuOpen, setCreateMenuOpen] = useState(false);
-  const createMenuRef = useRef<HTMLDivElement | null>(null);
-  const fileRef = useRef<HTMLInputElement | null>(null);
-
-  useEffect(() => {
-    if (!createMenuOpen) return;
-    const onMouseDown = (e: MouseEvent) => {
-      const el = createMenuRef.current;
-      if (!el) return;
-      if (e.target instanceof Node && !el.contains(e.target)) setCreateMenuOpen(false);
-    };
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setCreateMenuOpen(false);
-    };
-    window.addEventListener("mousedown", onMouseDown);
-    window.addEventListener("keydown", onKeyDown);
-    return () => {
-      window.removeEventListener("mousedown", onMouseDown);
-      window.removeEventListener("keydown", onKeyDown);
-    };
-  }, [createMenuOpen]);
-
-  const onImportClick = () => fileRef.current?.click();
-
-  const handleImportFile = async (file: File) => {
-    try {
-      await onImportFile(file);
-    } finally {
-      if (fileRef.current) fileRef.current.value = "";
-    }
-  };
+  const { createMenuOpen, setCreateMenuOpen, createMenuRef, fileRef, onImportClick, handleImportFile } =
+    useFlowsHeader(onImportFile);
 
   return (
     <header className="sticky top-0 z-10 bg-panel border-b border-border px-8 py-6">

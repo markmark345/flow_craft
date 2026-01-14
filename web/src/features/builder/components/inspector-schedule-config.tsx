@@ -1,10 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
-
 import { Input } from "@/shared/components/input";
 import { Select, type SelectOption } from "@/shared/components/select";
 import { TimePicker } from "@/shared/components/time-picker";
+import { useInspectorScheduleConfig } from "../hooks/use-inspector-schedule-config";
 
 type ScheduleMode = "every" | "hourly" | "daily" | "weekly" | "monthly" | "cron";
 
@@ -25,38 +24,12 @@ export function ScheduleConfig({
   config: Record<string, unknown>;
   onPatch: (patch: Record<string, unknown>) => void;
 }) {
-  const expr = typeof config.expression === "string" ? config.expression : "";
-  const [state, setState] = useState<ScheduleState>(() => parseScheduleExpression(expr));
-
-  useEffect(() => {
-    setState(parseScheduleExpression(expr));
-  }, [expr]);
-
-  const apply = (patch: Partial<ScheduleState>) => {
-    const next = { ...state, ...patch };
-    const nextExpr = scheduleStateToExpression(next);
-    setState(next);
-    onPatch({ expression: nextExpr });
-  };
-
-  const dayLabels: Array<{ id: number; label: string }> = [
-    { id: 1, label: "Mon" },
-    { id: 2, label: "Tue" },
-    { id: 3, label: "Wed" },
-    { id: 4, label: "Thu" },
-    { id: 5, label: "Fri" },
-    { id: 6, label: "Sat" },
-    { id: 0, label: "Sun" },
-  ];
-
-  const toggleDay = (day: number) => {
-    const set = new Set(state.days);
-    if (set.has(day)) set.delete(day);
-    else set.add(day);
-    const nextDays = Array.from(set);
-    nextDays.sort((a, b) => a - b);
-    apply({ days: nextDays.length ? nextDays : [1] });
-  };
+  const { state, apply, toggleDay, dayLabels } = useInspectorScheduleConfig(
+    config,
+    onPatch,
+    parseScheduleExpression,
+    scheduleStateToExpression
+  );
 
   return (
     <div className="space-y-5">

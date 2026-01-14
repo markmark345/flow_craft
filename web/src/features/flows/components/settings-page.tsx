@@ -3,76 +3,38 @@
 import { Button } from "@/shared/components/button";
 import { Input } from "@/shared/components/input";
 import { API_BASE_URL } from "@/shared/lib/env";
-import { useAppStore } from "@/shared/hooks/use-app-store";
-import { useEffect, useMemo, useState } from "react";
 import { ConfirmDialog } from "@/shared/components/confirm-dialog";
-import { useResetWorkspace } from "../hooks/use-reset-workspace";
 import { Icon } from "@/shared/components/icon";
-import { useAuthStore } from "@/features/auth/store/use-auth-store";
-import { useRouter } from "next/navigation";
-import { avatarStyle, initialsFor } from "./flows-page-utils";
+import { initialsFor } from "./flows-page-utils";
+import { useSettingsPage } from "../hooks/use-settings-page";
 
 export function SettingsPage() {
-  const router = useRouter();
-  const [mounted, setMounted] = useState(false);
-  const theme = useAppStore((s) => s.theme);
-  const setTheme = useAppStore((s) => s.setTheme);
-  const showSuccess = useAppStore((s) => s.showSuccess);
-  const showInfo = useAppStore((s) => s.showInfo);
-  const showError = useAppStore((s) => s.showError);
-  const signOut = useAuthStore((s) => s.signOut);
-  const user = useAuthStore((s) => s.user);
-
-  const savedWorkspaceName = useAppStore((s) => s.workspaceName);
-  const reduceMotion = useAppStore((s) => s.reduceMotion);
-  const autoSaveFlows = useAppStore((s) => s.autoSaveFlows);
-  const setWorkspaceName = useAppStore((s) => s.setWorkspaceName);
-  const setReduceMotion = useAppStore((s) => s.setReduceMotion);
-  const setAutoSaveFlows = useAppStore((s) => s.setAutoSaveFlows);
-  const clearLocalCache = useAppStore((s) => s.clearLocalCache);
-  const { resetWorkspace, resetting } = useResetWorkspace();
-
-  const [workspaceName, setWorkspaceNameDraft] = useState(savedWorkspaceName);
-  const [confirmResetOpen, setConfirmResetOpen] = useState(false);
-
-  useEffect(() => setWorkspaceNameDraft(savedWorkspaceName), [savedWorkspaceName]);
-  useEffect(() => setMounted(true), []);
-  const workspaceId = useMemo(() => "ws_89234x_dev_2023", []);
-  const safeUser = mounted ? user : undefined;
-  const profileName = safeUser?.name || safeUser?.email || "Unknown";
-  const profileEmail = safeUser?.email || "";
-  const profileAvatar = useMemo(() => avatarStyle(profileName), [profileName]);
-
-  const copyWorkspaceId = async () => {
-    try {
-      await navigator.clipboard.writeText(workspaceId);
-      showSuccess("Copied", "Workspace ID copied to clipboard.");
-    } catch (err: any) {
-      showError("Copy failed", err?.message || "Unable to copy");
-    }
-  };
-
-  const saveWorkspace = () => {
-    const trimmed = workspaceName.trim();
-    if (!trimmed) {
-      showError("Save failed", "Workspace name is required.");
-      return;
-    }
-    setWorkspaceName(trimmed);
-    showSuccess("Saved", "Workspace updated.");
-  };
-
-  const onClearLocalCache = () => {
-    clearLocalCache();
-    showSuccess("Cleared", "Local cache cleared.");
-  };
-
-  const onConfirmReset = async () => {
-    try {
-      await resetWorkspace();
-      setConfirmResetOpen(false);
-    } catch {}
-  };
+  const {
+    mounted,
+    theme,
+    workspaceName,
+    confirmResetOpen,
+    reduceMotion,
+    autoSaveFlows,
+    resetting,
+    safeUser,
+    profileName,
+    profileEmail,
+    profileAvatar,
+    workspaceId,
+    setTheme,
+    setWorkspaceNameDraft,
+    setConfirmResetOpen,
+    setReduceMotion,
+    setAutoSaveFlows,
+    copyWorkspaceId,
+    saveWorkspace,
+    onClearLocalCache,
+    onConfirmReset,
+    onSignOut,
+    navigateTo,
+    showInfo,
+  } = useSettingsPage();
 
   return (
     <div className="min-h-screen bg-bg">
@@ -142,7 +104,7 @@ export function SettingsPage() {
                     <div className="text-sm font-medium text-muted">Connect apps</div>
                     <div className="text-xs text-muted">Use Gmail, Sheets, and GitHub in your workflows.</div>
                   </div>
-                  <Button size="md" className="rounded-lg" onClick={() => router.push("/settings/credentials" as any)}>
+                  <Button size="md" className="rounded-lg" onClick={() => navigateTo("/settings/credentials")}>
                     Manage credentials
                   </Button>
                 </div>
@@ -157,7 +119,7 @@ export function SettingsPage() {
                     <div className="text-sm font-medium text-muted">Reusable values</div>
                     <div className="text-xs text-muted">Store keys and values for your personal workflows.</div>
                   </div>
-                  <Button size="md" className="rounded-lg" onClick={() => router.push("/settings/variables" as any)}>
+                  <Button size="md" className="rounded-lg" onClick={() => navigateTo("/settings/variables")}>
                     Manage variables
                   </Button>
                 </div>
@@ -276,11 +238,7 @@ export function SettingsPage() {
                     <button
                       type="button"
                       className="text-red hover:underline"
-                      onClick={() => {
-                        signOut();
-                        showSuccess("Signed out");
-                        router.replace("/login");
-                      }}
+                      onClick={onSignOut}
                     >
                       Sign out
                     </button>

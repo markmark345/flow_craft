@@ -1,19 +1,9 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
-
-import { Select, type SelectOption } from "@/shared/components/select";
+import { Select } from "@/shared/components/select";
 import { SchemaForm } from "@/shared/components/SchemaForm/SchemaForm";
-import type { SchemaField } from "@/shared/components/SchemaForm/types";
-
-import {
-  APP_CATALOG,
-  defaultActionKeyForApp,
-  findAppAction,
-  listAppActions,
-  normalizeAppKey,
-  type AppKey,
-} from "../nodeCatalog/catalog";
+import { normalizeAppKey, defaultActionKeyForApp } from "../nodeCatalog/catalog";
+import { useInspectorAppConfig } from "../hooks/use-inspector-app-config";
 
 export function InspectorAppConfig({
   config,
@@ -22,51 +12,7 @@ export function InspectorAppConfig({
   config: Record<string, unknown>;
   onPatch: (patch: Record<string, unknown>) => void;
 }) {
-  const appKey = (normalizeAppKey(config.app) || "googleSheets") satisfies AppKey;
-  const app = APP_CATALOG[appKey];
-
-  const actionKeyFromConfig = typeof config.action === "string" ? config.action.trim() : "";
-  const defaultActionKey = defaultActionKeyForApp(appKey);
-  const actionKey = actionKeyFromConfig || defaultActionKey || "";
-  const action = actionKey ? findAppAction(appKey, actionKey) : null;
-
-  useEffect(() => {
-    if (!actionKeyFromConfig && defaultActionKey) {
-      onPatch({ app: appKey, action: defaultActionKey });
-      return;
-    }
-    if (actionKeyFromConfig && !findAppAction(appKey, actionKeyFromConfig) && defaultActionKey) {
-      onPatch({ action: defaultActionKey });
-    }
-  }, [actionKeyFromConfig, appKey, defaultActionKey, onPatch]);
-
-  const appOptions = useMemo<SelectOption[]>(
-    () =>
-      Object.values(APP_CATALOG).map((a) => ({
-        value: a.appKey,
-        label: a.label,
-        description: a.description,
-      })),
-    []
-  );
-
-  const actionOptions = useMemo<SelectOption[]>(
-    () =>
-      listAppActions(appKey)
-        .filter((a) => !a.disabled && (a.kind || "action") === "action")
-        .map((a) => ({
-          value: a.actionKey,
-          label: a.label,
-          description: a.categoryLabel,
-        })),
-    [appKey]
-  );
-
-  const schema = useMemo<SchemaField[]>(() => {
-    const base = app.baseFields || [];
-    const fields = action?.fields || [];
-    return [...base, ...fields];
-  }, [action, app.baseFields]);
+  const { appKey, app, actionKey, appOptions, actionOptions, schema } = useInspectorAppConfig(config, onPatch);
 
   return (
     <div className="space-y-5">
@@ -104,4 +50,3 @@ export function InspectorAppConfig({
     </div>
   );
 }
-
