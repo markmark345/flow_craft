@@ -1,18 +1,17 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
 import { Handle, NodeProps, Position } from "reactflow";
 import { FlowNodeData } from "../types";
-import { NODE_CATALOG, NODE_CATEGORIES } from "../types/node-catalog";
+import { NODE_CATALOG } from "../types/node-catalog";
 import { cn } from "@/shared/lib/cn";
 import { Input } from "@/shared/components/input";
-import { BuilderNodeType } from "../types";
 import { useBuilderStore } from "../store/use-builder-store";
 import { NodeIcon } from "./node-icon";
 import { Icon } from "@/shared/components/icon";
 import { isValidAgentModelConfig, type AgentMemoryConfig, type AgentToolConfig } from "../types/agent";
 import { APP_CATALOG, findAppAction, normalizeAppKey } from "../nodeCatalog/catalog";
 import { useWizardStore } from "../wizard/store/use-wizard-store";
+import { useFlowNode } from "../hooks/use-flow-node";
 
 const accentVar: Record<string, string> = {
   accent: "var(--accent)",
@@ -99,13 +98,14 @@ export function FlowNode({ id, data, selected }: NodeProps<FlowNodeData>) {
     data.nodeType === "geminiChatModel" ||
     data.nodeType === "grokChatModel";
   const hasMainInput = !isTrigger && !isModelNode;
-  const addConnectedNode = useBuilderStore((s) => s.addConnectedNode);
   const isValid = meta?.validate ? meta.validate(data) : true;
   const runtimeStatus = data.runtimeStatus;
   const runtimeStepKey = data.runtimeStepKey;
   const runtimePulse = data.runtimePulse;
   const flowId = useBuilderStore((s) => s.flowId);
   const openAddAgentTool = useWizardStore((s) => s.openAddAgentTool);
+  const setSelectedNode = useBuilderStore((s) => s.setSelectedNode);
+  const setAgentInspectorTab = useBuilderStore((s) => s.setAgentInspectorTab);
 
   const runtimeTone = (() => {
     if (!runtimeStatus) return undefined;
@@ -116,47 +116,17 @@ export function FlowNode({ id, data, selected }: NodeProps<FlowNodeData>) {
     return "var(--muted)";
   })();
 
-  const pickerRef = useRef<HTMLDivElement | null>(null);
-  const [pickerOpen, setPickerOpen] = useState(false);
-  const [query, setQuery] = useState("");
-  const [pickerSourceHandle, setPickerSourceHandle] = useState<string | undefined>(undefined);
-  const setSelectedNode = useBuilderStore((s) => s.setSelectedNode);
-  const setAgentInspectorTab = useBuilderStore((s) => s.setAgentInspectorTab);
-
-  useEffect(() => {
-    if (!pickerOpen) return;
-    const onDown = (e: MouseEvent) => {
-      const target = e.target as Node | null;
-      if (!target) return;
-      if (!pickerRef.current?.contains(target)) setPickerOpen(false);
-    };
-    window.addEventListener("mousedown", onDown);
-    return () => window.removeEventListener("mousedown", onDown);
-  }, [pickerOpen]);
-
-  const groups = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return NODE_CATEGORIES;
-    return NODE_CATEGORIES.map((cat) => ({
-      ...cat,
-      items: cat.items.filter((item) => {
-        const label = item.label.toLowerCase();
-        const desc = item.description.toLowerCase();
-        return label.includes(q) || desc.includes(q);
-      }),
-    })).filter((cat) => cat.items.length > 0);
-  }, [query]);
-
-  const onQuickAdd = (nodeType: BuilderNodeType) => {
-    const sourceHandle = pickerSourceHandle || (data.nodeType === "if" ? "true" : undefined);
-    addConnectedNode(id, nodeType, { sourceHandle });
-    setPickerOpen(false);
-    setQuery("");
-  };
-
-  useEffect(() => {
-    if (!selected) setPickerOpen(false);
-  }, [selected]);
+  const {
+    pickerRef,
+    pickerOpen,
+    setPickerOpen,
+    query,
+    setQuery,
+    pickerSourceHandle,
+    setPickerSourceHandle,
+    groups,
+    onQuickAdd,
+  } = useFlowNode(id, data.nodeType, selected);
 
   const isIf = data.nodeType === "if";
   const branchOffsetPx = 14;
