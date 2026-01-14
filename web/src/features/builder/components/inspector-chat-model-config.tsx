@@ -1,19 +1,17 @@
 "use client";
 
-import { useMemo } from "react";
 import { Input } from "@/shared/components/input";
-import { Select, type SelectOption } from "@/shared/components/select";
+import { Select } from "@/shared/components/select";
 import { useCredentialOptions } from "@/features/credentials/hooks/use-credential-options";
+import { useInspectorChatModelConfig } from "../hooks/use-inspector-chat-model-config";
 
-type Provider = "openai" | "gemini" | "grok";
-
-function normalizeProvider(value: unknown): Provider {
+function normalizeProvider(value: unknown): "openai" | "gemini" | "grok" {
   const v = typeof value === "string" ? value.trim().toLowerCase() : "";
   if (v === "gemini" || v === "grok" || v === "openai") return v;
   return "openai";
 }
 
-function getProviderDefaults(provider: Provider): { model: string; baseUrl: string } {
+function getProviderDefaults(provider: "openai" | "gemini" | "grok"): { model: string; baseUrl: string } {
   switch (provider) {
     case "gemini":
       return { model: "gemini-1.5-flash", baseUrl: "https://generativelanguage.googleapis.com" };
@@ -33,34 +31,20 @@ export function InspectorChatModelConfig({
   onPatch: (patch: Record<string, unknown>) => void;
 }) {
   const provider = normalizeProvider(config?.provider);
-  const defaults = getProviderDefaults(provider);
+  const credentialOptionsData = useCredentialOptions(provider, true);
 
-  const credentialId = typeof config?.credentialId === "string" ? config.credentialId : "";
-  const apiKey = typeof config?.apiKey === "string" ? config.apiKey : "";
-  const model = typeof config?.model === "string" ? config.model : "";
-  const baseUrl = typeof config?.baseUrl === "string" ? config.baseUrl : "";
+  const {
+    defaults,
+    credentialId,
+    apiKey,
+    model,
+    baseUrl,
+    providerOptions,
+    credentialOptions,
+    invalid,
+  } = useInspectorChatModelConfig(config, credentialOptionsData);
 
-  const providerOptions = useMemo<SelectOption[]>(
-    () => [
-      { value: "openai", label: "OpenAI", description: "OpenAI-compatible (OpenAI API)" },
-      { value: "gemini", label: "Gemini", description: "Google Generative Language API" },
-      { value: "grok", label: "Grok", description: "xAI (OpenAI-compatible)" },
-    ],
-    []
-  );
-
-  const { options, loading, error } = useCredentialOptions(provider, true);
-  const credentialOptions = useMemo<SelectOption[]>(
-    () =>
-      options.map((opt) => ({
-        value: opt.id,
-        label: opt.label,
-        description: opt.accountEmail ? `${opt.provider} • ${opt.accountEmail}` : opt.provider,
-      })),
-    [options]
-  );
-
-  const invalid = !model.trim() || (!credentialId.trim() && !apiKey.trim());
+  const { loading, error } = credentialOptionsData;
 
   return (
     <div className="space-y-5">

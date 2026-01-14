@@ -1,45 +1,19 @@
 "use client";
 
-import { useMemo, useState } from "react";
-
 import { AGENT_TOOL_CATALOG } from "@/features/builder/nodeCatalog/catalog";
 import { NodeIcon } from "@/features/builder/components/node-icon";
 import { Input } from "@/shared/components/input";
 import { Button } from "@/shared/components/button";
 import { Icon } from "@/shared/components/icon";
-
 import { useWizardStore, type AgentDraft } from "../../store/use-wizard-store";
+import { useAgentToolsStep } from "../../hooks/use-agent-tools-step";
 
 export function AgentToolsStep() {
   const draft = useWizardStore((s) => s.draft) as AgentDraft;
   const setDraft = useWizardStore((s) => s.setDraft);
-  const [query, setQuery] = useState("");
 
   const tools = draft.tools || [];
-
-  const available = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return AGENT_TOOL_CATALOG;
-    return AGENT_TOOL_CATALOG.filter((t) => `${t.label} ${t.toolKey}`.toLowerCase().includes(q));
-  }, [query]);
-
-  const addTool = (toolKey: string) => {
-    const next = [
-      ...tools,
-      {
-        id: crypto.randomUUID(),
-        toolKey,
-        enabled: true,
-        credentialId: "",
-        config: {},
-      },
-    ];
-    setDraft({ tools: next });
-  };
-
-  const removeTool = (id: string) => {
-    setDraft({ tools: tools.filter((t) => t.id !== id) });
-  };
+  const { query, setQuery, available, addTool, removeTool } = useAgentToolsStep(tools, setDraft);
 
   return (
     <div className="space-y-5">
@@ -115,4 +89,3 @@ export function AgentToolsStep() {
     </div>
   );
 }
-
