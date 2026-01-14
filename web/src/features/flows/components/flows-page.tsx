@@ -140,8 +140,8 @@ export function FlowsPage() {
             pageCount={pageCount}
             pageSize={pageSize}
             onPageSizeChange={setPageSize}
-            onPrev={() => setPage((p) => Math.max(1, p - 1))}
-            onNext={() => setPage((p) => Math.min(pageCount, p + 1))}
+            onPrev={() => setPage(Math.max(1, pageSafe - 1))}
+            onNext={() => setPage(Math.min(pageCount, pageSafe + 1))}
           />
         </div>
       </div>
