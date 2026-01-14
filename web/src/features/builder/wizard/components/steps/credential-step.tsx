@@ -1,12 +1,8 @@
 "use client";
 
-import { useMemo } from "react";
-
 import { SchemaForm } from "@/shared/components/SchemaForm/SchemaForm";
-import type { SchemaField } from "@/shared/components/SchemaForm/types";
-import { APP_CATALOG, AGENT_TOOL_CATALOG } from "@/features/builder/nodeCatalog/catalog";
-
 import { useWizardStore, type AppNodeDraft, type AgentToolDraft } from "../../store/use-wizard-store";
+import { useWizardCredentialStep } from "../../hooks/use-wizard-credential-step";
 
 export function WizardCredentialStep() {
   const mode = useWizardStore((s) => s.mode);
@@ -14,16 +10,7 @@ export function WizardCredentialStep() {
   const setDraft = useWizardStore((s) => s.setDraft);
   const errors = useWizardStore((s) => s.validationErrors);
 
-  const schema = useMemo<SchemaField[]>(() => {
-    if (mode === "add-agent-tool") {
-      const d = draft as AgentToolDraft;
-      const tool = AGENT_TOOL_CATALOG.find((t) => t.toolKey === d.toolKey);
-      return tool?.baseFields || [];
-    }
-    const d = draft as AppNodeDraft;
-    if (!d.app) return [];
-    return APP_CATALOG[d.app]?.baseFields || [];
-  }, [draft, mode]);
+  const { schema } = useWizardCredentialStep(mode, draft);
 
   if (mode === "add-app-node" && !(draft as AppNodeDraft).app) {
     return <div className="text-sm text-muted">Choose an app first.</div>;
