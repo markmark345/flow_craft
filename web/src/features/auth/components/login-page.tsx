@@ -1,61 +1,30 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import type { Route } from "next";
-import { useRouter, useSearchParams } from "next/navigation";
-
 import { BrandLogo } from "@/shared/components/BrandLogo";
 import { Button } from "@/shared/components/button";
 import { Icon } from "@/shared/components/icon";
 import { Input } from "@/shared/components/input";
 import { Panel } from "@/shared/components/panel";
-import { useAppStore } from "@/shared/hooks/use-app-store";
-import { API_BASE_URL } from "@/shared/lib/env";
-
-import { useLogin } from "../hooks/use-login";
+import { useLoginPage } from "../hooks/use-login-page";
 
 export function LoginPage() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const next = searchParams.get("next") || "/";
-
-  const { signIn, loading } = useLogin();
-  const showInfo = useAppStore((s) => s.showInfo);
-
-  const [identifier, setIdentifier] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [inlineError, setInlineError] = useState<string | null>(null);
-
-  const inputErrorStyle = inlineError ? ({ borderColor: "var(--error)" } as const) : undefined;
-
-  const toInlineMessage = (err: any) => {
-    const raw = String(err?.message || "").trim();
-    if (!raw) return "Login failed.";
-    if (raw.toLowerCase().includes("invalid")) return "Email/username or password is incorrect.";
-    return raw;
-  };
-
-  const onSubmit = async () => {
-    setInlineError(null);
-    const id = identifier.trim();
-    if (!id || !password) {
-      setInlineError("Email/username and password are required.");
-      return;
-    }
-    try {
-      await signIn(id, password);
-      router.replace(next as Route);
-    } catch (err: any) {
-      setInlineError(toInlineMessage(err));
-    }
-  };
-
-  const startOAuth = (provider: "google" | "github") => {
-    const target = `${API_BASE_URL}/auth/oauth/${provider}/start?next=${encodeURIComponent(next)}`;
-    window.location.href = target;
-  };
+  const {
+    identifier,
+    password,
+    showPassword,
+    inlineError,
+    loading,
+    next,
+    inputErrorStyle,
+    setIdentifier,
+    setPassword,
+    setShowPassword,
+    onSubmit,
+    startOAuth,
+    showInfo,
+  } = useLoginPage();
 
   return (
     <div className="min-h-screen grid-background flex flex-col items-center justify-center px-4 py-12">
@@ -75,10 +44,7 @@ export function LoginPage() {
               <label className="text-xs font-semibold text-muted uppercase tracking-wide">Email or username</label>
               <Input
                 value={identifier}
-                onChange={(e) => {
-                  setIdentifier(e.target.value);
-                  if (inlineError) setInlineError(null);
-                }}
+                onChange={(e) => setIdentifier(e.target.value)}
                 placeholder="name@company.com"
                 autoComplete="username"
                 className="h-11 rounded-lg bg-surface2"
@@ -101,10 +67,7 @@ export function LoginPage() {
               <div className="relative">
                 <Input
                   value={password}
-                  onChange={(e) => {
-                    setPassword(e.target.value);
-                    if (inlineError) setInlineError(null);
-                  }}
+                  onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
                   autoComplete="current-password"
                   type={showPassword ? "text" : "password"}

@@ -1,59 +1,28 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import type { Route } from "next";
-import { useRouter, useSearchParams } from "next/navigation";
-
 import { BrandLogo } from "@/shared/components/BrandLogo";
 import { Button } from "@/shared/components/button";
 import { Icon } from "@/shared/components/icon";
 import { Input } from "@/shared/components/input";
 import { Panel } from "@/shared/components/panel";
-import { useAppStore } from "@/shared/hooks/use-app-store";
-
-import { resetPassword } from "../services/authApi";
+import { useResetPasswordPage } from "../hooks/use-reset-password-page";
 
 export function ResetPasswordPage() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const token = searchParams.get("token") || "";
-  const showSuccess = useAppStore((s) => s.showSuccess);
-  const showError = useAppStore((s) => s.showError);
-
-  const [password, setPassword] = useState("");
-  const [confirm, setConfirm] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [inlineError, setInlineError] = useState<string | null>(null);
-  const [done, setDone] = useState(false);
-
-  const onSubmit = async () => {
-    setInlineError(null);
-    if (!token) {
-      setInlineError("Reset token is missing.");
-      return;
-    }
-    if (!password) {
-      setInlineError("Password is required.");
-      return;
-    }
-    if (password !== confirm) {
-      setInlineError("Passwords do not match.");
-      return;
-    }
-    setLoading(true);
-    try {
-      await resetPassword(token, password);
-      setDone(true);
-      showSuccess("Password updated", "You can now log in with your new password.");
-      setTimeout(() => router.replace("/login"), 800);
-    } catch (err: any) {
-      showError("Reset failed", err?.message || "Unable to reset password");
-    } finally {
-      setLoading(false);
-    }
-  };
+  const {
+    password,
+    confirm,
+    showPassword,
+    loading,
+    done,
+    inlineError,
+    inputErrorStyle,
+    setPassword,
+    setConfirm,
+    setShowPassword,
+    onSubmit,
+  } = useResetPasswordPage();
 
   return (
     <div className="min-h-screen grid-background flex flex-col items-center justify-center px-4 py-12">
@@ -82,16 +51,13 @@ export function ResetPasswordPage() {
                 <div className="relative">
                   <Input
                     value={password}
-                    onChange={(e) => {
-                      setPassword(e.target.value);
-                      if (inlineError) setInlineError(null);
-                    }}
+                    onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
                     autoComplete="new-password"
                     type={showPassword ? "text" : "password"}
                     className="h-11 rounded-lg bg-surface2 pr-11"
                     aria-invalid={Boolean(inlineError)}
-                    style={inlineError ? ({ borderColor: "var(--error)" } as const) : undefined}
+                    style={inputErrorStyle}
                   />
                   <button
                     type="button"
@@ -108,10 +74,7 @@ export function ResetPasswordPage() {
                 <label className="text-xs font-semibold text-muted uppercase tracking-wide">Confirm password</label>
                 <Input
                   value={confirm}
-                  onChange={(e) => {
-                    setConfirm(e.target.value);
-                    if (inlineError) setInlineError(null);
-                  }}
+                  onChange={(e) => setConfirm(e.target.value)}
                   placeholder="••••••••"
                   autoComplete="new-password"
                   type={showPassword ? "text" : "password"}
