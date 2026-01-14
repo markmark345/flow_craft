@@ -814,6 +814,176 @@ func FormatTimestamp(t time.Time) string {
 
 ---
 
+## 🔧 **NEXT PHASE: Utility Functions Extraction**
+
+**Status**: 📋 **PLANNED**
+**Branch**: `refactor/extract-utility-functions`
+**Objective**: Extract scattered utility functions to shared library files
+
+### Problem Identified
+
+After completing hooks extraction, analysis revealed **numerous utility functions scattered across component files** that should be extracted to shared utility libraries. These pure functions handle common tasks like date formatting, string manipulation, and data transformation.
+
+### Utility Functions Found (11 files scanned)
+
+#### **📅 Date & Time Utilities** (6 occurrences)
+
+| Function | Location | Lines | Type | Destination |
+|----------|----------|-------|------|-------------|
+| `parseTime` | runs-page.tsx:346-350 | 5 | Time parsing | `shared/lib/date-utils.ts` |
+| `parseTime` | run-detail-page.tsx:303-307 | 5 | Time parsing | (duplicate - merge) |
+| `formatDate` | runs-page.tsx:360-365 | 6 | Date formatting | `shared/lib/date-utils.ts` |
+| `formatDate` | run-detail-page.tsx:309-314 | 6 | Date formatting | (duplicate - merge) |
+| `formatDate` | variables-page.tsx:443-448 | 6 | Date formatting | (duplicate - merge) |
+| `formatDate` | credentials-page.tsx:376-381 | 6 | Date formatting | (duplicate - merge) |
+| `formatRelative` | runs-page.tsx:367-375 | 9 | Relative time | `shared/lib/date-utils.ts` |
+| `formatDuration` | runs-page.tsx:377-389 | 13 | Duration calc | `shared/lib/date-utils.ts` |
+| `formatDuration` | run-detail-page.tsx:316-328 | 13 | Duration calc | (duplicate - merge) |
+| `cutoffFor` | runs-page.tsx:352-358 | 7 | Time calc | `shared/lib/date-utils.ts` |
+| `formatRelative` | flows-page-utils.ts:21-34 | 14 | Relative time | (already shared ✅) |
+| `formatUpdatedAt` | flows-page-utils.ts:36-47 | 12 | Date formatting | (already shared ✅) |
+
+#### **🔤 String Utilities** (4 occurrences)
+
+| Function | Location | Lines | Type | Destination |
+|----------|----------|-------|------|-------------|
+| `shortId` | runs-page.tsx:391-394 | 4 | ID truncation | `shared/lib/string-utils.ts` |
+| `shortId` | run-detail-page.tsx:330-333 | 4 | ID truncation | (duplicate - merge) |
+| `pretty` | run-detail-page.tsx:343-350 | 8 | JSON stringify | `shared/lib/string-utils.ts` |
+| `inferUsername` | signup-page.tsx:17-22 | 6 | Username extraction | `shared/lib/string-utils.ts` |
+| `initialsFor` | flows-page-utils.ts:49-55 | 7 | Name initials | (already shared ✅) |
+
+#### **🎨 UI Helper Utilities** (3 occurrences - already shared ✅)
+
+| Function | Location | Lines | Type | Status |
+|----------|----------|-------|------|--------|
+| `statusTone` | flows-page-utils.ts:15-19 | 5 | Badge tone | ✅ Shared |
+| `ownerForFlow` | flows-page-utils.ts:10-13 | 4 | Owner display | ✅ Shared |
+| `avatarStyle` | flows-page-utils.ts:57-67 | 11 | Avatar color | ✅ Shared |
+
+#### **🔧 Data Transformation** (5 occurrences)
+
+| Function | Location | Lines | Type | Destination |
+|----------|----------|-------|------|-------------|
+| `stepStatusIcon` | run-detail-page.tsx:294-301 | 8 | JSX icon mapping | `features/runs/lib/run-utils.tsx` |
+| `stepTone` | inspector-io-panel.tsx:145-150 | 6 | Badge tone | `features/runs/lib/run-utils.ts` |
+| `tabText` | run-detail-page.tsx:335-341 | 7 | Tab content | `features/runs/lib/run-utils.ts` |
+| `filterLogText` | run-detail-page.tsx:352-358 | 7 | Log filtering | `features/runs/lib/run-utils.ts` |
+| `runMeta` | flows-page-utils.ts:76-91 | 16 | Run metadata | (already shared ✅) |
+| `runSortTime` | flows-page-utils.ts:69-74 | 6 | Sort helper | (already shared ✅) |
+
+#### **🔌 Config Utilities** (12 occurrences)
+
+| Function | Location | Lines | Type | Destination |
+|----------|----------|-------|------|-------------|
+| `normalizeProvider` | inspector-chat-model-config.tsx:10-14 | 5 | Provider normalization | `features/builder/lib/model-utils.ts` |
+| `getProviderDefaults` | inspector-chat-model-config.tsx:16-26 | 11 | Default config | `features/builder/lib/model-utils.ts` |
+| `clampInt` | inspector-schedule-config.tsx:206-209 | 4 | Number clamping | `shared/lib/number-utils.ts` |
+| `parseScheduleExpression` | inspector-schedule-config.tsx:211-300 | 90 | Cron parsing | `features/builder/lib/schedule-utils.ts` |
+| `toInt` | inspector-schedule-config.tsx:302-306 | 5 | Safe parse int | `shared/lib/number-utils.ts` |
+| `parseDowList` | inspector-schedule-config.tsx:308-319 | 12 | Day of week parsing | `features/builder/lib/schedule-utils.ts` |
+| `scheduleStateToExpression` | inspector-schedule-config.tsx:321-348 | 28 | Cron generation | `features/builder/lib/schedule-utils.ts` |
+| `coerceConditionType` | if-config.tsx:30-35 | 6 | Type coercion | `features/builder/lib/if-utils.ts` |
+| `coerceCombine` | if-config.tsx:37-39 | 3 | Combine coercion | `features/builder/lib/if-utils.ts` |
+| `toStringValue` | if-config.tsx:41-44 | 4 | String conversion | `shared/lib/string-utils.ts` |
+| `coerceConditions` | if-config.tsx:46-83 | 38 | Array coercion | `features/builder/lib/if-utils.ts` |
+| `coerceIfConfig` | if-config.tsx:85-92 | 8 | Config coercion | `features/builder/lib/if-utils.ts` |
+| `operatorNeedsValue` | if-config.tsx:159-161 | 3 | Operator check | `features/builder/lib/if-utils.ts` |
+
+#### **🗃️ Form Data Utilities** (3 occurrences)
+
+| Function | Location | Lines | Type | Destination |
+|----------|----------|-------|------|-------------|
+| `coerceKeyValuePairs` | inspector-field-row.tsx:217-250 | 34 | Key-value parsing | `shared/lib/form-utils.ts` |
+| `toStringValue` | inspector-field-row.tsx:252-261 | 10 | Value conversion | `shared/lib/string-utils.ts` |
+| `toInlineMessage` | signup-page.tsx:41-46 | 6 | Error formatting | `features/auth/lib/auth-utils.ts` |
+
+#### **🎮 Flow Node Utilities** (7 occurrences)
+
+| Function | Location | Lines | Type | Destination |
+|----------|----------|-------|------|-------------|
+| `appLabelFromConfig` | flow-node.tsx:27-31 | 5 | App label | `features/builder/lib/node-utils.ts` |
+| `actionLabelFromConfig` | flow-node.tsx:33-39 | 7 | Action label | `features/builder/lib/node-utils.ts` |
+| `isConfiguredValue` | flow-node.tsx:41-49 | 9 | Value validation | `shared/lib/validation-utils.ts` |
+| `isAppActionConfigured` | flow-node.tsx:51-77 | 27 | Config validation | `features/builder/lib/node-utils.ts` |
+
+### Summary Statistics
+
+**Total Utility Functions Found**: 39 functions
+- ✅ **Already Shared**: 6 functions (in flows-page-utils.ts)
+- 🔄 **Need Extraction**: 33 functions
+- 🔁 **Duplicates Found**: 4 functions (formatDate, parseTime, formatDuration, shortId)
+
+**Files Affected**: 11 component files
+
+**Proposed Shared Library Structure**:
+```
+web/src/shared/lib/
+├── date-utils.ts           (9 functions - date/time operations)
+├── string-utils.ts         (6 functions - string manipulation)
+├── number-utils.ts         (2 functions - number operations)
+├── form-utils.ts           (1 function - form data handling)
+├── validation-utils.ts     (1 function - value validation)
+
+web/src/features/*/lib/
+├── runs/lib/
+│   └── run-utils.tsx       (4 functions - run-specific with JSX)
+├── builder/lib/
+│   ├── model-utils.ts      (2 functions - model config)
+│   ├── schedule-utils.ts   (4 functions - cron/schedule)
+│   ├── if-utils.ts         (6 functions - IF node logic)
+│   └── node-utils.ts       (4 functions - node validation)
+├── auth/lib/
+│   └── auth-utils.ts       (1 function - auth error handling)
+```
+
+### Benefits of Extraction
+
+1. **DRY Principle**: Remove 4 duplicate functions
+2. **Testability**: Pure functions easy to unit test
+3. **Reusability**: Functions available across all features
+4. **Maintainability**: Single source of truth for common operations
+5. **Type Safety**: Centralized TypeScript types
+6. **Code Size**: Reduce component file sizes by ~500 lines total
+
+### Implementation Plan
+
+**Phase 1: Create Shared Libraries** (Day 1)
+1. Create `shared/lib/` directory structure
+2. Extract generic utilities (date, string, number, form, validation)
+3. Add comprehensive JSDoc comments
+4. Add unit tests for all functions
+
+**Phase 2: Create Feature-Specific Libraries** (Day 2)
+1. Create feature `lib/` directories
+2. Extract domain-specific utilities (runs, builder, auth)
+3. Add TypeScript types and interfaces
+4. Add unit tests
+
+**Phase 3: Refactor Components** (Day 3)
+1. Update imports in all 11 component files
+2. Remove old function definitions
+3. Verify no regressions
+4. Run full test suite
+
+**Phase 4: Documentation & Cleanup** (Day 4)
+1. Update CODE_REVIEW_PLAN.md
+2. Add utility functions documentation
+3. Commit changes with clear messages
+4. Update PR description
+
+### Success Criteria
+
+- ✅ All 33 utility functions extracted
+- ✅ All 4 duplicates merged
+- ✅ 100% unit test coverage for utilities
+- ✅ Zero regressions in functionality
+- ✅ All components using shared utilities
+- ✅ Comprehensive JSDoc comments
+- ✅ TypeScript strict mode passing
+
+---
+
 ## 📝 Notes
 
 - All changes must follow Step-by-Step implementation rule
@@ -823,4 +993,4 @@ func FormatTimestamp(t time.Time) string {
 
 ---
 
-**Next Steps**: Choose which violation to address first, and I will begin implementation following the review workflow.
+**Next Steps**: Begin utility functions extraction following the implementation plan above.

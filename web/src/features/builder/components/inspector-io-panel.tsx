@@ -5,6 +5,8 @@ import { RunStepDTO } from "@/shared/types/dto";
 import { Edge, Node } from "reactflow";
 
 import { FlowNodeData } from "../types";
+import { pretty } from "@/shared/lib/string-utils";
+import { stepTone } from "@/features/runs/lib/run-utils";
 
 export function InspectorIoPanel({
   activeRunId,
@@ -140,21 +142,4 @@ export function InspectorIoPanel({
   }
 
   return <div className="text-sm text-muted">Select a node or edge.</div>;
-}
-
-function stepTone(status?: RunStepDTO["status"]) {
-  if (status === "success") return "success";
-  if (status === "failed") return "danger";
-  if (status === "running" || status === "queued") return "warning";
-  return "default";
-}
-
-function pretty(value: unknown) {
-  if (value === null || value === undefined) return "";
-  if (typeof value === "string") return value;
-  try {
-    return JSON.stringify(value, null, 2);
-  } catch {
-    return String(value);
-  }
 }
