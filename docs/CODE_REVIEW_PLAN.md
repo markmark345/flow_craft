@@ -993,4 +993,145 @@ web/src/features/*/lib/
 
 ---
 
-**Next Steps**: Begin utility functions extraction following the implementation plan above.
+## 🔧 **NEXT PHASE: Component Splitting & Type Consolidation**
+
+**Status**: 📋 **PLANNED**
+**Branch**: `refactor/component-splitting`
+**Objective**: Enforce 150-line rule and consolidate duplicate type definitions
+
+### Problem Identified
+
+After completing hooks and utility extraction, analysis revealed **44 files violating the 150-line rule** and scattered type definitions that should be consolidated.
+
+### Violation Analysis
+
+#### **📏 Files Violating 150-Line Rule** (Top 20)
+
+| File | Lines | Type | Priority | Split Strategy |
+|------|-------|------|----------|----------------|
+| `flow-node.tsx` | 713 | Component | 🔴 Critical | Split into: ModelNode, AgentSummary, NodePicker, NodeHandles |
+| `node-catalog.ts` | 635 | Types | 🔴 Critical | Split by category: triggers, transforms, integrations |
+| `docs-pages-builder.tsx` | 574 | Component | 🟡 High | Extract: page sections, navigation, content renderers |
+| `use-wizard-store.ts` | 441 | Store | 🟡 High | Split: wizard state, agent state, flow state |
+| `use-builder-store.ts` | 440 | Store | 🟡 High | Split: canvas state, node state, runtime state |
+| `inspector-agent-config.tsx` | 414 | Component | 🟡 High | Extract: ModelSection, MemorySection, ToolsSection |
+| `runs-page.tsx` | 403 | Component | 🟡 High | Extract: RunsFilters, RunsTable, StatusBadges |
+| `use-flows-page.ts` | 349 | Hook | 🟢 Medium | Split: data fetching, filtering, sorting logic |
+| `node-icon.tsx` | 347 | Component | 🟢 Medium | Convert to config-driven approach |
+| `settings-page.tsx` | 330 | Component | 🟢 Medium | Extract: sections by setting type |
+| `variables-page.tsx` | 327 | Component | 🟢 Medium | Extract: VariablesTable, VariableForm |
+| `use-canvas.ts` | 326 | Hook | 🟢 Medium | Split: node operations, edge operations, viewport |
+| `run-detail-page.tsx` | 302 | Component | 🟢 Medium | Extract: StepsList, LogsPanel, MetadataPanel |
+| `docs-app.tsx` | 296 | Component | 🟢 Medium | Extract: Sidebar, ContentArea, Navigation |
+| `flows-table.tsx` | 288 | Component | 🟢 Medium | Extract: TableRow, TableHeader, ActionButtons |
+| `node-palette.tsx` | 269 | Component | 🟢 Medium | Extract: CategorySection, NodeCard |
+| `use-variables-page.ts` | 262 | Hook | 🟢 Medium | Split: CRUD operations, filtering |
+| `github.ts` | 252 | Config | 🟢 Medium | Keep as-is (catalog data) |
+| `use-credentials-page.ts` | 251 | Hook | 🟢 Medium | Split: CRUD operations, provider logic |
+| `sticky-note-card.tsx` | 247 | Component | 🟢 Medium | Extract: NoteContent, NoteActions, ColorPicker |
+
+**Total Violations**: 44 files > 150 lines
+
+#### **🏷️ Duplicate Type Definitions Analysis**
+
+| Type Category | Occurrences | Files | Consolidation Target |
+|---------------|-------------|-------|---------------------|
+| Hook Return Types | 58 files | `use-*.ts` files | Keep in hook files (already separated) ✅ |
+| Node Types | 5+ files | builder/types/* | Already in `types/index.ts` ✅ |
+| Agent Types | 5 types | builder/types/agent.ts | Already consolidated ✅ |
+| Catalog Types | 9 types | nodeCatalog/catalog.ts | Already consolidated ✅ |
+| Workflow Types | Scattered | Multiple files | **Needs consolidation** 🔴 |
+
+**Analysis**: Most types are already well-organized. Focus on workflow-related types.
+
+### Implementation Plan
+
+#### **Phase 1: Critical Component Splitting** (Priority 🔴)
+
+**Target**: 3 largest components (2,000+ lines total reduction)
+
+1. **flow-node.tsx (713 → ~120 lines)**
+   ```
+   Extract to:
+   - components/flow-node/ModelNode.tsx (~100 lines)
+   - components/flow-node/AgentSummary.tsx (~150 lines)
+   - components/flow-node/NodePicker.tsx (~120 lines)
+   - components/flow-node/NodeHandles.tsx (~80 lines)
+   - components/flow-node/FlowNode.tsx (~120 lines - main orchestrator)
+   Keep: accentVar, node type detection logic
+   ```
+
+2. **node-catalog.ts (635 → 3 files ~200 lines each)**
+   ```
+   Split by:
+   - types/catalogs/triggers.ts (triggers, schedules)
+   - types/catalogs/transforms.ts (transform, code, IF)
+   - types/catalogs/integrations.ts (app, AI, models)
+   - types/node-catalog.ts (main export, aggregator ~50 lines)
+   ```
+
+3. **docs-pages-builder.tsx (574 → ~120 lines)**
+   ```
+   Extract to:
+   - docs/components/sections/BuilderSection.tsx
+   - docs/components/sections/GettingStartedSection.tsx
+   - docs/lib/page-renderers.tsx
+   ```
+
+#### **Phase 2: High Priority Components** (Priority 🟡)
+
+**Target**: Stores and large inspector components
+
+4. **use-wizard-store.ts (441 → 3 files ~150 lines each)**
+   ```
+   Split to:
+   - wizard/store/wizard-state.ts (modal, steps state)
+   - wizard/store/agent-state.ts (agent config state)
+   - wizard/store/use-wizard-store.ts (main hook, combines slices)
+   ```
+
+5. **use-builder-store.ts (440 → 3 files ~150 lines each)**
+   ```
+   Split to:
+   - store/canvas-state.ts (nodes, edges, viewport)
+   - store/selection-state.ts (selected nodes, inspector)
+   - store/use-builder-store.ts (main hook, runtime state)
+   ```
+
+6. **inspector-agent-config.tsx (414 → ~100 lines)**
+   ```
+   Extract to:
+   - inspector/ModelConfigSection.tsx
+   - inspector/MemoryConfigSection.tsx
+   - inspector/ToolsConfigSection.tsx
+   - components/inspector-agent-config.tsx (orchestrator)
+   ```
+
+#### **Phase 3: Medium Priority** (Priority 🟢)
+
+**Target**: Remaining 38 files systematically
+
+- Group by feature (builder, flows, runs, etc.)
+- Extract reusable sub-components
+- Target: All files under 150 lines
+
+### Success Criteria
+
+- ✅ All files under 150 lines
+- ✅ No duplicate logic across components
+- ✅ Proper sub-component extraction
+- ✅ Maintained TypeScript strict typing
+- ✅ Zero functional regressions
+- ✅ Clear component hierarchy
+
+### Estimated Impact
+
+- **Files to refactor**: 44
+- **Lines to reorganize**: ~8,000+ lines
+- **New component files**: ~60 new files
+- **Average file size after**: ~120 lines
+- **Compliance rate**: 100% (from current ~70%)
+
+---
+
+**Next Steps**: Begin Phase 1 - Critical Component Splitting (flow-node.tsx first)
