@@ -1134,4 +1134,148 @@ After completing hooks and utility extraction, analysis revealed **44 files viol
 
 ---
 
-**Next Steps**: Begin Phase 1 - Critical Component Splitting (flow-node.tsx first)
+## 📁 **NEXT PHASE: File Organization & Subfolder Restructuring**
+
+**Status**: 📋 **PLANNED**
+**Branch**: `refactor/organize-components`
+**Objective**: Apply 5+ files rule - organize flat directories into logical subfolders
+
+### Problem Identified
+
+The `features/builder/components/` directory contains **23 component files** in a flat structure, making navigation difficult. Multiple files share common prefixes (`inspector-*`, `sticky-*`) indicating they should be grouped.
+
+### Current Structure Analysis
+
+```
+components/ (23 files - VIOLATES 5+ FILES RULE)
+├── app-action-list.tsx
+├── builder-page.tsx
+├── builder-topbar.tsx
+├── canvas.tsx
+├── flow-node/ (✅ already organized)
+│   ├── ModelNode.tsx
+│   ├── AgentSummary.tsx
+│   ├── NodePicker.tsx
+│   └── NodeHandles.tsx
+├── flow-node.tsx
+├── if-config.tsx
+├── inspector-agent-config.tsx (9 inspector files!)
+├── inspector-app-config.tsx
+├── inspector-chat-model-config.tsx
+├── inspector-config-panel.tsx
+├── inspector-edge-summary.tsx
+├── inspector-field-row.tsx
+├── inspector-footer.tsx
+├── inspector-io-panel.tsx
+├── inspector-notes-panel.tsx
+├── inspector-schedule-config.tsx
+├── inspector-slack-config.tsx
+├── inspector.tsx
+├── logs-drawer.tsx
+├── node-icon.tsx
+├── node-palette.tsx
+├── sticky-note-card.tsx (2 sticky files)
+└── sticky-notes-layer.tsx
+```
+
+### Proposed Structure
+
+```
+components/
+├── inspector/           (NEW - 11 files)
+│   ├── index.tsx       (main inspector)
+│   ├── agent-config.tsx
+│   ├── app-config.tsx
+│   ├── chat-model-config.tsx
+│   ├── config-panel.tsx
+│   ├── edge-summary.tsx
+│   ├── field-row.tsx
+│   ├── footer.tsx
+│   ├── io-panel.tsx
+│   ├── notes-panel.tsx
+│   ├── schedule-config.tsx
+│   └── slack-config.tsx
+├── node/                (NEW - 3 files)
+│   ├── flow-node/       (existing subfolder)
+│   │   ├── ModelNode.tsx
+│   │   ├── AgentSummary.tsx
+│   │   ├── NodePicker.tsx
+│   │   └── NodeHandles.tsx
+│   ├── flow-node.tsx
+│   ├── node-icon.tsx
+│   └── node-palette.tsx
+├── sticky-notes/        (NEW - 2 files)
+│   ├── sticky-note-card.tsx
+│   └── sticky-notes-layer.tsx
+├── canvas/              (NEW - 3 files)
+│   ├── canvas.tsx
+│   ├── builder-topbar.tsx
+│   └── logs-drawer.tsx
+├── if-config.tsx        (standalone - specific logic)
+├── app-action-list.tsx  (standalone)
+└── builder-page.tsx     (page component)
+```
+
+### Implementation Plan
+
+#### **Phase 1: Organize Inspector Components** (11 files)
+1. Create `components/inspector/` directory
+2. Move and rename 11 inspector files:
+   - `inspector.tsx` → `inspector/index.tsx`
+   - `inspector-agent-config.tsx` → `inspector/agent-config.tsx`
+   - `inspector-app-config.tsx` → `inspector/app-config.tsx`
+   - etc.
+3. Update all imports across codebase
+
+#### **Phase 2: Organize Node Components** (3 files + subfolder)
+1. Create `components/node/` directory
+2. Move node-related files:
+   - `flow-node.tsx` → `node/flow-node.tsx`
+   - `flow-node/` → `node/flow-node/` (move existing subfolder)
+   - `node-icon.tsx` → `node/node-icon.tsx`
+   - `node-palette.tsx` → `node/node-palette.tsx`
+3. Update imports
+
+#### **Phase 3: Organize Sticky Notes** (2 files)
+1. Create `components/sticky-notes/` directory
+2. Move:
+   - `sticky-note-card.tsx` → `sticky-notes/card.tsx`
+   - `sticky-notes-layer.tsx` → `sticky-notes/layer.tsx`
+3. Update imports
+
+#### **Phase 4: Organize Canvas/Builder UI** (3 files)
+1. Create `components/canvas/` directory
+2. Move:
+   - `canvas.tsx` → `canvas/index.tsx`
+   - `builder-topbar.tsx` → `canvas/builder-topbar.tsx`
+   - `logs-drawer.tsx` → `canvas/logs-drawer.tsx`
+3. Update imports
+
+### Benefits
+
+- ✅ **Easier Navigation**: Logical grouping by feature
+- ✅ **Scalability**: Can add more files to each group without clutter
+- ✅ **Clear Ownership**: Each subfolder represents a feature domain
+- ✅ **Follows .clauderc Rule 4**: Subfolders when 5+ related files exist
+- ✅ **Better Imports**: `@/features/builder/components/inspector/agent-config` vs long flat paths
+
+### Success Criteria
+
+- ✅ No directory with 10+ files at root level
+- ✅ All related files grouped by feature/domain
+- ✅ Clean import paths
+- ✅ Zero breaking changes (all imports updated)
+- ✅ Follows new File Organization Rule in .clauderc
+
+### Estimated Impact
+
+- **Files to move**: 23 files
+- **Subfolders to create**: 4 (inspector, node, sticky-notes, canvas)
+- **Import updates**: ~50-100 files across codebase
+- **Time**: 1-2 hours
+
+---
+
+**Next Steps**:
+1. Complete Phase 1 (flow-node.tsx splitting) ✅ DONE
+2. Begin File Organization Phase 1 - Inspector components
