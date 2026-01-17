@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { IconButton } from "@/components/ui/icon-button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Icon } from "@/components/ui/icon";
 import { Toggle } from "@/components/ui/toggle";
 import { Select, type SelectOption } from "@/components/ui/select";
@@ -133,7 +134,7 @@ export function IfConfig({
         <div className="text-xs font-bold uppercase tracking-wide text-muted">Logic</div>
         <div className="grid grid-cols-2 gap-2">
           <div className="space-y-1.5">
-            <label className="block text-xs font-bold text-muted">Combine</label>
+            <Label className="text-xs font-bold text-muted">Combine</Label>
             <Select
               value={state.combine}
               options={[{ value: "AND", label: "AND" }, { value: "OR", label: "OR" }]}

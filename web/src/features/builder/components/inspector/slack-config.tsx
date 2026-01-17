@@ -4,6 +4,7 @@ import { useRef } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Icon } from "@/components/ui/icon";
 import { IconButton } from "@/components/ui/icon-button";
 import { useAppStore } from "@/hooks/use-app-store";
@@ -41,7 +42,7 @@ export function SlackConfig({
   return (
     <form className="space-y-5" onSubmit={(e) => e.preventDefault()}>
       <div className="space-y-1.5">
-        <label className="block text-xs font-bold text-muted">Action Type</label>
+        <Label className="text-xs font-bold text-muted">Action Type</Label>
         <Select
           value={String(config.actionType || "Post Message")}
           options={
@@ -56,9 +57,9 @@ export function SlackConfig({
       </div>
 
       <div className="space-y-1.5">
-        <label className="block text-xs font-bold text-muted">
+        <Label className="text-xs font-bold text-muted">
           Slack Connection <span className="text-red">*</span>
-        </label>
+        </Label>
         <div className="flex gap-2">
           <Select
             value={String(config.connection || "My Workspace (Default)")}
@@ -82,9 +83,9 @@ export function SlackConfig({
 
       <div className="space-y-1.5">
         <div className="flex justify-between items-center">
-          <label className="block text-xs font-bold text-muted">
+          <Label className="text-xs font-bold text-muted">
             Channel ID <span className="text-red">*</span>
-          </label>
+          </Label>
           <Button
             variant="link"
             className="text-[10px] text-accent hover:underline font-medium p-0 h-auto no-underline"
@@ -111,9 +112,9 @@ export function SlackConfig({
 
       <div className="space-y-1.5">
         <div className="flex justify-between items-center">
-          <label className="block text-xs font-bold text-muted">
+          <Label className="text-xs font-bold text-muted">
             Message Text <span className="text-red">*</span>
-          </label>
+          </Label>
           <span className="text-[10px] text-muted">Markdown supported</span>
         </div>
         <div className="relative group">

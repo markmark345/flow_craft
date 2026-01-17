@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Select, type SelectOption } from "@/components/ui/select";
 import { NodeIcon } from "../../node/node-icon";
 import { MODEL_PROVIDERS } from "../../../nodeCatalog/catalog";
@@ -58,7 +59,7 @@ export function AgentModelTab({ model, onPatchModel }: Props) {
 
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-2">
-          <label className="block text-xs font-bold text-muted">Provider</label>
+          <Label className="text-xs font-bold text-muted">Provider</Label>
           <Select
             value={provider}
             options={providerOptions}
@@ -78,7 +79,7 @@ export function AgentModelTab({ model, onPatchModel }: Props) {
         </div>
 
         <div className="space-y-2">
-          <label className="block text-xs font-bold text-muted">Credential (optional)</label>
+          <Label className="text-xs font-bold text-muted">Credential (optional)</Label>
           <Select
             value={model?.credentialId || ""}
             options={credentialOptions}
@@ -95,7 +96,7 @@ export function AgentModelTab({ model, onPatchModel }: Props) {
 
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-2">
-          <label className="block text-xs font-bold text-muted">API key override (optional)</label>
+          <Label className="text-xs font-bold text-muted">API key override (optional)</Label>
           <Input
             value={model?.apiKeyOverride || ""}
             onChange={(e) => onPatchModel({ apiKeyOverride: e.target.value })}
@@ -105,9 +106,9 @@ export function AgentModelTab({ model, onPatchModel }: Props) {
         </div>
 
         <div className="space-y-2">
-          <label className="block text-xs font-bold text-muted">
+          <Label className="text-xs font-bold text-muted">
             Model <span className="text-red"> *</span>
-          </label>
+          </Label>
           <Input
             value={model?.model || ""}
             onChange={(e) => onPatchModel({ model: e.target.value })}
@@ -118,7 +119,7 @@ export function AgentModelTab({ model, onPatchModel }: Props) {
       </div>
 
       <div className="space-y-2">
-        <label className="block text-xs font-bold text-muted">Base URL (optional)</label>
+        <Label className="text-xs font-bold text-muted">Base URL (optional)</Label>
         <Input
           value={model?.baseUrl || ""}
           onChange={(e) => onPatchModel({ baseUrl: e.target.value })}

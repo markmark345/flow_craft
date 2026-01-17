@@ -1,6 +1,7 @@
 "use client";
 
 import { Select, type SelectOption } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 import { type ScheduleMode } from "../../../lib/schedule-utils";
 
 interface ScheduleModeSelectProps {
@@ -11,7 +12,7 @@ interface ScheduleModeSelectProps {
 export function ScheduleModeSelect({ mode, onChange }: ScheduleModeSelectProps) {
   return (
     <div className="space-y-2">
-      <label className="block text-xs font-bold text-muted">Schedule</label>
+      <Label className="text-xs font-bold text-muted">Schedule</Label>
       <Select
         value={mode}
         options={

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { IconButton } from "@/components/ui/icon-button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import { cn } from "@/lib/cn";
 import { ProjectMemberDTO } from "@/types/dto";
@@ -53,7 +54,7 @@ export function ProjectMembersCard({
             }
           }}
         >
-          <label className="block text-xs font-semibold text-muted">Invite members</label>
+          <Label className="text-xs font-semibold text-muted">Invite members</Label>
           <div className="relative">
             <Icon name="search" className="absolute left-3 top-1/2 -translate-y-1/2 text-[16px] text-muted" />
             <Input

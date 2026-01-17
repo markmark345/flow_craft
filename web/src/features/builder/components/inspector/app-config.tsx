@@ -1,6 +1,7 @@
 "use client";
 
 import { Select } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 import { SchemaForm } from "@/components/ui/SchemaForm/SchemaForm";
 import { normalizeAppKey, defaultActionKeyForApp } from "../../nodeCatalog/catalog";
 import { useInspectorAppConfig } from "../../hooks/use-inspector-app-config";
@@ -18,7 +19,7 @@ export function InspectorAppConfig({
     <div className="space-y-5">
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-2">
-          <div className="block text-xs font-bold text-muted">App</div>
+          <Label className="text-xs font-bold text-muted">App</Label>
           <Select
             value={appKey}
             options={appOptions}
@@ -34,7 +35,7 @@ export function InspectorAppConfig({
         </div>
 
         <div className="space-y-2">
-          <div className="block text-xs font-bold text-muted">Action</div>
+          <Label className="text-xs font-bold text-muted">Action</Label>
           <Select
             value={actionKey || ""}
             options={actionOptions}

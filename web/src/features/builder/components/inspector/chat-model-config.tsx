@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Select, type SelectOption } from "@/components/ui/select";
 import { useCredentialOptions } from "@/features/credentials/hooks/use-credential-options";
 import { normalizeProvider, getProviderDefaults } from "../../lib/model-utils";
@@ -46,7 +47,7 @@ export function InspectorChatModelConfig({
   return (
     <div className="space-y-5">
       <div className="space-y-2">
-        <label className="block text-xs font-bold text-muted">Provider</label>
+        <Label className="text-xs font-bold text-muted">Provider</Label>
         <Select
           value={provider}
           options={providerOptions}
@@ -68,7 +69,7 @@ export function InspectorChatModelConfig({
       </div>
 
       <div className="space-y-2">
-        <label className="block text-xs font-bold text-muted">Credential (optional)</label>
+        <Label className="text-xs font-bold text-muted">Credential (optional)</Label>
         <Select
           value={credentialId}
           options={credentialOptions}
@@ -86,7 +87,7 @@ export function InspectorChatModelConfig({
       </div>
 
       <div className="space-y-2">
-        <label className="block text-xs font-bold text-muted">API key (optional)</label>
+        <Label className="text-xs font-bold text-muted">API key (optional)</Label>
         <Input
           value={apiKey}
           onChange={(e) => onPatch({ apiKey: e.target.value })}
@@ -97,9 +98,9 @@ export function InspectorChatModelConfig({
       </div>
 
       <div className="space-y-2">
-        <label className="block text-xs font-bold text-muted">
+        <Label className="text-xs font-bold text-muted">
           Model <span className="text-red"> *</span>
-        </label>
+        </Label>
         <Input
           value={model}
           onChange={(e) => onPatch({ model: e.target.value })}
@@ -109,7 +110,7 @@ export function InspectorChatModelConfig({
       </div>
 
       <div className="space-y-2">
-        <label className="block text-xs font-bold text-muted">Base URL (optional)</label>
+        <Label className="text-xs font-bold text-muted">Base URL (optional)</Label>
         <Input
           value={baseUrl}
           onChange={(e) => onPatch({ baseUrl: e.target.value })}

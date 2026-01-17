@@ -1,6 +1,7 @@
 "use client";
 
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { type ScheduleState } from "../../../lib/schedule-utils";
 
 interface ScheduleCronConfigProps {
@@ -11,7 +12,7 @@ interface ScheduleCronConfigProps {
 export function ScheduleCronConfig({ state, onApply }: ScheduleCronConfigProps) {
   return (
     <div className="space-y-2">
-      <label className="block text-xs font-bold text-muted">Cron expression</label>
+      <Label className="text-xs font-bold text-muted">Cron expression</Label>
       <Input
         value={state.cron}
         onChange={(e) => onApply({ cron: e.target.value })}

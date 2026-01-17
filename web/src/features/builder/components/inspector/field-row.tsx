@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Select, type SelectOption } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Toggle } from "@/components/ui/toggle";
+import { Label } from "@/components/ui/label";
 import { NodeField } from "../../types/node-catalog";
 import { KeyValueField } from "./fields/KeyValueField";
 import { CredentialField } from "./fields/CredentialField";
@@ -84,12 +85,12 @@ export function FieldRow({
     const checked = Boolean(v);
     return (
       <div className="pt-2">
-        <label className="flex items-center cursor-pointer group select-none">
+        <Label className="flex items-center cursor-pointer group select-none">
           <Toggle checked={checked} onChange={(checked) => onChange(checked)} />
           <span className="ml-3 text-xs font-bold text-muted group-hover:text-text transition-colors">
             {field.label}
           </span>
-        </label>
+        </Label>
         {field.helpText ? <div className="text-xs text-muted mt-1">{field.helpText}</div> : null}
       </div>
     );

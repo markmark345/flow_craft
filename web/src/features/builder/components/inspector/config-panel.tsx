@@ -3,6 +3,7 @@
 "use client";
 
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Node } from "reactflow";
 import { FlowNodeData } from "../../types";
 import { ConfigPanelHeader } from "./config-panel/ConfigPanelHeader";
@@ -23,7 +24,7 @@ export function InspectorConfigPanel({
       <ConfigPanelHeader node={node} />
 
       <div className="space-y-2">
-        <label className="block text-xs font-bold text-muted">Label</label>
+        <Label className="text-xs font-bold text-muted">Label</Label>
         <Input
           value={node.data.label}
           onChange={(e) => updateNodeData(node.id, { label: e.target.value })}

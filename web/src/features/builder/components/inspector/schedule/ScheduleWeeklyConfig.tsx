@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 import { TimePicker } from "@/components/ui/time-picker";
 import { type ScheduleState, scheduleStateToExpression } from "../../../lib/schedule-utils";
 
@@ -33,7 +34,7 @@ export function ScheduleWeeklyConfig({ state, onApply }: ScheduleWeeklyConfigPro
     <div className="space-y-5">
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-2">
-          <label className="block text-xs font-bold text-muted">At time</label>
+          <Label className="text-xs font-bold text-muted">At time</Label>
           <TimePicker
             hour={state.hour}
             minute={state.minute}
@@ -41,7 +42,7 @@ export function ScheduleWeeklyConfig({ state, onApply }: ScheduleWeeklyConfigPro
           />
         </div>
         <div className="space-y-2">
-          <label className="block text-xs font-bold text-muted">Preview</label>
+          <Label className="text-xs font-bold text-muted">Preview</Label>
           <div className="h-10 rounded-lg bg-surface2 border border-border px-3 flex items-center text-xs font-mono text-muted">
             {scheduleStateToExpression(state)}
           </div>
@@ -49,7 +50,7 @@ export function ScheduleWeeklyConfig({ state, onApply }: ScheduleWeeklyConfigPro
       </div>
 
       <div className="space-y-2">
-        <label className="block text-xs font-bold text-muted">Days</label>
+        <Label className="text-xs font-bold text-muted">Days</Label>
         <div className="flex flex-wrap gap-2">
           {dayLabels.map((d) => {
             const active = state.days.includes(d.id);

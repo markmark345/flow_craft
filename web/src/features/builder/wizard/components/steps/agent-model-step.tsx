@@ -1,6 +1,7 @@
 "use client";
 
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Select, type SelectOption } from "@/components/ui/select";
 import { useCredentialOptions } from "@/features/credentials/hooks/use-credential-options";
 import { NodeIcon } from "@/features/builder/components/node/node-icon";
@@ -46,9 +47,9 @@ export function AgentModelStep() {
 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <label className="block text-xs font-bold text-muted">
+          <Label className="text-xs font-bold text-muted">
             Provider <span className="text-red"> *</span>
-          </label>
+          </Label>
           <div className="flex items-center gap-2">
             <div
               className="w-10 h-10 rounded-lg border flex items-center justify-center shrink-0"
@@ -83,7 +84,7 @@ export function AgentModelStep() {
         </div>
 
         <div className="space-y-2">
-          <label className="block text-xs font-bold text-muted">Credential (optional)</label>
+          <Label className="text-xs font-bold text-muted">Credential (optional)</Label>
           <Select
             value={credentialId}
             options={credentialOptions}
@@ -104,7 +105,7 @@ export function AgentModelStep() {
 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <label className="block text-xs font-bold text-muted">API key (optional)</label>
+          <Label className="text-xs font-bold text-muted">API key (optional)</Label>
           <Input
             value={apiKeyOverride}
             onChange={(e) => patchModel({ apiKeyOverride: e.target.value })}
@@ -115,9 +116,9 @@ export function AgentModelStep() {
         </div>
 
         <div className="space-y-2">
-          <label className="block text-xs font-bold text-muted">
+          <Label className="text-xs font-bold text-muted">
             Model name <span className="text-red"> *</span>
-          </label>
+          </Label>
           <Input
             value={model}
             onChange={(e) => patchModel({ model: e.target.value })}
@@ -129,7 +130,7 @@ export function AgentModelStep() {
       </div>
 
       <div className="space-y-2">
-        <label className="block text-xs font-bold text-muted">Base URL (optional)</label>
+        <Label className="text-xs font-bold text-muted">Base URL (optional)</Label>
         <Input
           value={baseUrl}
           onChange={(e) => patchModel({ baseUrl: e.target.value })}

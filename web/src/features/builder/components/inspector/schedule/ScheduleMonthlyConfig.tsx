@@ -1,6 +1,7 @@
 "use client";
 
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { TimePicker } from "@/components/ui/time-picker";
 import { clampInt } from "@/lib/number-utils";
 import { type ScheduleState, scheduleStateToExpression } from "../../../lib/schedule-utils";
@@ -15,7 +16,7 @@ export function ScheduleMonthlyConfig({ state, onApply }: ScheduleMonthlyConfigP
     <div className="space-y-5">
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-2">
-          <label className="block text-xs font-bold text-muted">At time</label>
+          <Label className="text-xs font-bold text-muted">At time</Label>
           <TimePicker
             hour={state.hour}
             minute={state.minute}
@@ -24,7 +25,7 @@ export function ScheduleMonthlyConfig({ state, onApply }: ScheduleMonthlyConfigP
         </div>
 
         <div className="space-y-2">
-          <label className="block text-xs font-bold text-muted">Day of month</label>
+          <Label className="text-xs font-bold text-muted">Day of month</Label>
           <Input
             type="number"
             min={1}

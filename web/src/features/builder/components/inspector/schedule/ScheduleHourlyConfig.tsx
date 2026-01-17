@@ -1,6 +1,7 @@
 "use client";
 
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { clampInt } from "@/lib/number-utils";
 import { type ScheduleState, scheduleStateToExpression } from "../../../lib/schedule-utils";
 
@@ -13,7 +14,7 @@ export function ScheduleHourlyConfig({ state, onApply }: ScheduleHourlyConfigPro
   return (
     <div className="grid grid-cols-2 gap-3">
       <div className="space-y-2">
-        <label className="block text-xs font-bold text-muted">At minute</label>
+        <Label className="text-xs font-bold text-muted">At minute</Label>
         <Input
           type="number"
           min={0}
@@ -24,7 +25,7 @@ export function ScheduleHourlyConfig({ state, onApply }: ScheduleHourlyConfigPro
         />
       </div>
       <div className="space-y-2">
-        <label className="block text-xs font-bold text-muted">Preview</label>
+        <Label className="text-xs font-bold text-muted">Preview</Label>
         <div className="h-10 rounded-lg bg-surface2 border border-border px-3 flex items-center text-xs font-mono text-muted">
           {scheduleStateToExpression(state)}
         </div>

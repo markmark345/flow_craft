@@ -1,6 +1,7 @@
 "use client";
 
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 import { useWizardStore, type AgentDraft } from "../../store/use-wizard-store";
 
@@ -17,9 +18,9 @@ export function AgentBasicsStep() {
       </div>
 
       <div className="space-y-2">
-        <label className="block text-xs font-bold text-muted">
+        <Label className="text-xs font-bold text-muted">
           Label <span className="text-red"> *</span>
-        </label>
+        </Label>
         <Input
           value={draft.label}
           onChange={(e) => setDraft({ label: e.target.value })}

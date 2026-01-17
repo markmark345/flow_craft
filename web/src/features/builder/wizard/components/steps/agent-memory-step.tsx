@@ -1,6 +1,7 @@
 "use client";
 
 import { Select, type SelectOption } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 
 import { useWizardStore, type AgentDraft } from "../../store/use-wizard-store";
 
@@ -23,7 +24,7 @@ export function AgentMemoryStep() {
       </div>
 
       <div className="space-y-2">
-        <label className="block text-xs font-bold text-muted">Memory type</label>
+        <Label className="text-xs font-bold text-muted">Memory type</Label>
         <Select
           value={type}
           options={options}

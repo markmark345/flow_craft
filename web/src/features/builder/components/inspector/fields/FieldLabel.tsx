@@ -1,6 +1,7 @@
 "use client";
 
 import { ReactNode } from "react";
+import { Label } from "@/components/ui/label";
 import { NodeField } from "../../../types/node-catalog";
 
 interface FieldLabelProps {
@@ -22,8 +23,8 @@ export function FieldLabel({ field, htmlFor, children }: FieldLabelProps) {
   }
 
   return (
-    <label htmlFor={htmlFor} className="block text-xs font-bold text-muted">
+    <Label htmlFor={htmlFor} className="text-xs font-bold text-muted">
       {content}
-    </label>
+    </Label>
   );
 }

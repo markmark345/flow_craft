@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { IconButton } from "@/components/ui/icon-button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 
 type Props = {
   open: boolean;
@@ -68,9 +69,9 @@ export function VariableModal({
         >
           <div className="px-8 py-4 space-y-5">
             <div className="space-y-1.5">
-              <label className="block text-sm font-semibold text-muted" htmlFor="variable-key">
+              <Label htmlFor="variable-key" className="font-semibold text-muted">
                 Key
-              </label>
+              </Label>
               <Input
                 id="variable-key"
                 value={keyValue}
@@ -82,9 +83,9 @@ export function VariableModal({
               />
             </div>
             <div className="space-y-1.5">
-              <label className="block text-sm font-semibold text-muted" htmlFor="variable-value">
+              <Label htmlFor="variable-value" className="font-semibold text-muted">
                 Value
-              </label>
+              </Label>
               <Textarea
                 id="variable-value"
                 value={value}
