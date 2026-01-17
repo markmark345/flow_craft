@@ -11,7 +11,7 @@ import {
   type ScheduleState,
   parseScheduleExpression,
   scheduleStateToExpression,
-} from "../lib/schedule-utils";
+} from "../../lib/schedule-utils";
 
 export function ScheduleConfig({
   config,

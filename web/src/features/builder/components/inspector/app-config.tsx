@@ -2,8 +2,8 @@
 
 import { Select } from "@/shared/components/select";
 import { SchemaForm } from "@/shared/components/SchemaForm/SchemaForm";
-import { normalizeAppKey, defaultActionKeyForApp } from "../nodeCatalog/catalog";
-import { useInspectorAppConfig } from "../hooks/use-inspector-app-config";
+import { normalizeAppKey, defaultActionKeyForApp } from "../../nodeCatalog/catalog";
+import { useInspectorAppConfig } from "../../hooks/use-inspector-app-config";
 
 export function InspectorAppConfig({
   config,

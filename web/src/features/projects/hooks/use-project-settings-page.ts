@@ -12,7 +12,7 @@ export interface UseProjectSettingsPageReturn {
   isAdmin: boolean;
   loading: boolean;
   memberIdentifier: string;
-  memberRole: "viewer" | "editor" | "admin";
+  memberRole: "member" | "admin";
   members: ReturnType<typeof useProjectSettings>["members"];
   name: string;
   project: ReturnType<typeof useProjectSettings>["project"];
@@ -32,7 +32,7 @@ export interface UseProjectSettingsPageReturn {
   setConfirmDeleteOpen: (open: boolean) => void;
   setDescription: (description: string) => void;
   setMemberIdentifier: (identifier: string) => void;
-  setMemberRole: (role: "viewer" | "editor" | "admin") => void;
+  setMemberRole: (role: "member" | "admin") => void;
   setName: (name: string) => void;
 
   // Workspace action

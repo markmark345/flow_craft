@@ -3,8 +3,8 @@
 import { Icon } from "@/shared/components/icon";
 import { NodeIcon } from "../node-icon";
 import { cn } from "@/shared/lib/cn";
-import { isValidAgentModelConfig, type AgentMemoryConfig, type AgentToolConfig } from "../../types/agent";
-import type { FlowNodeData } from "../../types";
+import { isValidAgentModelConfig, type AgentMemoryConfig, type AgentToolConfig } from "../../../types/agent";
+import type { FlowNodeData } from "../../../types";
 
 interface AgentSummaryProps {
   data: FlowNodeData;

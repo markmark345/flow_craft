@@ -1,8 +1,8 @@
 "use client";
 
 import { Input } from "@/shared/components/input";
-import type { BuilderNodeType } from "../../types";
-import type { NodeCategory, NodeCatalogItem } from "../../types/node-catalog";
+import type { BuilderNodeType } from "../../../types";
+import type { NodeCategory, NodeCatalogItem } from "../../../types/node-catalog";
 
 interface NodePickerProps {
   isOpen: boolean;

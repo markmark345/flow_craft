@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { Input } from "@/shared/components/input";
 import { Select, type SelectOption } from "@/shared/components/select";
 import { useCredentialOptions } from "@/features/credentials/hooks/use-credential-options";
-import { normalizeProvider, getProviderDefaults } from "../lib/model-utils";
+import { normalizeProvider, getProviderDefaults } from "../../lib/model-utils";
 
 export function InspectorChatModelConfig({
   config,

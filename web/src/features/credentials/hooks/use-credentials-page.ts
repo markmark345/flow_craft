@@ -41,7 +41,7 @@ export interface UseCredentialsPageReturn {
   // Actions
   setQuery: (query: string) => void;
   setSortKey: (key: SortKey) => void;
-  setMenuOpen: (open: boolean) => void;
+  setMenuOpen: (open: boolean | ((prev: boolean) => boolean)) => void;
   setConfirmDeleteOpen: (open: boolean) => void;
   setSelectedId: (id: string | null) => void;
   reload: () => Promise<void>;

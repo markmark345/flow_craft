@@ -4,7 +4,7 @@ import { useBuilderStore } from "../store/use-builder-store";
 import { useRunDetailQuery } from "@/features/runs/hooks/use-run-detail";
 
 export interface UseLogsDrawerReturn {
-  flowId: string;
+  flowId: string | undefined;
   runId: string | undefined;
   run: any;
   loading: boolean;

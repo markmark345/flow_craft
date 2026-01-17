@@ -1,11 +1,11 @@
 "use client";
 
-import { InspectorConfigPanel } from "./inspector-config-panel";
-import { InspectorEdgeSummary } from "./inspector-edge-summary";
-import { InspectorIoPanel } from "./inspector-io-panel";
-import { InspectorNotesPanel } from "./inspector-notes-panel";
-import { InspectorFooter } from "./inspector-footer";
-import { useInspector } from "../hooks/use-inspector";
+import { InspectorConfigPanel } from "./config-panel";
+import { InspectorEdgeSummary } from "./edge-summary";
+import { InspectorIoPanel } from "./io-panel";
+import { InspectorNotesPanel } from "./notes-panel";
+import { InspectorFooter } from "./footer";
+import { useInspector } from "../../hooks/use-inspector";
 
 export function Inspector() {
   const {

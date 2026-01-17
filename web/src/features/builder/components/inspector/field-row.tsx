@@ -4,7 +4,7 @@ import { Input } from "@/shared/components/input";
 import { Icon } from "@/shared/components/icon";
 import { Select, type SelectOption } from "@/shared/components/select";
 import { coerceKeyValuePairs } from "@/shared/lib/form-utils";
-import { NodeField } from "../types/node-catalog";
+import { NodeField } from "../../types/node-catalog";
 import { useCredentialOptions } from "@/features/credentials/hooks/use-credential-options";
 
 export function FieldRow({

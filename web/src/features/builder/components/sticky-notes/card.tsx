@@ -13,7 +13,7 @@ import {
   NOTE_VARIANTS,
   StickyNoteTheme,
 } from "@/features/builder/lib/sticky-note-utils";
-import { useStickyNoteCard } from "../hooks/use-sticky-note-card";
+import { useStickyNoteCard } from "../../hooks/use-sticky-note-card";
 
 type Props = {
   note: StickyNote;

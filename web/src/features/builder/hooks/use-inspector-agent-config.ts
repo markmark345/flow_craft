@@ -14,7 +14,7 @@ export interface UseInspectorAgentConfigReturn {
   providerOptions: SelectOption[];
   credentialOptions: SelectOption[];
   credLoading: boolean;
-  credError: Error | null;
+  credError: string | null;
   patchModel: (patch: Partial<AgentModelConfig>) => void;
   tools: AgentToolConfig[];
   moveTool: (idx: number, dir: -1 | 1) => void;

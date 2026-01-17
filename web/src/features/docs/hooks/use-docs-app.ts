@@ -13,7 +13,7 @@ export interface UseDocsAppReturn {
   setQuery: (value: string) => void;
   activeSectionId: string | undefined;
   scrollRef: React.RefObject<HTMLDivElement>;
-  user: ReturnType<typeof useAuthStore>["user"] | undefined;
+  user: any;
   signOut: ReturnType<typeof useLogout>["signOut"];
   signingOut: boolean;
   menuOpen: boolean;

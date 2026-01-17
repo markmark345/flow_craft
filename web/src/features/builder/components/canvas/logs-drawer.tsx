@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { Badge } from "@/shared/components/badge";
 import { Icon } from "@/shared/components/icon";
-import { useLogsDrawer } from "../hooks/use-logs-drawer";
+import { useLogsDrawer } from "../../hooks/use-logs-drawer";
 
 export function LogsDrawer() {
   const { flowId, runId, run, loading, reload, logText, logRef, onClear, onDownload, tone } = useLogsDrawer();

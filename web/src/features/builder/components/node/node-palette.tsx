@@ -2,15 +2,15 @@
 
 import { Input } from "@/shared/components/input";
 import { CollapsibleSection } from "@/shared/components/collapsible-section";
-import { useNodeDnd } from "../hooks/use-node-dnd";
-import { useNodePalette } from "../hooks/use-node-palette";
+import { useNodeDnd } from "../../hooks/use-node-dnd";
+import { useNodePalette } from "../../hooks/use-node-palette";
 import { NodeIcon } from "./node-icon";
 import { Icon } from "@/shared/components/icon";
-import { useBuilderStore } from "../store/use-builder-store";
-import { useWizardStore } from "../wizard/store/use-wizard-store";
-import { APP_CATALOG } from "../nodeCatalog/catalog";
-import type { AppKey } from "../nodeCatalog/catalog";
-import type { BuilderNodeType } from "../types";
+import { useBuilderStore } from "../../store/use-builder-store";
+import { useWizardStore } from "../../wizard/store/use-wizard-store";
+import { APP_CATALOG } from "../../nodeCatalog/catalog";
+import type { AppKey } from "../../nodeCatalog/catalog";
+import type { BuilderNodeType } from "../../types";
 
 const accentVar: Record<string, string> = {
   accent: "var(--accent)",

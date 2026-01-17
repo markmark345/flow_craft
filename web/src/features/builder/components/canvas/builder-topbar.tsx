@@ -5,7 +5,7 @@ import { Input } from "@/shared/components/input";
 import { Icon } from "@/shared/components/icon";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useBuilderTopbar } from "../hooks/use-builder-topbar";
+import { useBuilderTopbar } from "../../hooks/use-builder-topbar";
 
 export function BuilderTopbar() {
   const router = useRouter();

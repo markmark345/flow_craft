@@ -9,14 +9,15 @@ import ReactFlow, {
 } from "reactflow";
 import "reactflow/dist/style.css";
 import { BuilderTopbar } from "./builder-topbar";
-import { NodePalette } from "./node-palette";
-import { Inspector } from "./inspector";
+import { NodePalette } from "../node/node-palette";
+import { Inspector } from "../inspector";
 import { LogsDrawer } from "./logs-drawer";
-import { FlowNode } from "./flow-node";
+import { CanvasControls } from "./canvas-controls";
+import { FlowNode } from "../node/flow-node";
 import { Icon } from "@/shared/components/icon";
-import { StickyNotesLayer } from "./sticky-notes-layer";
-import { WizardModal } from "../wizard/components/wizard-modal";
-import { useCanvas } from "../hooks/use-canvas";
+import { StickyNotesLayer } from "../sticky-notes/layer";
+import { WizardModal } from "../../wizard/components/wizard-modal";
+import { useCanvas } from "../../hooks/use-canvas";
 
 export function BuilderCanvas() {
   const {
@@ -90,35 +91,11 @@ export function BuilderCanvas() {
               <MiniMap position="bottom-right" />
             </ReactFlow>
 
-            {/* Floating Canvas Controls (n8n-ish) */}
-            <div className="absolute bottom-6 left-6 flex flex-col gap-3 z-30">
-              <div className="bg-panel rounded-lg shadow-lift border border-border flex flex-col overflow-hidden">
-                <button
-                  type="button"
-                  className="p-2 hover:bg-surface2 text-muted border-b border-border active:bg-surface2 transition-colors"
-                  title="Zoom in"
-                  onClick={() => rfInstance?.zoomIn()}
-                >
-                  <Icon name="add" className="text-[20px]" />
-                </button>
-                <button
-                  type="button"
-                  className="p-2 hover:bg-surface2 text-muted active:bg-surface2 transition-colors"
-                  title="Zoom out"
-                  onClick={() => rfInstance?.zoomOut()}
-                >
-                  <Icon name="remove" className="text-[20px]" />
-                </button>
-              </div>
-              <button
-                type="button"
-                className="bg-panel p-2 rounded-lg shadow-lift border border-border text-muted hover:bg-surface2 active:bg-surface2 transition-colors"
-                title="Fit to screen"
-                onClick={() => rfInstance?.fitView({ duration: 450, padding: 0.15 })}
-              >
-                <Icon name="center_focus_strong" className="text-[20px]" />
-              </button>
-            </div>
+            <CanvasControls
+              onZoomIn={() => rfInstance?.zoomIn()}
+              onZoomOut={() => rfInstance?.zoomOut()}
+              onFitView={() => rfInstance?.fitView({ duration: 450, padding: 0.15 })}
+            />
           </div>
           <LogsDrawer />
         </div>

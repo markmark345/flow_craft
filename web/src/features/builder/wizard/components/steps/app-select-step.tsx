@@ -1,7 +1,7 @@
 "use client";
 
 import { defaultActionKeyForApp, findAppAction, type AppKey } from "@/features/builder/nodeCatalog/catalog";
-import { NodeIcon } from "@/features/builder/components/node-icon";
+import { NodeIcon } from "@/features/builder/components/node/node-icon";
 import { Input } from "@/shared/components/input";
 import { cn } from "@/shared/lib/cn";
 import { useWizardStore, type AppNodeDraft } from "../../store/use-wizard-store";

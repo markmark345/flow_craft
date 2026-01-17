@@ -5,11 +5,11 @@ import { useViewport } from "reactflow";
 import { useAuthStore } from "@/features/auth/store/use-auth-store";
 import { useAppStore } from "@/shared/hooks/use-app-store";
 
-import { useBuilderStore } from "../store/use-builder-store";
-import { useStickyNoteInteractions } from "../hooks/use-sticky-note-interactions";
-import { useStickyNotesLayer } from "../hooks/use-sticky-notes-layer";
-import { StickyNoteTheme } from "../lib/sticky-note-utils";
-import { StickyNoteCard } from "./sticky-note-card";
+import { useBuilderStore } from "../../store/use-builder-store";
+import { useStickyNoteInteractions } from "../../hooks/use-sticky-note-interactions";
+import { useStickyNotesLayer } from "../../hooks/use-sticky-notes-layer";
+import { StickyNoteTheme } from "../../lib/sticky-note-utils";
+import { StickyNoteCard } from "./card";
 
 export function StickyNotesLayer() {
   const viewport = useViewport();

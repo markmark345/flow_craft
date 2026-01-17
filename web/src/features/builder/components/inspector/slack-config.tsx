@@ -6,7 +6,7 @@ import { Input } from "@/shared/components/input";
 import { Icon } from "@/shared/components/icon";
 import { useAppStore } from "@/shared/hooks/use-app-store";
 import { Select, type SelectOption } from "@/shared/components/select";
-import { FieldRow } from "./inspector-field-row";
+import { FieldRow } from "./field-row";
 
 export function SlackConfig({
   config,

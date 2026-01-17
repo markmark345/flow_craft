@@ -9,7 +9,7 @@ import { useLogout } from "@/features/auth/hooks/use-logout";
 export interface UseBuilderTopbarReturn {
   name: string;
   dirty: boolean;
-  flowId: string;
+  flowId: string | undefined;
   save: (opts?: { silent?: boolean }) => Promise<void>;
   saving: boolean;
   startRun: (flowId: string) => Promise<any>;

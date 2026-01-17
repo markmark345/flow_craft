@@ -3,16 +3,16 @@
 import { Input } from "@/shared/components/input";
 import { Node } from "reactflow";
 
-import { NODE_CATALOG } from "../types/node-catalog";
-import { FlowNodeData } from "../types";
-import { NodeIcon } from "./node-icon";
-import { IfConfig } from "./if-config";
-import { FieldRow } from "./inspector-field-row";
-import { ScheduleConfig } from "./inspector-schedule-config";
-import { SlackConfig } from "./inspector-slack-config";
-import { InspectorAppConfig } from "./inspector-app-config";
-import { InspectorChatModelConfig } from "./inspector-chat-model-config";
-import { InspectorAgentConfig } from "./inspector-agent-config";
+import { NODE_CATALOG } from "../../types/node-catalog";
+import { FlowNodeData } from "../../types";
+import { NodeIcon } from "../node/node-icon";
+import { IfConfig } from "../if-config";
+import { FieldRow } from "./field-row";
+import { ScheduleConfig } from "./schedule-config";
+import { SlackConfig } from "./slack-config";
+import { InspectorAppConfig } from "./app-config";
+import { InspectorChatModelConfig } from "./chat-model-config";
+import { InspectorAgentConfig } from "./agent-config";
 
 export function InspectorConfigPanel({
   node,

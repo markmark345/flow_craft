@@ -1,7 +1,7 @@
 "use client";
 
 import { Node } from "reactflow";
-import { FlowNodeData } from "../types";
+import { FlowNodeData } from "../../types";
 
 export function InspectorNotesPanel({
   node,

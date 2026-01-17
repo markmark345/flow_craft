@@ -1,6 +1,6 @@
 "use client";
 
-import { BuilderNodeType } from "../types";
+import { BuilderNodeType } from "../../types";
 import { cn } from "@/shared/lib/cn";
 
 export function NodeIcon({

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
+import type { Viewport } from "reactflow";
 import { NODE_CATEGORIES } from "../types/node-catalog";
 import { APP_CATALOG, listAppActions } from "../nodeCatalog/catalog";
-import type { Viewport } from "../types";
 
 const COLLAPSE_STORAGE_KEY = "flowcraft.palette.collapsed.v1";
 

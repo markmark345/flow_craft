@@ -7,7 +7,7 @@ import { useRunsQuery } from "@/features/runs/hooks/use-runs";
 import { useRunFlow } from "@/features/runs/hooks/use-run-flow";
 import { useRunsStore } from "@/features/runs/store/use-runs-store";
 import { useAppStore, useMounted } from "@/shared/hooks/use-app-store";
-import type { FlowDTO, RunDTO } from "@/shared/types/dto";
+import type { FlowDTO, RunDTO, ProjectDTO } from "@/shared/types/dto";
 import { useWorkspaceStore } from "@/features/workspaces/store/use-workspace-store";
 import { ownerForFlow, runMeta, runSortTime } from "../components/flows-page-utils";
 
@@ -17,13 +17,13 @@ export interface UseFlowsPageReturn {
   // Loading states
   flowsLoading: boolean;
   runsLoading: boolean;
-  flowsError: Error | null;
+  flowsError: string | undefined;
   importing: boolean;
-  duplicatingId: string | null;
-  archivingId: string | null;
-  deletingId: string | null;
+  duplicatingId: string | undefined;
+  archivingId: string | undefined;
+  deletingId: string | undefined;
   running: boolean;
-  runningFlowId: string | null;
+  runningFlowId: string | undefined;
 
   // Data
   flows: FlowDTO[];
@@ -52,7 +52,7 @@ export interface UseFlowsPageReturn {
 
   // Workspace
   scope: "personal" | "project";
-  activeProject: { id: string; name: string; role: string } | null;
+  activeProject: ProjectDTO | null;
   pageTitle: string;
   pageSubtitle: string;
   canCreateProject: boolean;

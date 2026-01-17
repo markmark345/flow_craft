@@ -1,6 +1,6 @@
 "use client";
 
-import { NodeIcon } from "@/features/builder/components/node-icon";
+import { NodeIcon } from "@/features/builder/components/node/node-icon";
 import { isValidAgentModelConfig } from "@/features/builder/types/agent";
 
 import { useWizardStore, type AgentDraft } from "../../store/use-wizard-store";

@@ -1,6 +1,6 @@
 "use client";
 
-import { NodeIcon } from "@/features/builder/components/node-icon";
+import { NodeIcon } from "@/features/builder/components/node/node-icon";
 import { APP_CATALOG, findAppAction } from "@/features/builder/nodeCatalog/catalog";
 
 import { useWizardStore, type AppNodeDraft } from "../../store/use-wizard-store";

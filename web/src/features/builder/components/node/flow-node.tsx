@@ -2,16 +2,16 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { NodeProps } from "reactflow";
-import { FlowNodeData } from "../types";
-import { NODE_CATALOG, NODE_CATEGORIES } from "../types/node-catalog";
+import { FlowNodeData } from "../../types";
+import { NODE_CATALOG, NODE_CATEGORIES } from "../../types/node-catalog";
 import { cn } from "@/shared/lib/cn";
-import { BuilderNodeType } from "../types";
-import { useBuilderStore } from "../store/use-builder-store";
+import { BuilderNodeType } from "../../types";
+import { useBuilderStore } from "../../store/use-builder-store";
 import { NodeIcon } from "./node-icon";
 import { Icon } from "@/shared/components/icon";
-import { isValidAgentModelConfig } from "../types/agent";
-import { useWizardStore } from "../wizard/store/use-wizard-store";
-import { appLabelFromConfig, actionLabelFromConfig, isAppActionConfigured } from "../lib/node-utils";
+import { isValidAgentModelConfig } from "../../types/agent";
+import { useWizardStore } from "../../wizard/store/use-wizard-store";
+import { appLabelFromConfig, actionLabelFromConfig, isAppActionConfigured } from "../../lib/node-utils";
 import { ModelNode } from "./flow-node/ModelNode";
 import { AgentSummary } from "./flow-node/AgentSummary";
 import { NodePicker } from "./flow-node/NodePicker";

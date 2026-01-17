@@ -3,7 +3,7 @@
 import { Button } from "@/shared/components/button";
 import { Node } from "reactflow";
 
-import { FlowNodeData } from "../types";
+import { FlowNodeData } from "../../types";
 
 export function InspectorFooter({
   node,

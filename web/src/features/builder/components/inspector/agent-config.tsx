@@ -11,14 +11,14 @@ import { useCredentialOptions } from "@/features/credentials/hooks/use-credentia
 import { Button } from "@/shared/components/button";
 import { Icon } from "@/shared/components/icon";
 
-import { useBuilderStore } from "../store/use-builder-store";
-import { FlowNodeData } from "../types";
-import { NODE_CATALOG } from "../types/node-catalog";
-import { AGENT_TOOL_CATALOG, MODEL_PROVIDERS } from "../nodeCatalog/catalog";
-import { isValidAgentModelConfig, type AgentModelConfig, type AgentToolConfig } from "../types/agent";
-import { NodeIcon } from "./node-icon";
-import { useWizardStore } from "../wizard/store/use-wizard-store";
-import { FieldRow } from "./inspector-field-row";
+import { useBuilderStore } from "../../store/use-builder-store";
+import { FlowNodeData } from "../../types";
+import { NODE_CATALOG } from "../../types/node-catalog";
+import { AGENT_TOOL_CATALOG, MODEL_PROVIDERS } from "../../nodeCatalog/catalog";
+import { isValidAgentModelConfig, type AgentModelConfig, type AgentToolConfig } from "../../types/agent";
+import { NodeIcon } from "../node/node-icon";
+import { useWizardStore } from "../../wizard/store/use-wizard-store";
+import { FieldRow } from "./field-row";
 
 type AgentTab = "model" | "memory" | "tools";
 

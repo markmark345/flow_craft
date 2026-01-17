@@ -22,7 +22,7 @@ export interface UseRunDetailPageReturn {
   stepsError: string | undefined;
   canceling: boolean;
   running: boolean;
-  runningFlowId: string | null;
+  runningFlowId: string | undefined;
 
   // UI state
   activeTab: "inputs" | "outputs" | "logs" | "errors";

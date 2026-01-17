@@ -4,7 +4,7 @@ import { Badge } from "@/shared/components/badge";
 import { RunStepDTO } from "@/shared/types/dto";
 import { Edge, Node } from "reactflow";
 
-import { FlowNodeData } from "../types";
+import { FlowNodeData } from "../../types";
 import { pretty } from "@/shared/lib/string-utils";
 import { stepTone } from "@/features/runs/lib/run-utils";
 

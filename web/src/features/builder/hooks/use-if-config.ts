@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import type { IfCondition, IfConditionType, IfNodeConfig } from "../components/if-config";
+import type { IfCondition, IfConditionType, IfNodeConfig } from "../lib/if-utils";
 
 export interface UseIfConfigReturn {
   state: IfNodeConfig;

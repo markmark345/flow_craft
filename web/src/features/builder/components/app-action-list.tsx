@@ -3,7 +3,7 @@
 import { Input } from "@/shared/components/input";
 import { cn } from "@/shared/lib/cn";
 import { APP_CATALOG, type AppKey } from "../nodeCatalog/catalog";
-import { NodeIcon } from "./node-icon";
+import { NodeIcon } from "./node/node-icon";
 import { useAppActionList } from "../hooks/use-app-action-list";
 
 type Props = {

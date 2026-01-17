@@ -3,7 +3,7 @@
 import { Handle, Position } from "reactflow";
 import { NodeIcon } from "../node-icon";
 import { cn } from "@/shared/lib/cn";
-import type { FlowNodeData } from "../../types";
+import type { FlowNodeData } from "../../../types";
 
 interface ModelNodeProps {
   data: FlowNodeData;

@@ -12,9 +12,9 @@ export interface UseRunsPageReturn {
   // Loading states
   runsLoading: boolean;
   flowsLoading: boolean;
-  runsError: Error | null;
+  runsError: string | undefined;
   running: boolean;
-  runningFlowId: string | null;
+  runningFlowId: string | undefined;
 
   // Data
   runs: RunDTO[];

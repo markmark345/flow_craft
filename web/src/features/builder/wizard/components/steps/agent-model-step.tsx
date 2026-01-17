@@ -3,7 +3,7 @@
 import { Input } from "@/shared/components/input";
 import { Select, type SelectOption } from "@/shared/components/select";
 import { useCredentialOptions } from "@/features/credentials/hooks/use-credential-options";
-import { NodeIcon } from "@/features/builder/components/node-icon";
+import { NodeIcon } from "@/features/builder/components/node/node-icon";
 import { MODEL_PROVIDERS } from "@/features/builder/nodeCatalog/catalog";
 import { useWizardStore, type AgentDraft } from "../../store/use-wizard-store";
 import { useAgentModelStep } from "../../hooks/use-agent-model-step";
@@ -23,15 +23,19 @@ export function AgentModelStep() {
     provider,
     providerMeta,
     credentialProvider,
-    credentialOptions,
     model,
     baseUrl,
     credentialId,
     apiKeyOverride,
     patchModel,
-  } = useAgentModelStep(draft, setDraft, useCredentialOptions(credentialProvider, provider !== "custom"));
+  } = useAgentModelStep(draft, setDraft);
 
-  const { loading, error } = useCredentialOptions(credentialProvider, provider !== "custom");
+  const { options: credOptionsRaw, loading, error } = useCredentialOptions(credentialProvider, provider !== "custom");
+  const credentialOptions: SelectOption[] = credOptionsRaw.map((opt) => ({
+    value: opt.id,
+    label: opt.label,
+    description: opt.accountEmail ? `${opt.provider} • ${opt.accountEmail}` : opt.provider,
+  }));
 
   return (
     <div className="space-y-5">

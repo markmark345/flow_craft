@@ -1,7 +1,7 @@
 "use client";
 
 import { AGENT_TOOL_CATALOG } from "@/features/builder/nodeCatalog/catalog";
-import { NodeIcon } from "@/features/builder/components/node-icon";
+import { NodeIcon } from "@/features/builder/components/node/node-icon";
 import { Input } from "@/shared/components/input";
 import { Button } from "@/shared/components/button";
 import { Icon } from "@/shared/components/icon";

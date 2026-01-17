@@ -12,7 +12,12 @@
       "Bash(then echo \"$file\" fi done)",
       "Bash(git push:*)",
       "Bash(gh pr create:*)",
-      "Bash(git cherry-pick:*)"
+      "Bash(git cherry-pick:*)",
+      "Bash(cut:*)",
+      "Bash(grep:*)",
+      "Bash(npm run build:*)",
+      "Bash(git mv:*)",
+      "Bash(xargs cat:*)"
     ]
   }
 }
