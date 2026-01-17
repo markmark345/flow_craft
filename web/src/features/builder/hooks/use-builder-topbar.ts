@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useBuilderStore } from "../store/use-builder-store";
 import { useBuilderSave } from "./use-builder-save";
-import { useAppStore, useDebounce, useMounted } from "@/shared/hooks/use-app-store";
+import { useAppStore, useDebounce, useMounted } from "@/hooks/use-app-store";
 import { useRunFlow } from "@/features/runs/hooks/use-run-flow";
 import { useAuthStore } from "@/features/auth/store/use-auth-store";
 import { useLogout } from "@/features/auth/hooks/use-logout";

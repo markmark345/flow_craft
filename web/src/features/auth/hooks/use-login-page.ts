@@ -1,8 +1,8 @@
 import { useState } from "react";
 import type { Route } from "next";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useAppStore } from "@/shared/hooks/use-app-store";
-import { API_BASE_URL } from "@/shared/lib/env";
+import { useAppStore } from "@/hooks/use-app-store";
+import { API_BASE_URL } from "@/lib/env";
 import { useLogin } from "./use-login";
 
 export interface UseLoginPageReturn {

@@ -1,7 +1,8 @@
 "use client";
 
-import { Icon } from "@/shared/components/icon";
-import { Select } from "@/shared/components/select";
+import { Icon } from "@/components/ui/icon";
+import { IconButton } from "@/components/ui/icon-button";
+import { Select } from "@/components/ui/select";
 
 export function FlowsPagination({
   filteredCount,
@@ -52,25 +53,21 @@ export function FlowsPagination({
         />
 
         <div className="flex items-center rounded-lg border border-border bg-surface overflow-hidden">
-          <button
-            type="button"
-            className="px-3 h-9 border-r border-border hover:bg-surface2 disabled:opacity-50 transition-colors"
+          <IconButton
+            icon="chevron_left"
+            className="px-3 h-9 border-r border-border hover:bg-surface2 disabled:opacity-50 transition-colors w-auto rounded-none"
             onClick={onPrev}
             disabled={pageSafe <= 1}
             aria-label="Previous page"
-          >
-            <Icon name="chevron_left" className="text-[18px] text-muted" />
-          </button>
+          />
           <div className="px-4 h-9 flex items-center text-sm font-medium text-text">{pageSafe}</div>
-          <button
-            type="button"
-            className="px-3 h-9 border-l border-border hover:bg-surface2 disabled:opacity-50 transition-colors"
+          <IconButton
+            icon="chevron_right"
+            className="px-3 h-9 border-l border-border hover:bg-surface2 disabled:opacity-50 transition-colors w-auto rounded-none"
             onClick={onNext}
             disabled={pageSafe >= pageCount}
             aria-label="Next page"
-          >
-            <Icon name="chevron_right" className="text-[18px] text-muted" />
-          </button>
+          />
         </div>
       </div>
     </div>

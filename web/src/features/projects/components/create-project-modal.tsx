@@ -1,8 +1,9 @@
 "use client";
 
-import { Button } from "@/shared/components/button";
-import { Input } from "@/shared/components/input";
-import { Icon } from "@/shared/components/icon";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { IconButton } from "@/components/ui/icon-button";
+import { Label } from "@/components/ui/label";
 import { useCreateProjectModal } from "../hooks/use-create-project-modal";
 
 type Props = {
@@ -39,14 +40,13 @@ export function CreateProjectModal({
         className="relative w-full max-w-md rounded-2xl bg-panel border border-border shadow-lift overflow-hidden"
         onClick={(event) => event.stopPropagation()}
       >
-        <button
-          type="button"
+        <IconButton
+          icon="close"
+          className="absolute right-4 top-4 rounded-full"
           onClick={onClose}
-          className="absolute right-4 top-4 text-muted hover:text-text transition-colors rounded-full p-1"
           aria-label="Close"
-        >
-          <Icon name="close" className="text-[18px]" />
-        </button>
+          size="sm"
+        />
 
         <div className="px-8 pt-8 pb-2">
           <h2 className="text-xl font-bold text-text">Create project</h2>
@@ -60,9 +60,9 @@ export function CreateProjectModal({
         >
           <div className="px-8 py-4 space-y-5">
             <div className="space-y-1.5">
-              <label className="block text-sm font-semibold text-muted" htmlFor="create-project-name">
+              <Label htmlFor="create-project-name" className="text-sm font-semibold">
                 Name
-              </label>
+              </Label>
               <Input
                 id="create-project-name"
                 value={name}
@@ -73,9 +73,9 @@ export function CreateProjectModal({
               />
             </div>
             <div className="space-y-1.5">
-              <label className="block text-sm font-semibold text-muted" htmlFor="create-project-description">
+              <Label htmlFor="create-project-description" className="text-sm font-semibold">
                 Description
-              </label>
+              </Label>
               <Input
                 id="create-project-description"
                 value={description}
@@ -87,14 +87,14 @@ export function CreateProjectModal({
           </div>
 
           <div className="px-8 pt-4 pb-8 flex items-center justify-end gap-3">
-            <button
+            <Button
               type="button"
-              className="text-sm font-medium text-muted hover:text-text transition-colors"
+              variant="ghost"
               onClick={onClose}
               disabled={creating}
             >
               Cancel
-            </button>
+            </Button>
             <Button type="submit" disabled={disabled} className="rounded-lg px-6">
               {creating ? "Creating..." : "Create"}
             </Button>

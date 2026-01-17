@@ -2,11 +2,11 @@ package temporal
 
 import (
 	"flowcraft-api/internal/config"
-	"flowcraft-api/internal/repositories"
+	"flowcraft-api/internal/adapters/database/postgres"
 )
 
 type stepDependencies struct {
 	cfg      config.Config
-	creds    *repositories.CredentialRepository
+	creds    *postgres.CredentialRepository
 	credsKey []byte
 }

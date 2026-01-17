@@ -3,7 +3,7 @@
 import { useCallback, useState } from "react";
 import { runFlow } from "../services/runsApi";
 import { useRunsStore } from "../store/use-runs-store";
-import { RunDTO } from "@/shared/types/dto";
+import { RunDTO } from "@/types/dto";
 
 export function useRunFlow() {
   const upsertRun = useRunsStore((s) => s.upsertRun);

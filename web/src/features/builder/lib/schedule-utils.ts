@@ -3,7 +3,7 @@
  * Provides utilities for parsing and generating cron expressions
  */
 
-import { clampInt, toInt } from "@/shared/lib/number-utils";
+import { clampInt, toInt } from "@/lib/number-utils";
 
 export type ScheduleMode = "every" | "hourly" | "daily" | "weekly" | "monthly" | "cron";
 

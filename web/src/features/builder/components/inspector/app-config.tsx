@@ -1,7 +1,7 @@
 "use client";
 
-import { Select } from "@/shared/components/select";
-import { SchemaForm } from "@/shared/components/SchemaForm/SchemaForm";
+import { Select } from "@/components/ui/select";
+import { SchemaForm } from "@/components/ui/SchemaForm/SchemaForm";
 import { normalizeAppKey, defaultActionKeyForApp } from "../../nodeCatalog/catalog";
 import { useInspectorAppConfig } from "../../hooks/use-inspector-app-config";
 

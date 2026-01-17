@@ -1,7 +1,7 @@
 "use client";
 
-import { BrandLogo } from "@/shared/components/BrandLogo";
-import { Panel } from "@/shared/components/panel";
+import { BrandLogo } from "@/components/ui/BrandLogo";
+import { Panel } from "@/components/ui/panel";
 import { useOAuthCallbackPage } from "../hooks/use-oauth-callback-page";
 
 export function OAuthCallbackPage() {

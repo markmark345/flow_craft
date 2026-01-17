@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { RunDTO } from "@/shared/types/dto";
+import { RunDTO } from "@/types/dto";
 
 type State = {
   items: RunDTO[];

@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { FlowDTO } from "@/shared/types/dto";
+import { FlowDTO } from "@/types/dto";
 
 type State = {
   items: FlowDTO[];

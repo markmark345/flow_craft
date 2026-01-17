@@ -1,6 +1,6 @@
 "use client";
 
-import { SchemaForm } from "@/shared/components/SchemaForm/SchemaForm";
+import { SchemaForm } from "@/components/ui/SchemaForm/SchemaForm";
 import { useWizardStore, type AppNodeDraft, type AgentToolDraft } from "../../store/use-wizard-store";
 import { useWizardCredentialStep } from "../../hooks/use-wizard-credential-step";
 

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useAppStore } from "@/shared/hooks/use-app-store";
+import { useAppStore } from "@/hooks/use-app-store";
 import type { CodeTab } from "../components/code-tabs";
 
 export interface UseCodeTabsReturn {

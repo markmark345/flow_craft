@@ -6,10 +6,10 @@ import { useFlowsStore } from "../store/use-flows-store";
 import { useRunsQuery } from "@/features/runs/hooks/use-runs";
 import { useRunFlow } from "@/features/runs/hooks/use-run-flow";
 import { useRunsStore } from "@/features/runs/store/use-runs-store";
-import { useAppStore, useMounted } from "@/shared/hooks/use-app-store";
-import type { FlowDTO, RunDTO, ProjectDTO } from "@/shared/types/dto";
+import { useAppStore, useMounted } from "@/hooks/use-app-store";
+import type { FlowDTO, RunDTO, ProjectDTO } from "@/types/dto";
 import { useWorkspaceStore } from "@/features/workspaces/store/use-workspace-store";
-import { ownerForFlow, runMeta, runSortTime } from "../components/flows-page-utils";
+import { ownerForFlow, runMeta, runSortTime } from "../lib/flow-utils";
 
 type ConfirmState = { type: "archive" | "delete"; flow: FlowDTO } | null;
 

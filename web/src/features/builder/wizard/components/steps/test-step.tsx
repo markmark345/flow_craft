@@ -1,7 +1,7 @@
 "use client";
 
-import { Button } from "@/shared/components/button";
-import { Icon } from "@/shared/components/icon";
+import { Button } from "@/components/ui/button";
+import { Icon } from "@/components/ui/icon";
 
 import { useWizardStore } from "../../store/use-wizard-store";
 

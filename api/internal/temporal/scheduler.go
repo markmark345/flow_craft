@@ -11,17 +11,19 @@ import (
 	"time"
 
 	"github.com/robfig/cron"
+	"github.com/rs/zerolog"
 	"go.temporal.io/sdk/client"
 
-	"flowcraft-api/internal/entities"
-	"flowcraft-api/internal/repositories"
-	"flowcraft-api/internal/services"
+	"flowcraft-api/internal/adapters/database/postgres"
+	"flowcraft-api/internal/core/domain"
+	"flowcraft-api/internal/core/services"
 )
 
 type FlowCronScheduler struct {
-	flows         *repositories.FlowRepository
+	flows         *postgres.FlowRepository
 	runs          *services.RunService
 	temporal      client.Client
+	logger        zerolog.Logger
 	mu            sync.Mutex
 	cronRunner    *cron.Cron
 	currentByFlow map[string]string
@@ -29,11 +31,12 @@ type FlowCronScheduler struct {
 	doneCh        chan struct{}
 }
 
-func NewFlowCronScheduler(db *sql.DB, temporalClient client.Client) *FlowCronScheduler {
+func NewFlowCronScheduler(db *sql.DB, temporalClient client.Client, logger zerolog.Logger) *FlowCronScheduler {
 	return &FlowCronScheduler{
-		flows:         repositories.NewFlowRepository(db),
-		runs:          services.NewRunService(repositories.NewRunRepository(db), nil),
+		flows:         postgres.NewFlowRepository(db),
+		runs:          services.NewRunService(postgres.NewRunRepository(db), nil),
 		temporal:      temporalClient,
+		logger:        logger,
 		currentByFlow: map[string]string{},
 	}
 }
@@ -104,7 +107,7 @@ func (s *FlowCronScheduler) reconcile() {
 
 	flows, err := s.flows.List(ctx)
 	if err != nil {
-		log.Printf("schedule: list flows failed: %v", err)
+		s.logger.Error().Msgf("schedule: list flows failed: %v", err)
 		return
 	}
 
@@ -136,7 +139,7 @@ func (s *FlowCronScheduler) reconcile() {
 	for flowID, spec := range desired {
 		schedule, err := parseCronSchedule(spec)
 		if err != nil {
-			log.Printf("schedule: invalid cron for flow %s: %q: %v", flowID, spec, err)
+			s.logger.Error().Msgf("schedule: invalid cron for flow %s: %q: %v", flowID, spec, err)
 			continue
 		}
 		id := flowID
@@ -158,13 +161,13 @@ func (s *FlowCronScheduler) startScheduledRun(flowID string, spec string) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	created, err := s.runs.Create(ctx, entities.Run{
+	created, err := s.runs.Create(ctx, domain.Run{
 		FlowID: flowID,
 		Status: "queued",
 		Log:    "queued (schedule)",
 	})
 	if err != nil {
-		log.Printf("schedule: create run failed (flow=%s spec=%q): %v", flowID, spec, err)
+		s.logger.Error().Msgf("schedule: create run failed (flow=%s spec=%q): %v", flowID, spec, err)
 		return
 	}
 
@@ -173,7 +176,7 @@ func (s *FlowCronScheduler) startScheduledRun(flowID string, spec string) {
 		TaskQueue: TaskQueue,
 	}, RunFlowWorkflow, RunFlowInput{FlowID: flowID, RunID: created.ID}); err != nil {
 		_ = s.runs.UpdateStatus(context.Background(), created.ID, "failed", "failed to start workflow: "+err.Error())
-		log.Printf("schedule: start workflow failed (flow=%s run=%s): %v", flowID, created.ID, err)
+		s.logger.Error().Msgf("schedule: start workflow failed (flow=%s run=%s): %v", flowID, created.ID, err)
 		return
 	}
 }

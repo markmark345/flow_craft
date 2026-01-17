@@ -2,9 +2,9 @@
 
 import { create } from "zustand";
 
-import { request } from "@/shared/lib/fetcher";
-import { useAppStore } from "@/shared/hooks/use-app-store";
-import { API_BASE_URL } from "@/shared/lib/env";
+import { request } from "@/lib/fetcher";
+import { useAppStore } from "@/hooks/use-app-store";
+import { API_BASE_URL } from "@/lib/env";
 
 import { useBuilderStore } from "../../store/use-builder-store";
 import { NODE_CATALOG } from "../../types/node-catalog";

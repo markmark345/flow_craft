@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { useFlowsStore } from "../store/use-flows-store";
-import { useAppStore } from "@/shared/hooks/use-app-store";
+import { useAppStore } from "@/hooks/use-app-store";
 import { useWorkspaceStore } from "@/features/workspaces/store/use-workspace-store";
 import { listPersonalWorkflows, listProjectWorkflows } from "@/features/workflows/services/workflowsApi";
 

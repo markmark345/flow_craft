@@ -8,8 +8,9 @@ import (
 	"strings"
 	"time"
 
-	"flowcraft-api/internal/connectors/gemini"
-	"flowcraft-api/internal/connectors/openai"
+	"flowcraft-api/internal/adapters/external/gemini"
+	"flowcraft-api/internal/adapters/external/grok"
+	"flowcraft-api/internal/adapters/external/openai"
 )
 
 func executeAIAgent(ctx context.Context, config map[string]any, input map[string]any, steps map[string]any, deps stepDependencies) (map[string]any, string, error) {
@@ -112,7 +113,7 @@ func resolveChatModel(ctx context.Context, deps stepDependencies, nodeType strin
 			}
 		case "grok":
 			if baseURL == "" {
-				baseURL = "https://api.x.ai/v1"
+				baseURL = grok.BaseURL
 			}
 			if apiKey == "" {
 				apiKey, err = loadAPIKeyFromCredential(ctx, deps, strings.TrimSpace(readString(modelCfg, "credentialId")), "grok")
@@ -146,7 +147,7 @@ func resolveChatModel(ctx context.Context, deps stepDependencies, nodeType strin
 		provider = "grok"
 		baseURL = strings.TrimSpace(readString(modelCfg, "baseUrl"))
 		if baseURL == "" {
-			baseURL = "https://api.x.ai/v1"
+			baseURL = grok.BaseURL
 		}
 		model = strings.TrimSpace(readString(modelCfg, "model"))
 		apiKey = strings.TrimSpace(readString(modelCfg, "apiKey"))
@@ -189,7 +190,7 @@ func loadAPIKeyFromCredential(ctx context.Context, deps stepDependencies, creden
 	if err != nil {
 		return "", err
 	}
-	if strings.ToLower(strings.TrimSpace(cred.Provider)) != strings.ToLower(strings.TrimSpace(expectedProvider)) {
+	if !strings.EqualFold(strings.TrimSpace(cred.Provider), strings.TrimSpace(expectedProvider)) {
 		return "", fmt.Errorf("%s: expected %s credential", expectedProvider, expectedProvider)
 	}
 	apiKey := strings.TrimSpace(readAnyString(payload["api_key"]))

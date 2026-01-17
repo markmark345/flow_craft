@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCreateFlow } from "./use-create-flow";
-import { useAppStore, useMounted } from "@/shared/hooks/use-app-store";
+import { useAppStore, useMounted } from "@/hooks/use-app-store";
 import { useWorkspaceStore, type WorkspaceScope } from "@/features/workspaces/store/use-workspace-store";
 
 export interface NewFlowFormState {

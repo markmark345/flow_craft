@@ -1,8 +1,8 @@
 "use client";
 
-import { PageHeading } from "@/shared/components/page-heading";
-import { Button } from "@/shared/components/button";
-import { Badge } from "@/shared/components/badge";
+import { PageHeading } from "@/components/ui/page-heading";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { useFlowDetailQuery } from "../hooks/use-flow-detail";
 

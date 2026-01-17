@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
-import { ThemeWatcher } from "@/shared/components/theme-watcher";
-import { ToastViewport } from "@/shared/components/toast-viewport";
+import { ThemeWatcher } from "@/components/ui/theme-watcher";
+import { ToastViewport } from "@/components/ui/toast-viewport";
 import { AuthGate } from "@/features/auth/components/auth-gate";
 
 export default function BuilderLayout({ children }: { children: ReactNode }) {

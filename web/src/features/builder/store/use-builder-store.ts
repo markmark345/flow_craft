@@ -12,7 +12,7 @@ import {
 import { FlowNodeData, SerializedFlow, StickyNote } from "../types";
 import { BuilderNodeType } from "../types";
 import { NODE_CATALOG, createDefaultNodeData } from "../types/node-catalog";
-import type { AuthUser } from "@/shared/lib/auth";
+import type { AuthUser } from "@/lib/auth";
 import { migrateAgentSubnodes } from "../lib/migrate-agent-subnodes";
 
 type AgentInspectorTab = "model" | "memory" | "tools";

@@ -1,7 +1,8 @@
 "use client";
 
-import { Input } from "@/shared/components/input";
-import { cn } from "@/shared/lib/cn";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/cn";
 import { useWizardStore, type AgentToolDraft } from "../../store/use-wizard-store";
 import { useToolSelectStep } from "../../hooks/use-tool-select-step";
 
@@ -27,11 +28,11 @@ export function ToolSelectStep() {
         {tools.map((tool) => {
           const selected = draft.toolKey === tool.toolKey;
           return (
-            <button
+            <Button
               key={tool.toolKey}
-              type="button"
+              variant="ghost"
               className={cn(
-                "w-full text-left rounded-xl border px-4 py-3 bg-panel hover:bg-surface2 transition",
+                "w-full justify-start text-left rounded-xl border px-4 py-3 bg-panel hover:bg-surface2 transition h-auto font-normal block",
                 selected ? "border-accent shadow-soft" : "border-border"
               )}
               onClick={() => setDraft({ toolKey: tool.toolKey })}
@@ -39,7 +40,7 @@ export function ToolSelectStep() {
               <div className="text-sm font-bold text-text">{tool.label}</div>
               <div className="text-xs text-muted font-mono mt-0.5">{tool.toolKey}</div>
               <div className="text-xs text-muted mt-1">{tool.app}</div>
-            </button>
+            </Button>
           );
         })}
         {tools.length === 0 ? <div className="text-xs text-muted px-2 py-3">No matches</div> : null}

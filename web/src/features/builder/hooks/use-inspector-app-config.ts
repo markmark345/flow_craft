@@ -1,6 +1,6 @@
 import { useEffect, useMemo } from "react";
-import type { SelectOption } from "@/shared/components/select";
-import type { SchemaField } from "@/shared/components/SchemaForm/types";
+import type { SelectOption } from "@/components/ui/select";
+import type { SchemaField } from "@/components/ui/SchemaForm/types";
 import {
   APP_CATALOG,
   defaultActionKeyForApp,

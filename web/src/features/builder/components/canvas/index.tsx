@@ -14,7 +14,7 @@ import { Inspector } from "../inspector";
 import { LogsDrawer } from "./logs-drawer";
 import { CanvasControls } from "./canvas-controls";
 import { FlowNode } from "../node/flow-node";
-import { Icon } from "@/shared/components/icon";
+import { Icon } from "@/components/ui/icon";
 import { StickyNotesLayer } from "../sticky-notes/layer";
 import { WizardModal } from "../../wizard/components/wizard-modal";
 import { useCanvas } from "../../hooks/use-canvas";

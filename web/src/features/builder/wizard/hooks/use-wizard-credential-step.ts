@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import type { SchemaField } from "@/shared/components/SchemaForm/types";
+import type { SchemaField } from "@/components/ui/SchemaForm/types";
 import { APP_CATALOG, AGENT_TOOL_CATALOG } from "@/features/builder/nodeCatalog/catalog";
 import type { AgentToolDraft, AppNodeDraft } from "../store/use-wizard-store";
 

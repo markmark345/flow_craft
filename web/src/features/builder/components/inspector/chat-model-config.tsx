@@ -1,8 +1,8 @@
 "use client";
 
 import { useMemo } from "react";
-import { Input } from "@/shared/components/input";
-import { Select, type SelectOption } from "@/shared/components/select";
+import { Input } from "@/components/ui/input";
+import { Select, type SelectOption } from "@/components/ui/select";
 import { useCredentialOptions } from "@/features/credentials/hooks/use-credential-options";
 import { normalizeProvider, getProviderDefaults } from "../../lib/model-utils";
 

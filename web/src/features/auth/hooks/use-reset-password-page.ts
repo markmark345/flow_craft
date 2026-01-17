@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useAppStore } from "@/shared/hooks/use-app-store";
+import { useAppStore } from "@/hooks/use-app-store";
 import { resetPassword } from "../services/authApi";
 
 export interface UseResetPasswordPageReturn {

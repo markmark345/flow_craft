@@ -1,4 +1,4 @@
-import type { SchemaField } from "@/shared/components/SchemaForm/types";
+import type { SchemaField } from "@/components/ui/SchemaForm/types";
 
 import type { AppCatalogApp } from "../catalog";
 

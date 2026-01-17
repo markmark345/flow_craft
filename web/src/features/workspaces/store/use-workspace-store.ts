@@ -1,7 +1,7 @@
 "use client";
 
 import { create } from "zustand";
-import { ProjectDTO } from "@/shared/types/dto";
+import { ProjectDTO } from "@/types/dto";
 import { listProjects } from "@/features/projects/services/projectsApi";
 
 export type WorkspaceScope = "personal" | "project";

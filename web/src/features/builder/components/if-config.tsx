@@ -1,9 +1,12 @@
 "use client";
 
 import { useMemo } from "react";
-import { Input } from "@/shared/components/input";
-import { Icon } from "@/shared/components/icon";
-import { Select, type SelectOption } from "@/shared/components/select";
+import { Button } from "@/components/ui/button";
+import { IconButton } from "@/components/ui/icon-button";
+import { Input } from "@/components/ui/input";
+import { Icon } from "@/components/ui/icon";
+import { Toggle } from "@/components/ui/toggle";
+import { Select, type SelectOption } from "@/components/ui/select";
 import {
   type IfConditionType,
   type IfCombine,
@@ -88,14 +91,12 @@ export function IfConfig({
                   searchPlaceholder="Search operators..."
                 />
 
-                <button
-                  type="button"
-                  className="h-9 w-9 rounded-lg bg-panel border border-border flex items-center justify-center text-muted hover:text-red hover:bg-surface transition-colors"
+                <IconButton
+                  icon="close"
+                  className="h-9 w-9 border border-border bg-panel text-muted hover:text-red hover:bg-surface transition-colors"
                   title="Remove condition"
                   onClick={() => removeCondition(cond.id)}
-                >
-                  <Icon name="close" className="text-[18px]" />
-                </button>
+                />
               </div>
 
               <div className="space-y-2">
@@ -118,14 +119,14 @@ export function IfConfig({
           );
         })}
 
-        <button
-          type="button"
-          className="w-full inline-flex items-center justify-center gap-2 h-10 rounded-lg bg-surface2 border border-border text-xs font-semibold text-muted hover:text-text hover:bg-surface transition-colors"
+        <Button
+          variant="ghost"
+          className="w-full gap-2 h-10 bg-surface2 border border-border text-xs font-semibold text-muted hover:text-text hover:bg-surface transition-colors"
           onClick={addCondition}
         >
           <Icon name="add" className="text-[18px]" />
           Add condition
-        </button>
+        </Button>
       </div>
 
       <div className="space-y-2 border-t border-border pt-4">
@@ -142,33 +143,25 @@ export function IfConfig({
         </div>
 
         <div className="space-y-2 pt-1">
-          <label className="flex items-center cursor-pointer group select-none">
-            <div className="relative">
-              <input
-                type="checkbox"
-                className="sr-only peer"
-                checked={state.convertTypes}
-                onChange={(e) => onPatch({ convertTypes: e.target.checked })}
-              />
-              <div className="w-9 h-5 bg-surface peer-focus:outline-none rounded-full peer border border-border peer-checked:bg-accent relative after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:border-border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-full" />
-            </div>
-            <span className="ml-3 text-xs font-bold text-muted group-hover:text-text transition-colors">
+          <div className="flex items-center group select-none">
+            <Toggle
+              checked={state.convertTypes}
+              onChange={(checked) => onPatch({ convertTypes: checked })}
+            />
+            <span className="ml-3 text-xs font-bold text-muted group-hover:text-text transition-colors cursor-pointer" onClick={() => onPatch({ convertTypes: !state.convertTypes })}>
               Convert types where required
             </span>
-          </label>
+          </div>
 
-          <label className="flex items-center cursor-pointer group select-none">
-            <div className="relative">
-              <input
-                type="checkbox"
-                className="sr-only peer"
-                checked={state.ignoreCase}
-                onChange={(e) => onPatch({ ignoreCase: e.target.checked })}
-              />
-              <div className="w-9 h-5 bg-surface peer-focus:outline-none rounded-full peer border border-border peer-checked:bg-accent relative after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:border-border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-full" />
-            </div>
-            <span className="ml-3 text-xs font-bold text-muted group-hover:text-text transition-colors">Ignore case</span>
-          </label>
+          <div className="flex items-center group select-none">
+            <Toggle
+              checked={state.ignoreCase}
+              onChange={(checked) => onPatch({ ignoreCase: checked })}
+            />
+            <span className="ml-3 text-xs font-bold text-muted group-hover:text-text transition-colors cursor-pointer" onClick={() => onPatch({ ignoreCase: !state.ignoreCase })}>
+              Ignore case
+            </span>
+          </div>
         </div>
       </div>
     </div>

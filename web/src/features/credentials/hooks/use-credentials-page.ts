@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useAppStore } from "@/shared/hooks/use-app-store";
+import { useAppStore } from "@/hooks/use-app-store";
 import { useWorkspaceStore } from "@/features/workspaces/store/use-workspace-store";
-import type { CredentialDTO, ProjectDTO } from "@/shared/types/dto";
+import type { CredentialDTO, ProjectDTO } from "@/types/dto";
 import { deleteCredential, listCredentials, startCredentialOAuth } from "../services/credentialsApi";
 import { getProject } from "@/features/projects/services/projectsApi";
 

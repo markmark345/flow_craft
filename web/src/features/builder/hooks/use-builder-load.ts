@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { getFlow } from "@/features/flows/services/flowsApi";
 import { useBuilderStore } from "../store/use-builder-store";
-import { useAppStore } from "@/shared/hooks/use-app-store";
+import { useAppStore } from "@/hooks/use-app-store";
 import { SerializedFlow } from "../types";
 import { useWorkspaceStore } from "@/features/workspaces/store/use-workspace-store";
 

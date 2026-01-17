@@ -1,8 +1,9 @@
 "use client";
 
-import { Button } from "@/shared/components/button";
-import { Input } from "@/shared/components/input";
-import { Select } from "@/shared/components/select";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 import type { WorkspaceScope } from "@/features/workspaces/store/use-workspace-store";
 import { useNewFlowForm } from "../hooks/use-new-flow-form";
 
@@ -35,7 +36,7 @@ export function NewFlowPage() {
           <div className="bg-panel border border-border rounded-xl shadow-soft p-6 space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div className="space-y-2">
-                <label className="block text-sm font-medium text-muted">Scope</label>
+                <Label className="text-sm font-medium">Scope</Label>
                 <Select
                   value={scope}
                   onChange={(v) => setScope(v as WorkspaceScope)}
@@ -55,7 +56,7 @@ export function NewFlowPage() {
                 />
               </div>
               <div className="space-y-2">
-                <label className="block text-sm font-medium text-muted">Project</label>
+                <Label className="text-sm font-medium">Project</Label>
                 <Select
                   value={projectId || ""}
                   onChange={(v) => setProjectId(v || null)}
@@ -66,7 +67,7 @@ export function NewFlowPage() {
                 />
               </div>
             </div>
-            <label className="block text-sm font-medium text-muted">Flow name</label>
+            <Label className="text-sm font-medium">Flow name</Label>
             <Input
               placeholder="My flow"
               value={name}

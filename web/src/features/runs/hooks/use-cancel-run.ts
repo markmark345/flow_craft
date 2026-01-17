@@ -3,7 +3,7 @@
 import { useCallback, useState } from "react";
 import { cancelRun } from "../services/runsApi";
 import { useRunsStore } from "../store/use-runs-store";
-import { useAppStore } from "@/shared/hooks/use-app-store";
+import { useAppStore } from "@/hooks/use-app-store";
 
 export function useCancelRun() {
   const upsertRun = useRunsStore((s) => s.upsertRun);

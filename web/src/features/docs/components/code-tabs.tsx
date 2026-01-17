@@ -1,7 +1,9 @@
 "use client";
 
-import { cn } from "@/shared/lib/cn";
-import { Icon } from "@/shared/components/icon";
+import { cn } from "@/lib/cn";
+import { Button } from "@/components/ui/button";
+import { Icon } from "@/components/ui/icon";
+import { IconButton } from "@/components/ui/icon-button";
 import { useCodeTabs } from "../hooks/use-code-tabs";
 
 export type CodeTab = {
@@ -22,12 +24,13 @@ export function CodeTabs({ tabs, initialTabId }: { tabs: CodeTab[]; initialTabId
           {tabs.map((t) => {
             const isActive = t.id === active.id;
             return (
-              <button
+
+              <Button
                 key={t.id}
-                type="button"
+                variant="ghost"
                 onClick={() => setActiveId(t.id)}
                 className={cn(
-                  "px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors",
+                  "px-3 py-1.5 h-auto rounded-lg text-xs font-semibold transition-colors",
                   isActive ? "text-text" : "text-muted hover:text-text hover:bg-surface2"
                 )}
                 style={
@@ -40,19 +43,17 @@ export function CodeTabs({ tabs, initialTabId }: { tabs: CodeTab[]; initialTabId
                 }
               >
                 {t.label}
-              </button>
+              </Button>
             );
           })}
         </div>
 
-        <button
-          type="button"
-          className="inline-flex items-center justify-center size-8 rounded-lg text-muted hover:text-text hover:bg-surface2 transition-colors"
+        <IconButton
+          icon="content_copy"
+          className="size-8 rounded-lg text-muted hover:text-text hover:bg-surface2 transition-colors"
           title="Copy"
           onClick={copyCode}
-        >
-          <Icon name="content_copy" className="text-[18px]" />
-        </button>
+        />
       </div>
 
       <pre className="px-4 pb-4 pt-3 overflow-x-auto text-xs font-mono leading-relaxed text-text">

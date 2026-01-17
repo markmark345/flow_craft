@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useRunsStore } from "../store/use-runs-store";
 import { listRuns } from "../services/runsApi";
-import { useAppStore } from "@/shared/hooks/use-app-store";
+import { useAppStore } from "@/hooks/use-app-store";
 import { useWorkspaceStore } from "@/features/workspaces/store/use-workspace-store";
 
 export function useRunsQuery() {

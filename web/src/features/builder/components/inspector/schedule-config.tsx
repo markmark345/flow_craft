@@ -2,16 +2,19 @@
 
 import { useEffect, useState } from "react";
 
-import { Input } from "@/shared/components/input";
-import { Select, type SelectOption } from "@/shared/components/select";
-import { TimePicker } from "@/shared/components/time-picker";
-import { clampInt } from "@/shared/lib/number-utils";
 import {
   type ScheduleMode,
   type ScheduleState,
   parseScheduleExpression,
   scheduleStateToExpression,
 } from "../../lib/schedule-utils";
+import { ScheduleModeSelect } from "./schedule/ScheduleModeSelect";
+import { ScheduleEveryConfig } from "./schedule/ScheduleEveryConfig";
+import { ScheduleHourlyConfig } from "./schedule/ScheduleHourlyConfig";
+import { ScheduleDailyConfig } from "./schedule/ScheduleDailyConfig";
+import { ScheduleWeeklyConfig } from "./schedule/ScheduleWeeklyConfig";
+import { ScheduleMonthlyConfig } from "./schedule/ScheduleMonthlyConfig";
+import { ScheduleCronConfig } from "./schedule/ScheduleCronConfig";
 
 export function ScheduleConfig({
   config,
@@ -34,165 +37,36 @@ export function ScheduleConfig({
     onPatch({ expression: nextExpr });
   };
 
-  const dayLabels: Array<{ id: number; label: string }> = [
-    { id: 1, label: "Mon" },
-    { id: 2, label: "Tue" },
-    { id: 3, label: "Wed" },
-    { id: 4, label: "Thu" },
-    { id: 5, label: "Fri" },
-    { id: 6, label: "Sat" },
-    { id: 0, label: "Sun" },
-  ];
-
-  const toggleDay = (day: number) => {
-    const set = new Set(state.days);
-    if (set.has(day)) set.delete(day);
-    else set.add(day);
-    const nextDays = Array.from(set);
-    nextDays.sort((a, b) => a - b);
-    apply({ days: nextDays.length ? nextDays : [1] });
+  const handleModeChange = (mode: ScheduleMode) => {
+    apply({ mode });
   };
 
   return (
     <div className="space-y-5">
-      <div className="space-y-2">
-        <label className="block text-xs font-bold text-muted">Schedule</label>
-        <Select
-          value={state.mode}
-          options={
-            [
-              { value: "every", label: "Every N minutes" },
-              { value: "hourly", label: "Hourly" },
-              { value: "daily", label: "Daily" },
-              { value: "weekly", label: "Weekly" },
-              { value: "monthly", label: "Monthly" },
-              { value: "cron", label: "Cron (advanced)" },
-            ] satisfies SelectOption[]
-          }
-          onChange={(next) => apply({ mode: next as ScheduleMode })}
-        />
-      </div>
+      <ScheduleModeSelect mode={state.mode} onChange={handleModeChange} />
 
       {state.mode === "every" ? (
-        <div className="grid grid-cols-2 gap-3">
-          <div className="space-y-2">
-            <label className="block text-xs font-bold text-muted">Every (minutes)</label>
-            <Input
-              type="number"
-              min={1}
-              max={59}
-              value={String(state.everyMinutes)}
-              onChange={(e) => apply({ everyMinutes: clampInt(Number(e.target.value), 1, 59) })}
-              className="h-10 rounded-lg bg-surface2 font-mono"
-            />
-          </div>
-          <div className="space-y-2">
-            <label className="block text-xs font-bold text-muted">Preview</label>
-            <div className="h-10 rounded-lg bg-surface2 border border-border px-3 flex items-center text-xs font-mono text-muted">
-              {scheduleStateToExpression(state)}
-            </div>
-          </div>
-        </div>
+        <ScheduleEveryConfig state={state} onApply={apply} />
       ) : null}
 
       {state.mode === "hourly" ? (
-        <div className="grid grid-cols-2 gap-3">
-          <div className="space-y-2">
-            <label className="block text-xs font-bold text-muted">At minute</label>
-            <Input
-              type="number"
-              min={0}
-              max={59}
-              value={String(state.minute)}
-              onChange={(e) => apply({ minute: clampInt(Number(e.target.value), 0, 59) })}
-              className="h-10 rounded-lg bg-surface2 font-mono"
-            />
-          </div>
-          <div className="space-y-2">
-            <label className="block text-xs font-bold text-muted">Preview</label>
-            <div className="h-10 rounded-lg bg-surface2 border border-border px-3 flex items-center text-xs font-mono text-muted">
-              {scheduleStateToExpression(state)}
-            </div>
-          </div>
-        </div>
+        <ScheduleHourlyConfig state={state} onApply={apply} />
       ) : null}
 
-      {state.mode === "daily" || state.mode === "weekly" || state.mode === "monthly" ? (
-        <div className="grid grid-cols-2 gap-3">
-          <div className="space-y-2">
-            <label className="block text-xs font-bold text-muted">At time</label>
-            <TimePicker
-              hour={state.hour}
-              minute={state.minute}
-              onChange={({ hour, minute }) => apply({ hour, minute })}
-            />
-          </div>
-
-          {state.mode === "monthly" ? (
-            <div className="space-y-2">
-              <label className="block text-xs font-bold text-muted">Day of month</label>
-              <Input
-                type="number"
-                min={1}
-                max={31}
-                value={String(state.dayOfMonth)}
-                onChange={(e) => apply({ dayOfMonth: clampInt(Number(e.target.value), 1, 31) })}
-                className="h-10 rounded-lg bg-surface2 font-mono"
-              />
-            </div>
-          ) : (
-            <div className="space-y-2">
-              <label className="block text-xs font-bold text-muted">Preview</label>
-              <div className="h-10 rounded-lg bg-surface2 border border-border px-3 flex items-center text-xs font-mono text-muted">
-                {scheduleStateToExpression(state)}
-              </div>
-            </div>
-          )}
-        </div>
+      {state.mode === "daily" ? (
+        <ScheduleDailyConfig state={state} onApply={apply} />
       ) : null}
 
       {state.mode === "weekly" ? (
-        <div className="space-y-2">
-          <label className="block text-xs font-bold text-muted">Days</label>
-          <div className="flex flex-wrap gap-2">
-            {dayLabels.map((d) => {
-              const active = state.days.includes(d.id);
-              return (
-                <button
-                  key={d.id}
-                  type="button"
-                  className={`px-2.5 py-1 rounded-lg border text-xs font-semibold transition-colors ${
-                    active ? "bg-accent text-white border-accent" : "bg-surface2 text-muted border-border hover:bg-surface"
-                  }`}
-                  onClick={() => toggleDay(d.id)}
-                >
-                  {d.label}
-                </button>
-              );
-            })}
-          </div>
-          <div className="text-[11px] text-muted font-mono">{scheduleStateToExpression(state)}</div>
-        </div>
+        <ScheduleWeeklyConfig state={state} onApply={apply} />
       ) : null}
 
       {state.mode === "monthly" ? (
-        <div className="space-y-2">
-          <div className="text-xs font-bold uppercase tracking-wide text-muted">Preview</div>
-          <div className="text-[11px] text-muted font-mono">{scheduleStateToExpression(state)}</div>
-        </div>
+        <ScheduleMonthlyConfig state={state} onApply={apply} />
       ) : null}
 
       {state.mode === "cron" ? (
-        <div className="space-y-2">
-          <label className="block text-xs font-bold text-muted">Cron expression</label>
-          <Input
-            value={state.cron}
-            onChange={(e) => apply({ cron: e.target.value })}
-            placeholder="0 * * * *"
-            className="h-10 rounded-lg bg-surface2 font-mono"
-          />
-          <div className="text-[11px] text-muted">Format: minute hour day month weekday</div>
-        </div>
+        <ScheduleCronConfig state={state} onApply={apply} />
       ) : null}
     </div>
   );

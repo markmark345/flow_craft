@@ -1,11 +1,9 @@
 package main
 
 import (
-	"log"
-
+	"flowcraft-api/internal/adapters/database/postgres"
+	httpadapter "flowcraft-api/internal/adapters/http"
 	"flowcraft-api/internal/config"
-	"flowcraft-api/internal/database"
-	"flowcraft-api/internal/handlers"
 	"flowcraft-api/internal/temporal"
 	"flowcraft-api/internal/utils"
 )
@@ -14,25 +12,25 @@ func main() {
 	cfg := config.Load()
 	logger := utils.NewLogger()
 
-	db, err := database.Connect(cfg.DatabaseURL)
+	db, err := postgres.Connect(cfg.DatabaseURL)
 	if err != nil {
-		log.Fatalf("failed to connect db: %v", err)
+		logger.Fatal().Err(err).Msg("failed to connect db")
 	}
 	defer db.Close()
 
-	if err := database.Migrate(db); err != nil {
-		log.Fatalf("migration failed: %v", err)
+	if err := postgres.Migrate(db); err != nil {
+		logger.Fatal().Err(err).Msg("migration failed")
 	}
 
 	temporalClient, err := temporal.NewClient(cfg)
 	if err != nil {
-		log.Fatalf("failed to connect temporal: %v", err)
+		logger.Fatal().Err(err).Msg("failed to connect temporal")
 	}
 	defer temporalClient.Close()
 
-	router := handlers.NewRouter(cfg, db, logger, temporalClient)
+	router := httpadapter.NewRouter(cfg, db, logger, temporalClient)
 	logger.Info().Msgf("api server listening on :%s", cfg.AppPort)
 	if err := router.Run(":" + cfg.AppPort); err != nil {
-		log.Fatalf("server error: %v", err)
+		logger.Fatal().Err(err).Msg("server error")
 	}
 }

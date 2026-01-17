@@ -2,9 +2,10 @@ package temporal
 
 import (
 	"database/sql"
+	"flowcraft-api/internal/adapters/database/postgres"
 	"flowcraft-api/internal/config"
-	"flowcraft-api/internal/repositories"
 
+	"github.com/rs/zerolog"
 	"go.temporal.io/sdk/worker"
 )
 
@@ -15,8 +16,7 @@ type Worker struct {
 	sched  *FlowCronScheduler
 }
 
-func NewWorker(cfg config.Config, logger interface{}, db *sql.DB) (*Worker, error) {
-	_ = logger
+func NewWorker(cfg config.Config, logger zerolog.Logger, db *sql.DB) (*Worker, error) {
 	c, err := NewClient(cfg)
 	if err != nil {
 		return nil, err
@@ -25,16 +25,16 @@ func NewWorker(cfg config.Config, logger interface{}, db *sql.DB) (*Worker, erro
 	w.RegisterWorkflow(RunFlowWorkflow)
 	activities, err := NewActivities(
 		cfg,
-		repositories.NewFlowRepository(db),
-		repositories.NewRunRepository(db),
-		repositories.NewRunStepRepository(db),
-		repositories.NewCredentialRepository(db),
+		postgres.NewFlowRepository(db),
+		postgres.NewRunRepository(db),
+		postgres.NewRunStepRepository(db),
+		postgres.NewCredentialRepository(db),
 	)
 	if err != nil {
 		return nil, err
 	}
 	w.RegisterActivity(activities)
-	return &Worker{worker: w, sched: NewFlowCronScheduler(db, c)}, nil
+	return &Worker{worker: w, sched: NewFlowCronScheduler(db, c, logger)}, nil
 }
 
 func (w *Worker) Run() error {

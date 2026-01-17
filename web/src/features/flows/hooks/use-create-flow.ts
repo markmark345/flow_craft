@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 import { useFlowsStore } from "../store/use-flows-store";
-import { FlowDTO } from "@/shared/types/dto";
+import { FlowDTO } from "@/types/dto";
 import { createWorkflow } from "@/features/workflows/services/workflowsApi";
 import { useWorkspaceStore, type WorkspaceScope } from "@/features/workspaces/store/use-workspace-store";
 

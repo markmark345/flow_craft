@@ -18,11 +18,8 @@
     "jsx": "preserve",
     "incremental": true,
     "paths": {
-      "@/shared/*": [
-        "./src/shared/*"
-      ],
-      "@/features/*": [
-        "./src/features/*"
+      "@/*": [
+        "./src/*"
       ]
     },
     "types": ["node", "react", "react-dom"],

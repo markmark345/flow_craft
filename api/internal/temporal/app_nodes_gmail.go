@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"flowcraft-api/internal/connectors/google"
+	"flowcraft-api/internal/adapters/external/google"
 )
 
 func executeGmail(ctx context.Context, config map[string]any, deps stepDependencies) (map[string]any, string, error) {

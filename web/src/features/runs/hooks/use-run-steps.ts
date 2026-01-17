@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { listRunSteps } from "../services/runsApi";
 import { useRunStepsStore } from "../store/use-run-steps-store";
-import { useAppStore } from "@/shared/hooks/use-app-store";
+import { useAppStore } from "@/hooks/use-app-store";
 
 type Options = { pollMs?: number };
 

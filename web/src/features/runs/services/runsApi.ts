@@ -1,6 +1,6 @@
-import { API_BASE_URL } from "@/shared/lib/env";
-import { request } from "@/shared/lib/fetcher";
-import { RunDTO, RunStepDTO } from "@/shared/types/dto";
+import { API_BASE_URL } from "@/lib/env";
+import { request } from "@/lib/fetcher";
+import { RunDTO, RunStepDTO } from "@/types/dto";
 
 export async function listRuns(opts?: { scope?: "personal" | "project"; projectId?: string | null }): Promise<RunDTO[]> {
   const params = new URLSearchParams();

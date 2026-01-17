@@ -2,8 +2,9 @@
 
 import { defaultActionKeyForApp, findAppAction, type AppKey } from "@/features/builder/nodeCatalog/catalog";
 import { NodeIcon } from "@/features/builder/components/node/node-icon";
-import { Input } from "@/shared/components/input";
-import { cn } from "@/shared/lib/cn";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/cn";
 import { useWizardStore, type AppNodeDraft } from "../../store/use-wizard-store";
 import { useAppSelectStep } from "../../hooks/use-app-select-step";
 
@@ -46,16 +47,16 @@ export function AppSelectStep() {
         {apps.map((app) => {
           const selected = draft.app === app.appKey;
           return (
-            <button
+            <Button
               key={app.appKey}
-              type="button"
+              variant="ghost"
               onClick={() => selectApp(app.appKey)}
               className={cn(
-                "text-left rounded-xl border p-4 bg-panel hover:bg-surface2 transition",
+                "h-auto justify-start text-left rounded-xl border p-4 bg-panel hover:bg-surface2 transition font-normal block",
                 selected ? "border-accent shadow-soft" : "border-border"
               )}
             >
-              <div className="flex items-start gap-3">
+              <div className="flex items-start gap-3 w-full">
                 <div
                   className="w-10 h-10 rounded-lg border flex items-center justify-center shrink-0"
                   style={{
@@ -66,12 +67,12 @@ export function AppSelectStep() {
                 >
                   <NodeIcon nodeType={app.icon as any} className="h-5 w-5" />
                 </div>
-                <div className="min-w-0">
+                <div className="min-w-0 flex-1">
                   <div className="text-sm font-bold text-text truncate">{app.label}</div>
                   <div className="text-xs text-muted leading-snug mt-1">{app.description}</div>
                 </div>
               </div>
-            </button>
+            </Button>
           );
         })}
       </div>

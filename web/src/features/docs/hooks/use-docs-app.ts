@@ -3,7 +3,8 @@ import { useRouter } from "next/navigation";
 import { DOCS_NAV, DOCS_ORDER, getDocsPage } from "../lib/docs-data";
 import { useAuthStore } from "@/features/auth/store/use-auth-store";
 import { useLogout } from "@/features/auth/hooks/use-logout";
-import { useMounted } from "@/shared/hooks/use-app-store";
+import { useMounted } from "@/hooks/use-app-store";
+import { UserDTO } from "@/types/dto";
 
 export interface UseDocsAppReturn {
   router: ReturnType<typeof useRouter>;
@@ -13,7 +14,7 @@ export interface UseDocsAppReturn {
   setQuery: (value: string) => void;
   activeSectionId: string | undefined;
   scrollRef: React.RefObject<HTMLDivElement>;
-  user: any;
+  user: UserDTO | undefined;
   signOut: ReturnType<typeof useLogout>["signOut"];
   signingOut: boolean;
   menuOpen: boolean;

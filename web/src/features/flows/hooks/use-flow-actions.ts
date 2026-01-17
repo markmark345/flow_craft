@@ -3,8 +3,8 @@
 import { useCallback, useState } from "react";
 import { deleteFlow, getFlow, updateFlow } from "../services/flowsApi";
 import { useFlowsStore } from "../store/use-flows-store";
-import { useAppStore } from "@/shared/hooks/use-app-store";
-import { FlowDTO } from "@/shared/types/dto";
+import { useAppStore } from "@/hooks/use-app-store";
+import { FlowDTO } from "@/types/dto";
 import { createWorkflow } from "@/features/workflows/services/workflowsApi";
 import { useWorkspaceStore } from "@/features/workspaces/store/use-workspace-store";
 

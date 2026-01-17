@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { RunStepDTO } from "@/shared/types/dto";
+import { RunStepDTO } from "@/types/dto";
 
 type State = {
   stepsByRunId: Record<string, RunStepDTO[]>;

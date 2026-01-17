@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
-import { useAppStore } from "@/shared/hooks/use-app-store";
+import { useAppStore } from "@/hooks/use-app-store";
 import { useWorkspaceStore } from "@/features/workspaces/store/use-workspace-store";
 import {
   addProjectMember,
@@ -13,7 +13,7 @@ import {
   removeProjectMember,
   updateProject,
 } from "@/features/projects/services/projectsApi";
-import { ProjectDTO, ProjectMemberDTO } from "@/shared/types/dto";
+import { ProjectDTO, ProjectMemberDTO } from "@/types/dto";
 
 type MemberRole = "admin" | "member";
 

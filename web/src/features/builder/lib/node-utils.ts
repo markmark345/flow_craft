@@ -4,7 +4,7 @@
  */
 
 import { APP_CATALOG, findAppAction, normalizeAppKey } from "../nodeCatalog/catalog";
-import { isConfiguredValue } from "@/shared/lib/validation-utils";
+import { isConfiguredValue } from "@/lib/validation-utils";
 
 /**
  * Extract app label from node config
@@ -61,4 +61,46 @@ export function isAppActionConfigured(config: Record<string, unknown>): boolean 
   }
 
   return errors.length === 0;
+}
+
+/**
+ * Get node accent color based on app key or default accent
+ */
+export function getNodeAccent(
+  nodeType: string,
+  appKey: string,
+  baseAccentColor: string
+): string {
+  if (nodeType !== "app") return baseAccentColor;
+  
+  if (appKey === "googlesheets" || appKey === "gsheets") return "var(--success)";
+  if (appKey === "gmail") return "var(--error)";
+  if (appKey === "bannerbear" || appKey === "bananabear") return "var(--warning)";
+  if (appKey === "github") return "var(--accent)";
+  
+  return baseAccentColor;
+}
+
+/**
+ * Map node type to specific icon type for rendering
+ */
+export function getNodeIconType(nodeType: string, appKey: string): string {
+  if (nodeType !== "app") return nodeType;
+  
+  if (appKey === "googlesheets" || appKey === "gsheets" || appKey === "googlesheet") return "googleSheets";
+  if (appKey === "gmail") return "gmail";
+  if (appKey === "github") return "github";
+  if (appKey === "bannerbear" || appKey === "bananabear") return "bannerbear";
+  
+  return "app";
+}
+
+/**
+ * Get display label for chat model provider
+ */
+export function chatModelProviderLabel(provider: string): string {
+  const p = provider.trim().toLowerCase();
+  if (p === "gemini") return "Gemini";
+  if (p === "grok") return "Grok";
+  return "OpenAI";
 }

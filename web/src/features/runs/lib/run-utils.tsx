@@ -3,9 +3,9 @@
  * Provides utilities for run status, step visualization, and log processing
  */
 
-import { Icon } from "@/shared/components/icon";
-import { RunStepDTO } from "@/shared/types/dto";
-import { pretty } from "@/shared/lib/string-utils";
+import { Icon } from "@/components/ui/icon";
+import { RunStepDTO } from "@/types/dto";
+import { pretty } from "@/lib/string-utils";
 
 /**
  * Get status icon component for run step
@@ -65,3 +65,13 @@ export function filterLogText(text: string, query: string): string {
   const filtered = lines.filter((l) => l.toLowerCase().includes(q));
   return filtered.join("\n");
 }
+
+/**
+ * Truncate ID for display
+ */
+export function shortId(id: string) {
+  if (id.length <= 12) return id;
+  return `${id.slice(0, 8)}…${id.slice(-4)}`;
+}
+
+export { parseTime, cutoffFor, formatDate, formatRelative, formatDuration } from "@/lib/date-utils";

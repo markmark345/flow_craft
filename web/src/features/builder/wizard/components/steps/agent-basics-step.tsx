@@ -1,6 +1,6 @@
 "use client";
 
-import { Input } from "@/shared/components/input";
+import { Input } from "@/components/ui/input";
 
 import { useWizardStore, type AgentDraft } from "../../store/use-wizard-store";
 

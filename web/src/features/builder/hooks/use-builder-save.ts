@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react";
 import { updateFlow } from "@/features/flows/services/flowsApi";
 import { useBuilderStore } from "../store/use-builder-store";
-import { useAppStore } from "@/shared/hooks/use-app-store";
+import { useAppStore } from "@/hooks/use-app-store";
 
 type SaveOptions = { silent?: boolean };
 

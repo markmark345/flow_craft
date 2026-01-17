@@ -3,7 +3,7 @@
 import { useCallback, useState } from "react";
 import { login } from "../services/authApi";
 import { useAuthStore } from "../store/use-auth-store";
-import { useAppStore } from "@/shared/hooks/use-app-store";
+import { useAppStore } from "@/hooks/use-app-store";
 
 export function useLogin() {
   const setSession = useAuthStore((s) => s.setSession);

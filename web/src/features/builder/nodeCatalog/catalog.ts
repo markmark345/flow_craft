@@ -1,4 +1,4 @@
-import type { SchemaField } from "@/shared/components/SchemaForm/types";
+import type { SchemaField } from "@/components/ui/SchemaForm/types";
 
 import { bannerbearApp } from "./apps/bannerbear";
 import { gmailApp } from "./apps/gmail";

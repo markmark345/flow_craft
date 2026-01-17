@@ -2,10 +2,13 @@
 
 import { useRef } from "react";
 
-import { Input } from "@/shared/components/input";
-import { Icon } from "@/shared/components/icon";
-import { useAppStore } from "@/shared/hooks/use-app-store";
-import { Select, type SelectOption } from "@/shared/components/select";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Icon } from "@/components/ui/icon";
+import { IconButton } from "@/components/ui/icon-button";
+import { useAppStore } from "@/hooks/use-app-store";
+import { Select, type SelectOption } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { FieldRow } from "./field-row";
 
 export function SlackConfig({
@@ -68,14 +71,12 @@ export function SlackConfig({
             onChange={(next) => onPatch({ connection: next })}
             className="flex-1"
           />
-          <button
-            type="button"
-            className="p-2 rounded-lg bg-surface2 text-muted hover:text-accent hover:bg-surface border border-border transition-colors"
+          <IconButton
+            icon="add"
+            className="h-10 w-10 border border-border bg-surface2 text-muted hover:text-accent hover:bg-surface transition-colors"
             title="Add connection (coming soon)"
             onClick={() => showInfo("Connections", "Connection management is coming soon.")}
-          >
-            <Icon name="add" className="text-[20px]" />
-          </button>
+          />
         </div>
       </div>
 
@@ -84,13 +85,13 @@ export function SlackConfig({
           <label className="block text-xs font-bold text-muted">
             Channel ID <span className="text-red">*</span>
           </label>
-          <button
-            type="button"
-            className="text-[10px] text-accent hover:underline font-medium"
+          <Button
+            variant="link"
+            className="text-[10px] text-accent hover:underline font-medium p-0 h-auto no-underline"
             onClick={() => showInfo("Channel picker", "Channel picker is coming soon.")}
           >
             Select from list
-          </button>
+          </Button>
         </div>
         <div className="relative">
           <Input
@@ -99,14 +100,12 @@ export function SlackConfig({
             placeholder="#vip-orders"
             className="h-10 rounded-lg bg-surface2 font-mono pr-10"
           />
-          <button
-            type="button"
-            className="absolute right-1.5 top-1.5 p-1 text-muted hover:text-accent hover:bg-surface rounded transition-colors"
+          <IconButton
+            icon="data_object"
+            className="absolute right-1 w-8 h-8 top-1 text-muted hover:text-accent hover:bg-surface rounded transition-colors"
             title="Insert variable (coming soon)"
             onClick={() => showInfo("Variables", "Variable picker is coming soon.")}
-          >
-            <Icon name="data_object" className="text-[18px]" />
-          </button>
+          />
         </div>
       </div>
 
@@ -118,23 +117,20 @@ export function SlackConfig({
           <span className="text-[10px] text-muted">Markdown supported</span>
         </div>
         <div className="relative group">
-          <textarea
+          <Textarea
             ref={messageRef}
             value={message}
             onChange={(e) => onPatch({ message: e.target.value })}
-            className="w-full bg-surface2 border border-border text-text text-sm rounded-lg focus:outline-none focus:shadow-focus font-mono text-xs leading-relaxed p-3 shadow-soft hover:border-border transition-colors resize-none"
+            className="bg-surface2 min-h-[160px] font-mono text-xs leading-relaxed p-3 shadow-soft resize-none"
             placeholder="Enter your message..."
-            rows={8}
           />
           <div className="absolute bottom-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-            <button
-              type="button"
-              className="p-1 rounded hover:bg-surface text-muted bg-panel shadow-soft border border-border"
+            <IconButton
+              icon="open_in_full"
+              className="w-7 h-7 rounded hover:bg-surface text-muted bg-panel shadow-soft border border-border"
               title="Expand (coming soon)"
               onClick={() => showInfo("Expand", "Expanded editor is coming soon.")}
-            >
-              <Icon name="open_in_full" className="text-[16px]" />
-            </button>
+            />
           </div>
         </div>
         <div className="flex gap-1.5 flex-wrap">
@@ -142,14 +138,14 @@ export function SlackConfig({
             { label: "trigger.id", token: "{{trigger.id}}" },
             { label: "trigger.total", token: "{{trigger.total}}" },
           ].map((v) => (
-            <button
+            <Button
               key={v.label}
-              type="button"
-              className="px-2 py-0.5 rounded bg-surface2 text-[10px] font-mono border border-border hover:bg-surface transition-colors"
+              variant="ghost"
+              className="px-2 py-0.5 h-auto rounded bg-surface2 text-[10px] font-mono border border-border hover:bg-surface transition-colors"
               onClick={() => insertVar(v.token)}
             >
               {v.label}
-            </button>
+            </Button>
           ))}
         </div>
       </div>

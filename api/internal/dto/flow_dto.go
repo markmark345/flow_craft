@@ -38,15 +38,3 @@ type RunResponse struct {
 	CreatedAt  string  `json:"createdAt,omitempty"`
 	UpdatedAt  string  `json:"updatedAt,omitempty"`
 }
-
-type ResponseEnvelope struct {
-	Data  interface{} `json:"data,omitempty"`
-	Meta  interface{} `json:"meta,omitempty"`
-	Error *ErrorBody  `json:"error,omitempty"`
-}
-
-type ErrorBody struct {
-	Code    string      `json:"code"`
-	Message string      `json:"message"`
-	Details interface{} `json:"details,omitempty"`
-}

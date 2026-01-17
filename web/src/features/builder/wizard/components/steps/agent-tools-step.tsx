@@ -2,9 +2,10 @@
 
 import { AGENT_TOOL_CATALOG } from "@/features/builder/nodeCatalog/catalog";
 import { NodeIcon } from "@/features/builder/components/node/node-icon";
-import { Input } from "@/shared/components/input";
-import { Button } from "@/shared/components/button";
-import { Icon } from "@/shared/components/icon";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { IconButton } from "@/components/ui/icon-button";
+import { Icon } from "@/components/ui/icon";
 import { useWizardStore, type AgentDraft } from "../../store/use-wizard-store";
 import { useAgentToolsStep } from "../../hooks/use-agent-tools-step";
 
@@ -41,14 +42,12 @@ export function AgentToolsStep() {
                       <div className="text-[11px] text-muted font-mono truncate">{t.toolKey}</div>
                     </div>
                   </div>
-                  <button
-                    type="button"
-                    className="h-9 w-9 rounded-lg border border-border bg-surface2 text-muted hover:text-red hover:bg-surface transition-colors flex items-center justify-center"
+                  <IconButton
+                    icon="delete"
+                    className="h-9 w-9 border border-border bg-surface2 text-muted hover:text-red hover:bg-surface transition-colors"
                     onClick={() => removeTool(t.id)}
                     title="Remove"
-                  >
-                    <Icon name="delete" className="text-[18px]" />
-                  </button>
+                  />
                 </div>
               );
             })}

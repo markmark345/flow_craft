@@ -3,7 +3,7 @@
  * Provides utilities for IF condition parsing, validation, and coercion
  */
 
-import { toStringValue } from "@/shared/lib/string-utils";
+import { toStringValue } from "@/lib/string-utils";
 
 export type IfConditionType = "string" | "number" | "datetime" | "boolean" | "array" | "object";
 export type IfCombine = "AND" | "OR";

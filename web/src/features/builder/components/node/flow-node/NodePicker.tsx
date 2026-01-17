@@ -1,6 +1,7 @@
 "use client";
 
-import { Input } from "@/shared/components/input";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import type { BuilderNodeType } from "../../../types";
 import type { NodeCategory, NodeCatalogItem } from "../../../types/node-catalog";
 
@@ -52,10 +53,10 @@ export function NodePicker({
               <div className="text-[10px] uppercase tracking-wide text-muted px-1">{cat.label}</div>
               <div className="space-y-1">
                 {cat.items.map((item) => (
-                  <button
+                  <Button
                     key={item.type}
-                    type="button"
-                    className="w-full text-left rounded-md border border-border bg-surface px-2 py-1.5 hover:border-accent transition flex items-center gap-2"
+                    variant="ghost"
+                    className="w-full h-auto justify-start text-left rounded-md border border-border bg-surface px-2 py-1.5 hover:border-accent transition flex items-center gap-2 font-normal"
                     onClick={() => onQuickAdd(item.type)}
                   >
                     <span
@@ -66,7 +67,7 @@ export function NodePicker({
                       <div className="text-sm font-medium text-text leading-5">{item.label}</div>
                       <div className="text-xs text-muted truncate">{item.description}</div>
                     </div>
-                  </button>
+                  </Button>
                 ))}
               </div>
             </div>

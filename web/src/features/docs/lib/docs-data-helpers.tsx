@@ -3,8 +3,9 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import type { Route } from "next";
-import { Icon } from "@/shared/components/icon";
-import { useAppStore } from "@/shared/hooks/use-app-store";
+import { Icon } from "@/components/ui/icon";
+import { IconButton } from "@/components/ui/icon-button";
+import { useAppStore } from "@/hooks/use-app-store";
 import type { DocsSection } from "./docs-data-types";
 
 export function section(
@@ -128,9 +129,9 @@ export function CopyIconButton({ value }: { value: string }) {
   const showSuccess = useAppStore((s) => s.showSuccess);
   const showError = useAppStore((s) => s.showError);
   return (
-    <button
-      type="button"
-      className="inline-flex items-center justify-center size-7 rounded-md text-muted hover:text-accent hover:bg-surface transition-colors"
+    <IconButton
+      icon="content_copy"
+      className="size-7 rounded-md text-muted hover:text-accent hover:bg-surface transition-colors"
       title="Copy"
       onClick={async () => {
         try {
@@ -140,8 +141,6 @@ export function CopyIconButton({ value }: { value: string }) {
           showError("Copy failed", err?.message || "Unable to copy");
         }
       }}
-    >
-      <Icon name="content_copy" className="text-[16px]" />
-    </button>
+    />
   );
 }

@@ -1,6 +1,6 @@
-import { API_BASE_URL } from "@/shared/lib/env";
-import { request } from "@/shared/lib/fetcher";
-import { FlowDTO } from "@/shared/types/dto";
+import { API_BASE_URL } from "@/lib/env";
+import { request } from "@/lib/fetcher";
+import { FlowDTO } from "@/types/dto";
 
 type UpdateFlowPayload = {
   name?: string;

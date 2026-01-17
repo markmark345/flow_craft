@@ -4,8 +4,8 @@ import { useFlowsQuery } from "@/features/flows/hooks/use-flows";
 import { useFlowsStore } from "@/features/flows/store/use-flows-store";
 import { useRunsQuery } from "@/features/runs/hooks/use-runs";
 import { useRunsStore } from "@/features/runs/store/use-runs-store";
-import { useAppStore } from "@/shared/hooks/use-app-store";
-import type { FlowDTO, RunDTO } from "@/shared/types/dto";
+import { useAppStore } from "@/hooks/use-app-store";
+import type { FlowDTO, RunDTO } from "@/types/dto";
 
 export interface UseDashboardPageReturn {
   // Data

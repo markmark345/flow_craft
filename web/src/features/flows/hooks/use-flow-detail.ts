@@ -3,8 +3,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { getFlow } from "../services/flowsApi";
 import { useFlowsStore } from "../store/use-flows-store";
-import { useAppStore } from "@/shared/hooks/use-app-store";
-import { FlowDTO } from "@/shared/types/dto";
+import { useAppStore } from "@/hooks/use-app-store";
+import { FlowDTO } from "@/types/dto";
 
 export function useFlowDetailQuery(flowId?: string) {
   const upsertFlow = useFlowsStore((s) => s.upsertFlow);

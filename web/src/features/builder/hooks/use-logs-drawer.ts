@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef } from "react";
-import { useAppStore } from "@/shared/hooks/use-app-store";
+import { useAppStore } from "@/hooks/use-app-store";
 import { useBuilderStore } from "../store/use-builder-store";
 import { useRunDetailQuery } from "@/features/runs/hooks/use-run-detail";
 

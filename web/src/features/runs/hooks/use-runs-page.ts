@@ -3,10 +3,11 @@ import { useRouter } from "next/navigation";
 import { useRunsStore } from "../store/use-runs-store";
 import { useRunsQuery } from "./use-runs";
 import { useRunFlow } from "./use-run-flow";
-import { useAppStore } from "@/shared/hooks/use-app-store";
+import { useAppStore } from "@/hooks/use-app-store";
 import { useFlowsQuery } from "@/features/flows/hooks/use-flows";
 import { useFlowsStore } from "@/features/flows/store/use-flows-store";
-import type { RunDTO } from "@/shared/types/dto";
+import type { RunDTO } from "@/types/dto";
+import { cutoffFor, parseTime } from "../lib/run-utils";
 
 export interface UseRunsPageReturn {
   // Loading states
@@ -210,17 +211,4 @@ export function useRunsPage(): UseRunsPageReturn {
   };
 }
 
-// Helper functions
-function parseTime(v?: string) {
-  if (!v) return undefined;
-  const t = new Date(v).getTime();
-  return Number.isFinite(t) ? t : undefined;
-}
 
-function cutoffFor(tf: "24h" | "7d" | "30d" | "all") {
-  const now = Date.now();
-  if (tf === "all") return undefined;
-  if (tf === "24h") return now - 24 * 60 * 60 * 1000;
-  if (tf === "7d") return now - 7 * 24 * 60 * 60 * 1000;
-  return now - 30 * 24 * 60 * 60 * 1000;
-}

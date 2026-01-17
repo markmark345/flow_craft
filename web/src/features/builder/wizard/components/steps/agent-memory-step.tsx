@@ -1,6 +1,6 @@
 "use client";
 
-import { Select, type SelectOption } from "@/shared/components/select";
+import { Select, type SelectOption } from "@/components/ui/select";
 
 import { useWizardStore, type AgentDraft } from "../../store/use-wizard-store";
 

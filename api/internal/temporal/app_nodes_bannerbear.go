@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"flowcraft-api/internal/connectors/bannerbear"
+	"flowcraft-api/internal/adapters/external/bannerbear"
 )
 
 func executeAppBannerbear(ctx context.Context, config map[string]any, deps stepDependencies, action string) (map[string]any, string, error) {

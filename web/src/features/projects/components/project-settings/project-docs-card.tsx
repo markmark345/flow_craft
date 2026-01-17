@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 
-import { Icon } from "@/shared/components/icon";
+import { Icon } from "@/components/ui/icon";
 
 type DocLink = {
   href: string;

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useBuilderStore } from "../store/use-builder-store";
 import { useRunStepsStore } from "@/features/runs/store/use-run-steps-store";
-import type { RunStepDTO } from "@/shared/types/dto";
+import type { RunStepDTO } from "@/types/dto";
 
 export type InspectorTab = "config" | "io" | "notes";
 

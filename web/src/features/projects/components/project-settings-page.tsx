@@ -1,6 +1,6 @@
 "use client";
 
-import { ConfirmDialog } from "@/shared/components/confirm-dialog";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { useProjectSettingsPage } from "../hooks/use-project-settings-page";
 import { ProjectDangerZoneCard } from "./project-settings/project-danger-zone-card";
 import { ProjectDocsCard } from "./project-settings/project-docs-card";

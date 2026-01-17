@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { AuthSession, AuthUser, readAuthSession, writeAuthSession } from "@/shared/lib/auth";
+import { AuthSession, AuthUser, readAuthSession, writeAuthSession } from "@/lib/auth";
 
 type State = {
   token?: string;

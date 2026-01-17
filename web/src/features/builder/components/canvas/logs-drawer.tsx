@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { Badge } from "@/shared/components/badge";
-import { Icon } from "@/shared/components/icon";
+import { Badge } from "@/components/ui/badge";
+import { Icon } from "@/components/ui/icon";
+import { IconButton } from "@/components/ui/icon-button";
 import { useLogsDrawer } from "../../hooks/use-logs-drawer";
 
 export function LogsDrawer() {
@@ -28,33 +29,27 @@ export function LogsDrawer() {
           ) : null}
         </div>
         <div className="flex items-center gap-1">
-          <button
-            type="button"
+          <IconButton
+            icon="delete"
             className="p-1.5 text-muted hover:text-text hover:bg-surface rounded transition-colors"
             title="Clear Logs"
             onClick={onClear}
             disabled={!runId && !run}
-          >
-            <Icon name="delete" className="text-[16px]" />
-          </button>
-          <button
-            type="button"
+          />
+          <IconButton
+            icon="download"
             className="p-1.5 text-muted hover:text-text hover:bg-surface rounded transition-colors"
             title="Download"
             onClick={onDownload}
             disabled={!run?.log}
-          >
-            <Icon name="download" className="text-[16px]" />
-          </button>
-          <button
-            type="button"
+          />
+          <IconButton
+            icon="refresh"
             className="p-1.5 text-muted hover:text-text hover:bg-surface rounded transition-colors"
             title="Refresh"
             onClick={() => void reload()}
             disabled={!runId || loading}
-          >
-            <Icon name="refresh" className="text-[16px]" />
-          </button>
+          />
         </div>
       </div>
       <div className="flex-1 overflow-auto p-4 text-xs text-muted font-mono fc-scrollbar">

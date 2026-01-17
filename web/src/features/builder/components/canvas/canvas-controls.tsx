@@ -1,6 +1,6 @@
 import React from "react";
-import { IconButton } from "@/shared/components/icon-button";
-import { cn } from "@/shared/lib/cn";
+import { IconButton } from "@/components/ui/icon-button";
+import { cn } from "@/lib/cn";
 
 type CanvasControlsProps = {
   onZoomIn: () => void;

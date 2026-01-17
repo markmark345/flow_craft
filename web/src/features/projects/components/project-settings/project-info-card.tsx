@@ -1,8 +1,10 @@
 "use client";
 
-import { Button } from "@/shared/components/button";
-import { Input } from "@/shared/components/input";
-import { Icon } from "@/shared/components/icon";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Icon } from "@/components/ui/icon";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 
 type Props = {
   description: string;
@@ -51,7 +53,7 @@ export function ProjectInfoCard({
       </div>
       <div className="p-6 space-y-6">
         <div className="space-y-2">
-          <label className="block text-sm font-medium text-muted">Icon and name</label>
+          <Label className="text-sm font-medium">Icon and name</Label>
           <div className="flex items-center gap-3">
             <div className="size-10 rounded-lg border border-border bg-surface2 flex items-center justify-center text-muted">
               <Icon name="grid_view" className="text-[18px]" />
@@ -65,11 +67,11 @@ export function ProjectInfoCard({
           </div>
         </div>
         <div className="space-y-2">
-          <label className="block text-sm font-medium text-muted">Description</label>
-          <textarea
+          <Label className="text-sm font-medium">Description</Label>
+          <Textarea
             value={description}
             onChange={(event) => onDescriptionChange(event.target.value)}
-            className="min-h-[96px] w-full rounded-lg bg-surface2 border border-border px-3 py-2 text-sm text-text placeholder:text-muted focus:outline-none focus:shadow-focus"
+            className="min-h-[96px] bg-surface2"
             placeholder="What is this project about?"
           />
         </div>

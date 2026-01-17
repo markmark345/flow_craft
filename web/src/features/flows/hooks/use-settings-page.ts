@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useAppStore } from "@/shared/hooks/use-app-store";
+import { useAppStore } from "@/hooks/use-app-store";
 import { useAuthStore } from "@/features/auth/store/use-auth-store";
 import { useResetWorkspace } from "./use-reset-workspace";
-import { avatarStyle, initialsFor } from "../components/flows-page-utils";
+import { avatarStyle, initialsFor } from "../lib/flow-utils";
 
 export interface UseSettingsPageReturn {
   // State

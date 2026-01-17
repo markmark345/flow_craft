@@ -1,10 +1,10 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { resetWorkspace as apiResetWorkspace } from "@/shared/services/systemApi";
+import { resetWorkspace as apiResetWorkspace } from "@/services/systemApi";
 import { useFlowsStore } from "../store/use-flows-store";
 import { useRunsStore } from "@/features/runs/store/use-runs-store";
-import { useAppStore } from "@/shared/hooks/use-app-store";
+import { useAppStore } from "@/hooks/use-app-store";
 
 export function useResetWorkspace() {
   const setFlows = useFlowsStore((s) => s.setFlows);

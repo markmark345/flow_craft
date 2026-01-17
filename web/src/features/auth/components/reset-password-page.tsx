@@ -2,11 +2,13 @@
 
 import Link from "next/link";
 import type { Route } from "next";
-import { BrandLogo } from "@/shared/components/BrandLogo";
-import { Button } from "@/shared/components/button";
-import { Icon } from "@/shared/components/icon";
-import { Input } from "@/shared/components/input";
-import { Panel } from "@/shared/components/panel";
+import { BrandLogo } from "@/components/ui/BrandLogo";
+import { Button } from "@/components/ui/button";
+import { Icon } from "@/components/ui/icon";
+import { IconButton } from "@/components/ui/icon-button";
+import { Input } from "@/components/ui/input";
+import { Panel } from "@/components/ui/panel";
+import { Label } from "@/components/ui/label";
 import { useResetPasswordPage } from "../hooks/use-reset-password-page";
 
 export function ResetPasswordPage() {
@@ -47,7 +49,7 @@ export function ResetPasswordPage() {
           ) : (
             <div className="space-y-4">
               <div className="space-y-2">
-                <label className="text-xs font-semibold text-muted uppercase tracking-wide">New password</label>
+                <Label>New password</Label>
                 <div className="relative">
                   <Input
                     value={password}
@@ -59,19 +61,18 @@ export function ResetPasswordPage() {
                     aria-invalid={Boolean(inlineError)}
                     style={inputErrorStyle}
                   />
-                  <button
-                    type="button"
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-text"
+                  <IconButton
+                    icon={showPassword ? "visibility_off" : "visibility"}
+                    className="absolute right-3 top-1/2 -translate-y-1/2"
                     onClick={() => setShowPassword((v) => !v)}
                     aria-label={showPassword ? "Hide password" : "Show password"}
-                  >
-                    <Icon name={showPassword ? "visibility_off" : "visibility"} className="text-[18px]" />
-                  </button>
+                    size="sm"
+                  />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <label className="text-xs font-semibold text-muted uppercase tracking-wide">Confirm password</label>
+                <Label>Confirm password</Label>
                 <Input
                   value={confirm}
                   onChange={(e) => setConfirm(e.target.value)}

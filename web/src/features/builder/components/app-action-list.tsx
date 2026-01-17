@@ -1,7 +1,8 @@
 "use client";
 
-import { Input } from "@/shared/components/input";
-import { cn } from "@/shared/lib/cn";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/cn";
 import { APP_CATALOG, type AppKey } from "../nodeCatalog/catalog";
 import { NodeIcon } from "./node/node-icon";
 import { useAppActionList } from "../hooks/use-app-action-list";
@@ -64,13 +65,13 @@ export function AppActionList({ appKey, selectedActionKey, onSelect }: Props) {
                 const isTrigger = (item.kind || "action") === "trigger";
                 const disabled = Boolean(item.disabled) || isTrigger;
                 return (
-                  <button
+                  <Button
                     key={item.actionKey}
-                    type="button"
+                    variant="ghost"
                     disabled={disabled}
                     onClick={() => onSelect(item.actionKey)}
                     className={cn(
-                      "w-full text-left rounded-xl border px-3 py-3 bg-panel hover:bg-surface2 transition flex items-start gap-3",
+                      "w-full h-auto text-left rounded-xl border px-3 py-3 bg-panel hover:bg-surface2 transition flex items-start justify-start gap-3",
                       selected ? "border-accent shadow-soft" : "border-border",
                       disabled ? "opacity-60 cursor-not-allowed hover:bg-panel" : ""
                     )}
@@ -86,7 +87,7 @@ export function AppActionList({ appKey, selectedActionKey, onSelect }: Props) {
                       <NodeIcon nodeType={app.icon as any} className="h-4 w-4" />
                     </div>
 
-                    <div className="min-w-0 flex-1">
+                    <div className="min-w-0 flex-1 whitespace-normal">
                       <div className="flex items-center gap-2 min-w-0">
                         <div className="text-sm font-bold text-text truncate">{item.label}</div>
                         {isTrigger ? (
@@ -102,7 +103,7 @@ export function AppActionList({ appKey, selectedActionKey, onSelect }: Props) {
                       </div>
                       <div className="text-xs text-muted mt-0.5 line-clamp-2">{item.description || item.actionKey}</div>
                     </div>
-                  </button>
+                  </Button>
                 );
               })}
             </div>

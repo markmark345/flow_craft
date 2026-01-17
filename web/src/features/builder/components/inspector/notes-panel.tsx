@@ -2,6 +2,7 @@
 
 import { Node } from "reactflow";
 import { FlowNodeData } from "../../types";
+import { Textarea } from "@/components/ui/textarea";
 
 export function InspectorNotesPanel({
   node,
@@ -17,10 +18,10 @@ export function InspectorNotesPanel({
   return (
     <div className="space-y-2">
       <div className="text-xs font-bold uppercase tracking-wide text-muted">Notes</div>
-      <textarea
+      <Textarea
         value={node.data.notes || ""}
         onChange={(e) => updateNodeData(node.id, { notes: e.target.value })}
-        className="w-full min-h-[160px] rounded-lg bg-surface2 border border-border px-3 py-2 text-sm text-text placeholder:text-muted focus:outline-none focus:shadow-focus"
+        className="min-h-[160px] bg-surface2"
         placeholder="Add notes for this node"
       />
     </div>

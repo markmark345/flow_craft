@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@/shared/components/button";
+import { Button } from "@/components/ui/button";
 import { Node } from "reactflow";
 
 import { FlowNodeData } from "../../types";

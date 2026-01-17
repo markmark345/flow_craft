@@ -1,24 +1,16 @@
 "use client";
 
-import { Button } from "@/shared/components/button";
-import { Icon } from "@/shared/components/icon";
-import { Input } from "@/shared/components/input";
-import { Select } from "@/shared/components/select";
-import { cn } from "@/shared/lib/cn";
-import { ProjectMemberDTO } from "@/shared/types/dto";
+import { Button } from "@/components/ui/button";
+import { Icon } from "@/components/ui/icon";
+import { IconButton } from "@/components/ui/icon-button";
+import { Input } from "@/components/ui/input";
+import { Select } from "@/components/ui/select";
+import { cn } from "@/lib/cn";
+import { ProjectMemberDTO } from "@/types/dto";
 
 type MemberRole = "admin" | "member";
 
-function memberInitials(member: ProjectMemberDTO) {
-  const nameValue = (member.user.name || "").trim();
-  if (nameValue) {
-    const parts = nameValue.split(/\s+/).filter(Boolean);
-    return ((parts[0]?.[0] || "") + (parts[1]?.[0] || parts[0]?.[1] || "")).toUpperCase() || "U";
-  }
-  const email = (member.user.email || "").trim();
-  if (email) return email.slice(0, 2).toUpperCase();
-  return "U";
-}
+import { memberInitials } from "../../lib/project-utils";
 
 type Props = {
   addingMember: boolean;
@@ -142,16 +134,14 @@ export function ProjectMembersCard({
                         </span>
                       </td>
                       <td className="px-6 py-4 text-right">
-                        <Button
-                          variant="ghost"
+                        <IconButton
+                          icon="close"
                           size="sm"
                           disabled={!isAdmin}
                           className="text-muted hover:text-red"
                           onClick={() => onRemoveMember(member.user.id)}
                           title="Remove member"
-                        >
-                          <Icon name="close" className="text-[16px]" />
-                        </Button>
+                        />
                       </td>
                     </tr>
                   );

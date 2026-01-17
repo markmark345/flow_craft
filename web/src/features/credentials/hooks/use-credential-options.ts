@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { CredentialDTO } from "@/shared/types/dto";
+import { CredentialDTO } from "@/types/dto";
 import { listCredentials } from "../services/credentialsApi";
 import { useWorkspaceStore } from "@/features/workspaces/store/use-workspace-store";
 

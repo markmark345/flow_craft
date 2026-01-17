@@ -3,7 +3,7 @@ import { type ReactFlowInstance, type EdgeChange, MarkerType } from "reactflow";
 import { useBuilderStore } from "../store/use-builder-store";
 import { useNodeDnd } from "./use-node-dnd";
 import { useRunStepsQuery } from "@/features/runs/hooks/use-run-steps";
-import { useAppStore } from "@/shared/hooks/use-app-store";
+import { useAppStore } from "@/hooks/use-app-store";
 import { useAuthStore } from "@/features/auth/store/use-auth-store";
 import { NODE_CATALOG } from "../types/node-catalog";
 import type { BuilderNodeType } from "../types";

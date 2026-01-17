@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"flowcraft-api/internal/connectors/github"
+	"flowcraft-api/internal/adapters/external/github"
 )
 
 func executeGitHub(ctx context.Context, config map[string]any, deps stepDependencies) (map[string]any, string, error) {

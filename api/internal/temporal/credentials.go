@@ -6,25 +6,25 @@ import (
 	"fmt"
 	"strings"
 
-	"flowcraft-api/internal/connectors/google"
-	"flowcraft-api/internal/entities"
+	"flowcraft-api/internal/adapters/external/google"
+	"flowcraft-api/internal/core/domain"
 	"flowcraft-api/internal/utils"
 )
 
-func loadCredentialPayload(ctx context.Context, deps stepDependencies, credentialID string) (entities.Credential, map[string]any, error) {
+func loadCredentialPayload(ctx context.Context, deps stepDependencies, credentialID string) (domain.Credential, map[string]any, error) {
 	if deps.creds == nil {
-		return entities.Credential{}, nil, errors.New("credentials repository not configured")
+		return domain.Credential{}, nil, errors.New("credentials repository not configured")
 	}
 	if len(deps.credsKey) == 0 {
-		return entities.Credential{}, nil, errors.New("credentials encryption key not configured")
+		return domain.Credential{}, nil, errors.New("credentials encryption key not configured")
 	}
 	cred, err := deps.creds.Get(ctx, credentialID)
 	if err != nil {
-		return entities.Credential{}, nil, err
+		return domain.Credential{}, nil, err
 	}
 	var payload map[string]any
 	if err := utils.DecryptJSON(deps.credsKey, cred.DataEncrypted, &payload); err != nil {
-		return entities.Credential{}, nil, err
+		return domain.Credential{}, nil, err
 	}
 	return *cred, payload, nil
 }

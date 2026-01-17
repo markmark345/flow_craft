@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import type { Route } from "next";
-import { BrandLogo } from "@/shared/components/BrandLogo";
-import { Button } from "@/shared/components/button";
-import { Input } from "@/shared/components/input";
-import { Panel } from "@/shared/components/panel";
+import { BrandLogo } from "@/components/ui/BrandLogo";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Panel } from "@/components/ui/panel";
+import { Label } from "@/components/ui/label";
 import { useForgotPasswordPage } from "../hooks/use-forgot-password-page";
 
 export function ForgotPasswordPage() {
@@ -37,7 +38,7 @@ export function ForgotPasswordPage() {
           ) : (
             <div className="space-y-4">
               <div className="space-y-2">
-                <label className="text-xs font-semibold text-muted uppercase tracking-wide">Email</label>
+                <Label>Email</Label>
                 <Input
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}

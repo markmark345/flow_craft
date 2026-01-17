@@ -5,8 +5,8 @@ import { useRunStepsQuery } from "./use-run-steps";
 import { useCancelRun } from "./use-cancel-run";
 import { useRunFlow } from "./use-run-flow";
 import { useFlowDetailQuery } from "@/features/flows/hooks/use-flow-detail";
-import { useAppStore } from "@/shared/hooks/use-app-store";
-import type { RunDTO, RunStepDTO } from "@/shared/types/dto";
+import { useAppStore } from "@/hooks/use-app-store";
+import type { RunDTO, RunStepDTO } from "@/types/dto";
 
 export interface UseRunDetailPageReturn {
   // Data

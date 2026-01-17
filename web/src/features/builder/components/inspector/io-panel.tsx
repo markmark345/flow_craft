@@ -1,11 +1,11 @@
 "use client";
 
-import { Badge } from "@/shared/components/badge";
-import { RunStepDTO } from "@/shared/types/dto";
+import { Badge } from "@/components/ui/badge";
+import { RunStepDTO } from "@/types/dto";
 import { Edge, Node } from "reactflow";
 
 import { FlowNodeData } from "../../types";
-import { pretty } from "@/shared/lib/string-utils";
+import { pretty } from "@/lib/string-utils";
 import { stepTone } from "@/features/runs/lib/run-utils";
 
 export function InspectorIoPanel({

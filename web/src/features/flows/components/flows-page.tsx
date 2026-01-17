@@ -1,8 +1,8 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Button } from "@/shared/components/button";
-import { ConfirmDialog } from "@/shared/components/confirm-dialog";
+import { Button } from "@/components/ui/button";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { FlowsHeader } from "./flows-header";
 import { FlowsPagination } from "./flows-pagination";
 import { FlowsTable } from "./flows-table";

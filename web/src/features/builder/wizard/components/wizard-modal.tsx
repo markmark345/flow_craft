@@ -1,8 +1,9 @@
 "use client";
 
-import { Button } from "@/shared/components/button";
-import { Icon } from "@/shared/components/icon";
-import { cn } from "@/shared/lib/cn";
+import { Button } from "@/components/ui/button";
+import { Icon } from "@/components/ui/icon";
+import { IconButton } from "@/components/ui/icon-button";
+import { cn } from "@/lib/cn";
 import { useWizardStore } from "../store/use-wizard-store";
 import { useWizardModal } from "../hooks/use-wizard-modal";
 import { AppSelectStep } from "./steps/app-select-step";
@@ -112,14 +113,12 @@ export function WizardModal() {
               <div className="text-sm font-bold text-text truncate">{steps[stepIndex]?.title}</div>
               <div className="text-xs text-muted">Step {stepIndex + 1} of {steps.length}</div>
             </div>
-            <button
-              type="button"
-              className="h-9 w-9 rounded-lg border border-border bg-surface2 text-muted hover:text-text hover:bg-surface transition-colors flex items-center justify-center"
+            <IconButton
+              icon="close"
+              className="h-9 w-9 border border-border bg-surface2 text-muted hover:text-text hover:bg-surface transition-colors"
               onClick={close}
               title="Close"
-            >
-              <Icon name="close" className="text-[18px]" />
-            </button>
+            />
           </div>
 
           <div className="flex-1 overflow-auto px-6 py-5">{renderStep()}</div>

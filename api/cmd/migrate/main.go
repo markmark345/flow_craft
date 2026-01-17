@@ -1,22 +1,22 @@
 package main
 
 import (
-	"log"
-
+	"flowcraft-api/internal/adapters/database/postgres"
 	"flowcraft-api/internal/config"
-	"flowcraft-api/internal/database"
+	"flowcraft-api/internal/utils"
 )
 
 func main() {
 	cfg := config.Load()
-	db, err := database.Connect(cfg.DatabaseURL)
+	logger := utils.NewLogger()
+	db, err := postgres.Connect(cfg.DatabaseURL)
 	if err != nil {
-		log.Fatalf("failed to connect db: %v", err)
+		logger.Fatal().Err(err).Msg("failed to connect db")
 	}
 	defer db.Close()
 
-	if err := database.Migrate(db); err != nil {
-		log.Fatalf("migration failed: %v", err)
+	if err := postgres.Migrate(db); err != nil {
+		logger.Fatal().Err(err).Msg("migration failed")
 	}
-	log.Println("migrations applied")
+	logger.Info().Msg("migrations applied")
 }

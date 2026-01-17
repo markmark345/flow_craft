@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import type { SelectOption } from "@/shared/components/select";
+import type { SelectOption } from "@/components/ui/select";
 
 type Provider = "openai" | "gemini" | "grok";
 

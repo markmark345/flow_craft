@@ -3,7 +3,7 @@
 import { useViewport } from "reactflow";
 
 import { useAuthStore } from "@/features/auth/store/use-auth-store";
-import { useAppStore } from "@/shared/hooks/use-app-store";
+import { useAppStore } from "@/hooks/use-app-store";
 
 import { useBuilderStore } from "../../store/use-builder-store";
 import { useStickyNoteInteractions } from "../../hooks/use-sticky-note-interactions";

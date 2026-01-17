@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useAppStore } from "@/shared/hooks/use-app-store";
+import { useAppStore } from "@/hooks/use-app-store";
 import { useWorkspaceStore } from "@/features/workspaces/store/use-workspace-store";
-import type { ProjectDTO, VariableDTO } from "@/shared/types/dto";
+import type { ProjectDTO, VariableDTO } from "@/types/dto";
 import { getProject } from "@/features/projects/services/projectsApi";
 import { createVariable, deleteVariable, listVariables, updateVariable } from "../services/variablesApi";
 

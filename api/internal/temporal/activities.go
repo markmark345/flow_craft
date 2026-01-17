@@ -12,26 +12,26 @@ import (
 	"go.temporal.io/sdk/activity"
 
 	"flowcraft-api/internal/config"
-	"flowcraft-api/internal/entities"
-	"flowcraft-api/internal/repositories"
+	"flowcraft-api/internal/core/domain"
+	"flowcraft-api/internal/adapters/database/postgres"
 	"flowcraft-api/internal/utils"
 )
 
 type Activities struct {
-	flows    *repositories.FlowRepository
-	runs     *repositories.RunRepository
-	steps    *repositories.RunStepRepository
-	creds    *repositories.CredentialRepository
+	flows    *postgres.FlowRepository
+	runs     *postgres.RunRepository
+	steps    *postgres.RunStepRepository
+	creds    *postgres.CredentialRepository
 	cfg      config.Config
 	credsKey []byte
 }
 
 func NewActivities(
 	cfg config.Config,
-	flows *repositories.FlowRepository,
-	runs *repositories.RunRepository,
-	steps *repositories.RunStepRepository,
-	creds *repositories.CredentialRepository,
+	flows *postgres.FlowRepository,
+	runs *postgres.RunRepository,
+	steps *postgres.RunStepRepository,
+	creds *postgres.CredentialRepository,
 ) (*Activities, error) {
 	var key []byte
 	if strings.TrimSpace(cfg.CredentialsEncKey) != "" {
@@ -295,14 +295,14 @@ func (a *Activities) ExecuteNodeActivity(ctx context.Context, runID string, defi
 	}
 
 	type plannedStep struct {
-		step   entities.RunStep
+		step   domain.RunStep
 		config map[string]any
 	}
 
 	planned := make([]plannedStep, 0, maxInt(1, nodeCount))
 	if nodeCount == 0 {
 		planned = append(planned, plannedStep{
-			step: entities.RunStep{
+			step: domain.RunStep{
 				ID:       deterministicStepID(runID, "STEP_01"),
 				RunID:    runID,
 				StepKey:  "STEP_01",
@@ -329,7 +329,7 @@ func (a *Activities) ExecuteNodeActivity(ctx context.Context, runID string, defi
 			}
 
 			planned = append(planned, plannedStep{
-				step: entities.RunStep{
+				step: domain.RunStep{
 					ID:       deterministicStepID(runID, stepKey),
 					RunID:    runID,
 					StepKey:  stepKey,
@@ -343,7 +343,7 @@ func (a *Activities) ExecuteNodeActivity(ctx context.Context, runID string, defi
 		}
 	}
 
-	steps := make([]entities.RunStep, 0, len(planned))
+	steps := make([]domain.RunStep, 0, len(planned))
 	for _, p := range planned {
 		steps = append(steps, p.step)
 	}

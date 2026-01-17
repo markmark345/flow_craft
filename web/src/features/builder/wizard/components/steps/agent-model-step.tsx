@@ -1,7 +1,7 @@
 "use client";
 
-import { Input } from "@/shared/components/input";
-import { Select, type SelectOption } from "@/shared/components/select";
+import { Input } from "@/components/ui/input";
+import { Select, type SelectOption } from "@/components/ui/select";
 import { useCredentialOptions } from "@/features/credentials/hooks/use-credential-options";
 import { NodeIcon } from "@/features/builder/components/node/node-icon";
 import { MODEL_PROVIDERS } from "@/features/builder/nodeCatalog/catalog";

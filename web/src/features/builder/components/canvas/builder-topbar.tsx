@@ -1,8 +1,9 @@
 "use client";
 
-import { Button } from "@/shared/components/button";
-import { Input } from "@/shared/components/input";
-import { Icon } from "@/shared/components/icon";
+import { Button } from "@/components/ui/button";
+import { IconButton } from "@/components/ui/icon-button";
+import { Input } from "@/components/ui/input";
+import { Icon } from "@/components/ui/icon";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useBuilderTopbar } from "../../hooks/use-builder-topbar";
@@ -54,23 +55,19 @@ export function BuilderTopbar() {
 
       <div className="flex items-center gap-3">
         <div className="flex items-center bg-surface2 rounded-lg p-0.5 border border-border">
-          <button
-            type="button"
-            className="p-1.5 rounded-md hover:bg-surface shadow-soft hover:shadow text-muted transition-all disabled:opacity-50"
+          <IconButton
+            icon="undo"
+            className="p-1.5 rounded-md hover:bg-surface shadow-soft hover:shadow text-muted transition-all disabled:opacity-50 h-auto w-auto"
             title="Undo"
             onClick={() => showInfo("Undo", "Undo/redo is coming soon.")}
-          >
-            <Icon name="undo" className="text-[20px]" />
-          </button>
+          />
           <div className="w-px h-4 bg-border mx-0.5" />
-          <button
-            type="button"
-            className="p-1.5 rounded-md hover:bg-surface shadow-soft hover:shadow text-muted transition-all disabled:opacity-50"
+          <IconButton
+            icon="redo"
+            className="p-1.5 rounded-md hover:bg-surface shadow-soft hover:shadow text-muted transition-all disabled:opacity-50 h-auto w-auto"
             title="Redo"
             onClick={() => showInfo("Redo", "Undo/redo is coming soon.")}
-          >
-            <Icon name="redo" className="text-[20px]" />
-          </button>
+          />
         </div>
 
         <Button variant="secondary" size="sm" title="Versions" onClick={() => showInfo("Versions", "Version history is coming soon.")}>
@@ -89,15 +86,15 @@ export function BuilderTopbar() {
         </Button>
 
         <div className="relative ml-2" ref={menuRef}>
-          <button
-            type="button"
-            className="h-9 w-9 rounded-full bg-surface2 border border-border flex items-center justify-center text-xs font-bold text-muted hover:text-text hover:bg-surface transition-colors"
+          <Button
+            variant="ghost"
+            className="h-9 w-9 rounded-full bg-surface2 border border-border flex items-center justify-center text-xs font-bold text-muted hover:text-text hover:bg-surface transition-colors p-0"
             onClick={() => setMenuOpen((v) => !v)}
             aria-label="Account menu"
             title={user?.email || "Account"}
           >
             {initials}
-          </button>
+          </Button>
 
           {menuOpen ? (
             <div className="absolute right-0 top-full mt-2 w-60 rounded-xl border border-border bg-panel shadow-lift overflow-hidden z-50">
@@ -114,9 +111,9 @@ export function BuilderTopbar() {
                 <Icon name="settings" className="text-[18px]" />
                 Settings
               </Link>
-              <button
-                type="button"
-                className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-muted hover:bg-surface2 hover:text-text transition-colors disabled:opacity-60"
+              <Button
+                variant="ghost"
+                className="w-full flex items-center justify-start gap-2 px-4 py-2.5 h-auto text-sm text-muted hover:bg-surface2 hover:text-text transition-colors disabled:opacity-60 rounded-none font-normal"
                 onClick={async () => {
                   await signOut();
                   setMenuOpen(false);
@@ -126,7 +123,7 @@ export function BuilderTopbar() {
               >
                 <Icon name="arrow_back" className="text-[18px] rotate-180" />
                 Log out
-              </button>
+              </Button>
             </div>
           ) : null}
         </div>

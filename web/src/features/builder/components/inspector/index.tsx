@@ -5,6 +5,7 @@ import { InspectorEdgeSummary } from "./edge-summary";
 import { InspectorIoPanel } from "./io-panel";
 import { InspectorNotesPanel } from "./notes-panel";
 import { InspectorFooter } from "./footer";
+import { Button } from "@/components/ui/button";
 import { useInspector } from "../../hooks/use-inspector";
 
 export function Inspector() {
@@ -28,33 +29,33 @@ export function Inspector() {
   return (
     <aside className="w-80 bg-panel border-l border-border flex flex-col z-20 shadow-[0_4px_24px_-12px_rgba(0,0,0,0.1)]">
       <div className="flex border-b border-border bg-surface2">
-        <button
-          type="button"
-          className={`flex-1 py-3 text-xs font-bold ${
-            tab === "config" ? "text-accent border-b-2 border-accent bg-panel" : "text-muted hover:text-text"
+        <Button
+          variant="ghost"
+          className={`flex-1 py-3 h-auto text-xs font-bold rounded-none border-b-2 transition-all ${
+            tab === "config" ? "text-accent border-accent bg-panel" : "text-muted hover:text-text border-transparent"
           }`}
           onClick={() => setTab("config")}
         >
           Configuration
-        </button>
-        <button
-          type="button"
-          className={`flex-1 py-3 text-xs font-bold ${
-            tab === "io" ? "text-accent border-b-2 border-accent bg-panel" : "text-muted hover:text-text"
+        </Button>
+        <Button
+          variant="ghost"
+          className={`flex-1 py-3 h-auto text-xs font-bold rounded-none border-b-2 transition-all ${
+            tab === "io" ? "text-accent border-accent bg-panel" : "text-muted hover:text-text border-transparent"
           }`}
           onClick={() => setTab("io")}
         >
           Input / Output
-        </button>
-        <button
-          type="button"
-          className={`flex-1 py-3 text-xs font-bold ${
-            tab === "notes" ? "text-accent border-b-2 border-accent bg-panel" : "text-muted hover:text-text"
+        </Button>
+        <Button
+          variant="ghost"
+          className={`flex-1 py-3 h-auto text-xs font-bold rounded-none border-b-2 transition-all ${
+            tab === "notes" ? "text-accent border-accent bg-panel" : "text-muted hover:text-text border-transparent"
           }`}
           onClick={() => setTab("notes")}
         >
           Notes
-        </button>
+        </Button>
       </div>
 
       <div className="flex-1 overflow-y-auto p-5">

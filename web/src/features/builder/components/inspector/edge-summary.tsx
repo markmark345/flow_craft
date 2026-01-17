@@ -1,6 +1,6 @@
 "use client";
 
-import { Icon } from "@/shared/components/icon";
+import { Icon } from "@/components/ui/icon";
 
 export function InspectorEdgeSummary({
   sourceLabel,

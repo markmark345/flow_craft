@@ -1,6 +1,6 @@
-import { API_BASE_URL } from "@/shared/lib/env";
-import { request } from "@/shared/lib/fetcher";
-import { AuthSession, AuthUser } from "@/shared/lib/auth";
+import { API_BASE_URL } from "@/lib/env";
+import { request } from "@/lib/fetcher";
+import { AuthSession, AuthUser } from "@/lib/auth";
 
 export async function login(identifier: string, password: string): Promise<AuthSession> {
   const res = await request<{ data: AuthSession }>(`${API_BASE_URL}/auth/login`, {

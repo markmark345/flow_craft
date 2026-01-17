@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import type { Route } from "next";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useAppStore } from "@/shared/hooks/use-app-store";
+import { useAppStore } from "@/hooks/use-app-store";
 import { useAuthStore } from "../store/use-auth-store";
-import { request } from "@/shared/lib/fetcher";
-import { API_BASE_URL } from "@/shared/lib/env";
+import { request } from "@/lib/fetcher";
+import { API_BASE_URL } from "@/lib/env";
 
 export interface UseOAuthCallbackPageReturn {
   // State

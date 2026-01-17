@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import type { Node } from "reactflow";
-import type { SelectOption } from "@/shared/components/select";
-import type { SchemaField } from "@/shared/components/SchemaForm/types";
+import type { SelectOption } from "@/components/ui/select";
+import type { SchemaField } from "@/components/ui/SchemaForm/types";
 import { useCredentialOptions } from "@/features/credentials/hooks/use-credential-options";
 import type { FlowNodeData } from "../types";
 import { AGENT_TOOL_CATALOG, MODEL_PROVIDERS } from "../nodeCatalog/catalog";

@@ -3,8 +3,8 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { getRun } from "../services/runsApi";
 import { useRunsStore } from "../store/use-runs-store";
-import { useAppStore } from "@/shared/hooks/use-app-store";
-import { RunDTO } from "@/shared/types/dto";
+import { useAppStore } from "@/hooks/use-app-store";
+import { RunDTO } from "@/types/dto";
 
 type Options = { pollMs?: number };
 

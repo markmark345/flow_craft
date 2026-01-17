@@ -2,11 +2,13 @@
 
 import Link from "next/link";
 import type { Route } from "next";
-import { BrandLogo } from "@/shared/components/BrandLogo";
-import { Button } from "@/shared/components/button";
-import { Icon } from "@/shared/components/icon";
-import { Input } from "@/shared/components/input";
-import { Panel } from "@/shared/components/panel";
+import { BrandLogo } from "@/components/ui/BrandLogo";
+import { Button } from "@/components/ui/button";
+import { Icon } from "@/components/ui/icon";
+import { IconButton } from "@/components/ui/icon-button";
+import { Input } from "@/components/ui/input";
+import { Panel } from "@/components/ui/panel";
+import { Label } from "@/components/ui/label";
 import { useLoginPage } from "../hooks/use-login-page";
 
 export function LoginPage() {
@@ -41,7 +43,7 @@ export function LoginPage() {
 
           <div className="space-y-4">
             <div className="space-y-2">
-              <label className="text-xs font-semibold text-muted uppercase tracking-wide">Email or username</label>
+              <Label>Email or username</Label>
               <Input
                 value={identifier}
                 onChange={(e) => setIdentifier(e.target.value)}
@@ -55,7 +57,7 @@ export function LoginPage() {
 
             <div className="space-y-2">
               <div className="flex items-center justify-between gap-2">
-                <label className="text-xs font-semibold text-muted uppercase tracking-wide">Password</label>
+                <Label>Password</Label>
                 <Link
                   href={`/forgot-password?next=${encodeURIComponent(next)}` as Route}
                   className="text-xs font-medium text-accent hover:underline"
@@ -75,14 +77,13 @@ export function LoginPage() {
                   style={inputErrorStyle}
                   aria-invalid={Boolean(inlineError)}
                 />
-                <button
-                  type="button"
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-text"
+                <IconButton
+                  icon={showPassword ? "visibility_off" : "visibility"}
+                  className="absolute right-3 top-1/2 -translate-y-1/2"
                   onClick={() => setShowPassword((v) => !v)}
                   aria-label={showPassword ? "Hide password" : "Show password"}
-                >
-                  <Icon name={showPassword ? "visibility_off" : "visibility"} className="text-[18px]" />
-                </button>
+                  size="sm"
+                />
               </div>
             </div>
 
@@ -140,15 +141,15 @@ export function LoginPage() {
       </Panel>
 
       <div className="mt-8 flex items-center gap-6 text-xs text-muted">
-        <button type="button" className="hover:text-text" onClick={() => showInfo("Privacy", "Coming soon.")}>
+        <Button variant="link" className="p-0 h-auto font-normal" onClick={() => showInfo("Privacy", "Coming soon.")}>
           Privacy
-        </button>
+        </Button>
         <Link href="/docs" className="hover:text-text">
           Docs
         </Link>
-        <button type="button" className="hover:text-text" onClick={() => showInfo("Support", "Coming soon.")}>
+        <Button variant="link" className="p-0 h-auto font-normal" onClick={() => showInfo("Support", "Coming soon.")}>
           Contact Support
-        </button>
+        </Button>
       </div>
     </div>
   );
