@@ -6,6 +6,14 @@ import { IconButton } from "@/components/ui/icon-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { cn } from "@/lib/cn";
 import { ProjectMemberDTO } from "@/types/dto";
 
@@ -87,21 +95,21 @@ export function ProjectMembersCard({
         </form>
 
         <div className="border border-border rounded-xl overflow-hidden">
-          <table className="w-full text-left">
-            <thead className="bg-surface2 text-xs uppercase text-muted">
-              <tr>
-                <th className="px-6 py-3 font-semibold">User</th>
-                <th className="px-6 py-3 font-semibold text-right">Role</th>
-                <th className="px-6 py-3" />
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border">
+          <Table>
+            <TableHeader className="bg-surface2">
+              <TableRow className="hover:bg-surface2 border-border">
+                <TableHead className="px-6 py-3 h-auto text-xs uppercase font-semibold text-muted">User</TableHead>
+                <TableHead className="px-6 py-3 h-auto text-xs uppercase font-semibold text-muted text-right">Role</TableHead>
+                <TableHead className="px-6 py-3 h-auto w-[50px]" />
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {members.length === 0 ? (
-                <tr>
-                  <td className="px-6 py-6 text-sm text-muted" colSpan={3}>
+                <TableRow className="hover:bg-transparent">
+                  <TableCell className="px-6 py-6 text-sm text-muted text-center" colSpan={3}>
                     No members yet.
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               ) : (
                 members.map((member) => {
                   const roleLabel = member.role === "admin" ? "Admin" : "Member";
@@ -110,8 +118,8 @@ export function ProjectMembersCard({
                       ? "border-[color-mix(in_srgb,var(--accent)_30%,transparent)] bg-[color-mix(in_srgb,var(--accent)_12%,transparent)] text-accent"
                       : "border-border bg-surface2 text-muted";
                   return (
-                    <tr key={member.user.id}>
-                      <td className="px-6 py-4">
+                    <TableRow key={member.user.id} className="border-border hover:bg-surface2/50">
+                      <TableCell className="px-6 py-4">
                         <div className="flex items-center gap-3">
                           <div className="size-8 rounded-full bg-surface2 border border-border flex items-center justify-center text-xs font-semibold text-muted">
                             {memberInitials(member)}
@@ -123,8 +131,8 @@ export function ProjectMembersCard({
                             <div className="text-xs text-muted truncate">{member.user.email}</div>
                           </div>
                         </div>
-                      </td>
-                      <td className="px-6 py-4 text-right">
+                      </TableCell>
+                      <TableCell className="px-6 py-4 text-right">
                         <span
                           className={cn(
                             "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border",
@@ -133,8 +141,8 @@ export function ProjectMembersCard({
                         >
                           {roleLabel}
                         </span>
-                      </td>
-                      <td className="px-6 py-4 text-right">
+                      </TableCell>
+                      <TableCell className="px-6 py-4 text-right">
                         <IconButton
                           icon="close"
                           size="sm"
@@ -143,13 +151,13 @@ export function ProjectMembersCard({
                           onClick={() => onRemoveMember(member.user.id)}
                           title="Remove member"
                         />
-                      </td>
-                    </tr>
+                      </TableCell>
+                    </TableRow>
                   );
                 })
               )}
-            </tbody>
-          </table>
+            </TableBody>
+          </Table>
         </div>
       </div>
     </section>

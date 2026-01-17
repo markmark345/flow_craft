@@ -1,7 +1,15 @@
 "use client";
 
-import { RunRow } from "./RunRow";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { RunDTO } from "@/types/dto";
+import { RunRow } from "./RunRow";
 
 type Props = {
   runsLoading: boolean;
@@ -28,26 +36,25 @@ export function RunsTable({
 }: Props) {
   return (
     <div className="bg-panel border border-border rounded-xl shadow-soft overflow-hidden">
-      <div className="overflow-auto">
-        <table className="min-w-[1100px] w-full text-sm">
-          <thead className="bg-surface2 text-muted text-xs uppercase tracking-wider">
-            <tr>
-              <th className="text-left font-semibold px-4 py-3">Status</th>
-              <th className="text-left font-semibold px-4 py-3">Flow Name</th>
-              <th className="text-left font-semibold px-4 py-3">Run ID</th>
-              <th className="text-left font-semibold px-4 py-3">Trigger</th>
-              <th className="text-left font-semibold px-4 py-3">Start Time</th>
-              <th className="text-left font-semibold px-4 py-3">Duration</th>
-              <th className="text-left font-semibold px-4 py-3">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-border">
+      <Table className="min-w-[1100px] w-full text-sm">
+          <TableHeader className="bg-surface2">
+            <TableRow className="border-border hover:bg-surface2">
+              <TableHead className="text-left font-semibold px-4 py-3 text-muted text-xs uppercase tracking-wider h-auto">Status</TableHead>
+              <TableHead className="text-left font-semibold px-4 py-3 text-muted text-xs uppercase tracking-wider h-auto">Flow Name</TableHead>
+              <TableHead className="text-left font-semibold px-4 py-3 text-muted text-xs uppercase tracking-wider h-auto">Run ID</TableHead>
+              <TableHead className="text-left font-semibold px-4 py-3 text-muted text-xs uppercase tracking-wider h-auto">Trigger</TableHead>
+              <TableHead className="text-left font-semibold px-4 py-3 text-muted text-xs uppercase tracking-wider h-auto">Start Time</TableHead>
+              <TableHead className="text-left font-semibold px-4 py-3 text-muted text-xs uppercase tracking-wider h-auto">Duration</TableHead>
+              <TableHead className="text-left font-semibold px-4 py-3 text-muted text-xs uppercase tracking-wider h-auto">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
             {runsLoading && filteredCount === 0 ? (
-              <tr>
-                <td className="px-4 py-6 text-muted" colSpan={7}>
+              <TableRow className="hover:bg-transparent border-transparent">
+                <TableCell className="px-4 py-6 text-muted" colSpan={7}>
                   Loading...
-                </td>
-              </tr>
+                </TableCell>
+              </TableRow>
             ) : pageItems.length ? (
               pageItems.map((run) => (
                 <RunRow
@@ -62,15 +69,14 @@ export function RunsTable({
                 />
               ))
             ) : (
-              <tr>
-                <td className="px-4 py-8 text-muted" colSpan={7}>
+              <TableRow className="hover:bg-transparent border-transparent">
+                <TableCell className="px-4 py-8 text-muted" colSpan={7}>
                   No runs yet. Run a flow to see execution history.
-                </td>
-              </tr>
+                </TableCell>
+              </TableRow>
             )}
-          </tbody>
-        </table>
-      </div>
+          </TableBody>
+      </Table>
     </div>
   );
 }

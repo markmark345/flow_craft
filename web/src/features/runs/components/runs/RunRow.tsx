@@ -3,6 +3,7 @@
 import { Badge } from "@/components/ui/badge";
 import { IconButton } from "@/components/ui/icon-button";
 import { Icon } from "@/components/ui/icon";
+import { TableCell, TableRow } from "@/components/ui/table";
 import { RunDTO } from "@/types/dto";
 import { shortId, formatDate, formatRelative, formatDuration } from "../../lib/run-utils";
 
@@ -26,28 +27,28 @@ export function RunRow({
   startRunForFlow,
 }: Props) {
   return (
-    <tr
+    <TableRow
       key={run.id}
-      className="hover:bg-surface2 transition-colors cursor-pointer"
+      className="hover:bg-surface2 transition-colors cursor-pointer border-border"
       onClick={() => navigateToRun(run.id)}
     >
-      <td className="px-4 py-3">
+      <TableCell className="px-4 py-3">
         <Badge label={run.status} tone={getTone(run.status)} />
-      </td>
-      <td className="px-4 py-3 font-medium text-text">{flowName}</td>
-      <td className="px-4 py-3 font-mono text-xs text-muted">{shortId(run.id)}</td>
-      <td className="px-4 py-3 text-muted">
+      </TableCell>
+      <TableCell className="px-4 py-3 font-medium text-text">{flowName}</TableCell>
+      <TableCell className="px-4 py-3 font-mono text-xs text-muted">{shortId(run.id)}</TableCell>
+      <TableCell className="px-4 py-3 text-muted">
         <span className="inline-flex items-center gap-2">
           <Icon name="data_object" className="text-[16px] text-muted" />
           API
         </span>
-      </td>
-      <td className="px-4 py-3">
+      </TableCell>
+      <TableCell className="px-4 py-3">
         <div className="text-sm text-text">{formatDate(run.createdAt || run.startedAt)}</div>
         <div className="text-xs text-muted">{formatRelative(run.createdAt || run.startedAt)}</div>
-      </td>
-      <td className="px-4 py-3 text-muted">{formatDuration(run.startedAt, run.finishedAt)}</td>
-      <td className="px-4 py-3">
+      </TableCell>
+      <TableCell className="px-4 py-3 text-muted">{formatDuration(run.startedAt, run.finishedAt)}</TableCell>
+      <TableCell className="px-4 py-3">
         <div className="flex items-center justify-end gap-2">
           <IconButton
             icon="open_in_full"
@@ -71,7 +72,7 @@ export function RunRow({
             title="Rerun"
           />
         </div>
-      </td>
-    </tr>
+      </TableCell>
+    </TableRow>
   );
 }
