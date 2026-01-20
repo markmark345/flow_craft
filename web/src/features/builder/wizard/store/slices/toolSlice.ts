@@ -7,13 +7,15 @@ import { AgentToolDraft, WizardState, ToolSlice } from "../types";
 import { request } from "@/lib/fetcher";
 import { API_BASE_URL } from "@/lib/env";
 
+type NodeTestResult = { success: boolean; message?: string; data?: unknown };
+
 export const createToolSlice: StateCreator<WizardState, [], [], ToolSlice> = (set, get) => ({
   runToolTest: async () => {
     const { draft } = get();
     const d = draft as AgentToolDraft;
     const tool = AGENT_TOOL_CATALOG.find((t) => t.toolKey === d.toolKey);
     if (!tool) throw new Error("Choose a tool first");
-    const res = await request<{ data: any }>(`${API_BASE_URL}/nodes/test`, {
+    const res = await request<{ data: NodeTestResult }>(`${API_BASE_URL}/nodes/test`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

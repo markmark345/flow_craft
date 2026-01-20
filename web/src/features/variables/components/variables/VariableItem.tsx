@@ -2,11 +2,12 @@
 
 import { Button } from "@/components/ui/button";
 import { IconButton } from "@/components/ui/icon-button";
+import type { VariableDTO } from "@/types/dto";
 
 type Props = {
-  item: any;
+  item: VariableDTO;
   isAdmin: boolean;
-  onEdit: (item: any) => void;
+  onEdit: (item: VariableDTO) => void;
   onDelete: (id: string) => void;
   formatDate: (val?: string) => string;
 };

@@ -7,13 +7,15 @@ import { request } from "@/lib/fetcher";
 import { API_BASE_URL } from "@/lib/env";
 import { computeCanvasCenterPosition } from "../ui-utils";
 
+type NodeTestResult = { success: boolean; message?: string; data?: unknown };
+
 export const createAgentSlice: StateCreator<WizardState, [], [], AgentSlice> = (set, get) => ({
   runAgentTest: async () => {
     const { draft } = get();
     const d = draft as AgentDraft;
     const model = d.model;
     if (!model) throw new Error("Missing model configuration");
-    const res = await request<{ data: any }>(`${API_BASE_URL}/nodes/test`, {
+    const res = await request<{ data: NodeTestResult }>(`${API_BASE_URL}/nodes/test`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

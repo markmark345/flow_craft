@@ -3,13 +3,14 @@
 import { Button } from "@/components/ui/button";
 import { Panel } from "@/components/ui/panel";
 import { VariableItem } from "./VariableItem";
+import type { VariableDTO } from "@/types/dto";
 
 type Props = {
   loading: boolean;
-  filtered: any[];
+  filtered: VariableDTO[];
   isAdmin: boolean;
   openCreate: () => void;
-  openEdit: (item: any) => void;
+  openEdit: (item: VariableDTO) => void;
   setConfirmDeleteOpen: (open: boolean) => void;
   setSelectedId: (id: string) => void;
   formatDate: (val?: string) => string;

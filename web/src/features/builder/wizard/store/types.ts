@@ -6,7 +6,7 @@ export type WizardMode = "add-app-node" | "add-agent" | "add-agent-tool";
 
 export type WizardTestResult = {
   success: boolean;
-  message: string;
+  message?: string;
   preview?: unknown;
   output?: unknown;
 };

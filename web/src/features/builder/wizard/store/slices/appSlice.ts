@@ -6,13 +6,15 @@ import { request } from "@/lib/fetcher";
 import { API_BASE_URL } from "@/lib/env";
 import { computeCanvasCenterPosition } from "../ui-utils";
 
+type NodeTestResult = { success: boolean; message?: string; data?: unknown };
+
 export const createAppSlice: StateCreator<WizardState, [], [], AppSlice> = (set, get) => ({
   runAppTest: async () => {
       const { draft } = get();
       const d = draft as AppNodeDraft;
       if (!d.app || !d.action) throw new Error("Select an app and action first");
       const provider = d.app;
-      const res = await request<{ data: any }>(`${API_BASE_URL}/nodes/test`, {
+      const res = await request<{ data: NodeTestResult }>(`${API_BASE_URL}/nodes/test`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

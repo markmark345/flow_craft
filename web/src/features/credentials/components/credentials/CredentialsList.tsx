@@ -3,10 +3,11 @@
 import { Button } from "@/components/ui/button";
 import { Panel } from "@/components/ui/panel";
 import { CredentialItem } from "./CredentialItem";
+import type { CredentialDTO } from "@/types/dto";
 
 type Props = {
   loading: boolean;
-  filtered: any[];
+  filtered: CredentialDTO[];
   isAdmin: boolean;
   reload: () => void;
   onDisconnect: (id: string) => void;

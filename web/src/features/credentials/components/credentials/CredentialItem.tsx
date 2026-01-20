@@ -2,9 +2,10 @@
 
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
+import type { CredentialDTO } from "@/types/dto";
 
 type Props = {
-  item: any; // Using any for now to simplify, but ideally should be CredentialDTO
+  item: CredentialDTO;
   isAdmin: boolean;
   onDisconnect: (id: string) => void;
   formatDate: (val?: string) => string;
