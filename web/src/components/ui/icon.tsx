@@ -1,13 +1,16 @@
 import type { ReactNode, SVGProps } from "react";
 import { cn } from "@/lib/cn";
 
+export type IconName = keyof typeof paths;
+
 type Props = Omit<SVGProps<SVGSVGElement>, "children"> & {
-  name: string;
+  name: IconName | string;
   className?: string;
   title?: string;
 };
 
-const paths: Record<string, ReactNode> = {
+
+const paths = {
   // Navigation
   dashboard: (
     <>
@@ -309,7 +312,7 @@ const paths: Record<string, ReactNode> = {
 };
 
 export function Icon({ name, className, title, ...svgProps }: Props) {
-  const node = paths[name];
+  const node = paths[name as IconName];
   if (!node) return null;
 
   return (

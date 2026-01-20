@@ -1,68 +1,18 @@
+
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useAppStore } from "@/hooks/use-app-store";
 import { useWorkspaceStore } from "@/features/workspaces/store/use-workspace-store";
 import type { ProjectDTO, VariableDTO } from "@/types/dto";
 import { getProject } from "@/features/projects/services/projectsApi";
 import { createVariable, deleteVariable, listVariables, updateVariable } from "../services/variablesApi";
-
-type SortKey = "updated" | "created" | "key";
-
-export interface UseVariablesPageReturn {
-  // Data
-  items: VariableDTO[];
-  filtered: VariableDTO[];
-  project: ProjectDTO | null;
-
-  // UI state
-  loading: boolean;
-  isAdmin: boolean;
-  headerTitle: string;
-
-  // Modal state
-  modalOpen: boolean;
-  editing: VariableDTO | null;
-  draftKey: string;
-  draftValue: string;
-  saving: boolean;
-
-  // Delete confirmation
-  confirmDeleteOpen: boolean;
-  selectedId: string | null;
-  deleting: boolean;
-
-  // Filters
-  query: string;
-  sortKey: SortKey;
-
-  // Workspace
-  projectNavItems: Array<{
-    id: string;
-    label: string;
-    href: string;
-    active?: boolean;
-    onClick?: () => void;
-  }>;
-
-  // Actions
-  setQuery: (query: string) => void;
-  setSortKey: (key: SortKey) => void;
-  setModalOpen: (open: boolean) => void;
-  setDraftKey: (key: string) => void;
-  setDraftValue: (value: string) => void;
-  setConfirmDeleteOpen: (open: boolean) => void;
-  setSelectedId: (id: string | null) => void;
-  reload: () => Promise<void>;
-  openCreate: () => void;
-  openEdit: (item: VariableDTO) => void;
-  onSave: () => Promise<void>;
-  onDelete: () => Promise<void>;
-}
+import { useVariablesFilters } from "./use-variables-filters";
+import { useVariablesState } from "./use-variables-state";
 
 /**
  * Custom hook for managing Variables Page state and logic.
  * Handles variable CRUD operations and filtering.
  */
-export function useVariablesPage(scope: "personal" | "project", projectId?: string): UseVariablesPageReturn {
+export function useVariablesPage(scope: "personal" | "project", projectId?: string) {
   const showError = useAppStore((s) => s.showError);
   const showSuccess = useAppStore((s) => s.showSuccess);
   const setActiveProject = useWorkspaceStore((s) => s.setActiveProject);
@@ -72,20 +22,10 @@ export function useVariablesPage(scope: "personal" | "project", projectId?: stri
   const [items, setItems] = useState<VariableDTO[]>([]);
   const [loading, setLoading] = useState(true);
   const [project, setProject] = useState<ProjectDTO | null>(null);
-  const [query, setQuery] = useState("");
-  const [sortKey, setSortKey] = useState<SortKey>("updated");
 
-  // Local state - modal
-  const [modalOpen, setModalOpen] = useState(false);
-  const [editing, setEditing] = useState<VariableDTO | null>(null);
-  const [draftKey, setDraftKey] = useState("");
-  const [draftValue, setDraftValue] = useState("");
-  const [saving, setSaving] = useState(false);
-
-  // Local state - delete confirmation
-  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [deleting, setDeleting] = useState(false);
+  // Sub-hooks
+  const filters = useVariablesFilters(items);
+  const ui = useVariablesState();
 
   // Computed properties
   const headerTitle = scope === "project" ? "Project Variables" : "Variables";
@@ -98,8 +38,9 @@ export function useVariablesPage(scope: "personal" | "project", projectId?: stri
     try {
       const data = await listVariables(scope, projectId);
       setItems(data);
-    } catch (err: any) {
-      showError("Load failed", err?.message || "Unable to load variables");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Unable to load variables";
+      showError("Load failed", message);
       setItems([]);
     } finally {
       setLoading(false);
@@ -127,39 +68,9 @@ export function useVariablesPage(scope: "personal" | "project", projectId?: stri
     }
   }, [projectId, scope, setActiveProject, setScope]);
 
-  // Filtered and sorted items
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    const list = q
-      ? items.filter((item) => item.key.toLowerCase().includes(q) || item.value.toLowerCase().includes(q))
-      : items;
-    const sorted = [...list];
-    sorted.sort((a, b) => {
-      if (sortKey === "key") return a.key.localeCompare(b.key);
-      const aTime = sortKey === "created" ? a.createdAt : a.updatedAt;
-      const bTime = sortKey === "created" ? b.createdAt : b.updatedAt;
-      return (bTime || "").localeCompare(aTime || "");
-    });
-    return sorted;
-  }, [items, query, sortKey]);
-
-  // Modal actions
-  const openCreate = () => {
-    setEditing(null);
-    setDraftKey("");
-    setDraftValue("");
-    setModalOpen(true);
-  };
-
-  const openEdit = (item: VariableDTO) => {
-    setEditing(item);
-    setDraftKey(item.key);
-    setDraftValue(item.value);
-    setModalOpen(true);
-  };
-
+  // Actions
   const onSave = async () => {
-    const key = draftKey.trim();
+    const key = ui.draftKey.trim();
     if (!key) {
       showError("Save failed", "Key is required.");
       return;
@@ -168,38 +79,40 @@ export function useVariablesPage(scope: "personal" | "project", projectId?: stri
       showError("Forbidden", "Only project admins can manage variables.");
       return;
     }
-    setSaving(true);
+    ui.setSaving(true);
     try {
-      if (editing) {
-        const updated = await updateVariable(editing.id, { key, value: draftValue });
+      if (ui.editing) {
+        const updated = await updateVariable(ui.editing.id, { key, value: ui.draftValue });
         setItems((prev) => prev.map((item) => (item.id === updated.id ? updated : item)));
         showSuccess("Updated", "Variable updated.");
       } else {
-        const created = await createVariable({ scope, projectId, key, value: draftValue });
+        const created = await createVariable({ scope, projectId, key, value: ui.draftValue });
         setItems((prev) => [created, ...prev]);
         showSuccess("Created", "Variable created.");
       }
-      setModalOpen(false);
-    } catch (err: any) {
-      showError("Save failed", err?.message || "Unable to save variable");
+      ui.setModalOpen(false);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Unable to save variable";
+      showError("Save failed", message);
     } finally {
-      setSaving(false);
+      ui.setSaving(false);
     }
   };
 
   const onDelete = async () => {
-    if (!selectedId) return;
-    setDeleting(true);
+    if (!ui.selectedId) return;
+    ui.setDeleting(true);
     try {
-      await deleteVariable(selectedId);
-      setItems((prev) => prev.filter((item) => item.id !== selectedId));
+      await deleteVariable(ui.selectedId);
+      setItems((prev) => prev.filter((item) => item.id !== ui.selectedId));
       showSuccess("Deleted", "Variable removed.");
-    } catch (err: any) {
-      showError("Delete failed", err?.message || "Unable to delete variable");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Unable to delete variable";
+      showError("Delete failed", message);
     } finally {
-      setDeleting(false);
-      setConfirmDeleteOpen(false);
-      setSelectedId(null);
+      ui.setDeleting(false);
+      ui.setConfirmDeleteOpen(false);
+      ui.setSelectedId(null);
     }
   };
 
@@ -218,44 +131,18 @@ export function useVariablesPage(scope: "personal" | "project", projectId?: stri
   return {
     // Data
     items,
-    filtered,
     project,
-
-    // UI state
     loading,
     isAdmin,
     headerTitle,
-
-    // Modal state
-    modalOpen,
-    editing,
-    draftKey,
-    draftValue,
-    saving,
-
-    // Delete confirmation
-    confirmDeleteOpen,
-    selectedId,
-    deleting,
-
-    // Filters
-    query,
-    sortKey,
-
-    // Workspace
     projectNavItems,
+    
+    // Spread sub-hooks
+    ...filters,
+    ...ui,
 
     // Actions
-    setQuery,
-    setSortKey,
-    setModalOpen,
-    setDraftKey,
-    setDraftValue,
-    setConfirmDeleteOpen,
-    setSelectedId,
     reload,
-    openCreate,
-    openEdit,
     onSave,
     onDelete,
   };

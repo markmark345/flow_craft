@@ -1,4 +1,5 @@
 "use client";
+import { getErrorMessage } from "@/lib/error-utils";
 
 import { useCallback, useState } from "react";
 import { runFlow } from "../services/runsApi";
@@ -20,8 +21,8 @@ export function useRunFlow() {
         const run = await runFlow(flowId);
         upsertRun(run);
         return run;
-      } catch (err: any) {
-        const msg = err?.message || "Failed to start run";
+      } catch (err: unknown) {
+        const msg = getErrorMessage(err) || "Failed to start run";
         setError(msg);
         throw err;
       } finally {

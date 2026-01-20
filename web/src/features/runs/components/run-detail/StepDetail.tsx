@@ -1,3 +1,4 @@
+import { getErrorMessage } from "@/lib/error-utils";
 "use client";
 
 import { IconButton } from "@/components/ui/icon-button";
@@ -54,8 +55,8 @@ export function StepDetail({
                 try {
                   await navigator.clipboard.writeText(text);
                   showSuccess("Copied", "Copied to clipboard.");
-                } catch (err: any) {
-                  showError("Copy failed", err?.message || "Unable to copy");
+                } catch (err: unknown) {
+                  showError("Copy failed", getErrorMessage(err) || "Unable to copy");
                 }
               }}
               disabled={!selectedStep}

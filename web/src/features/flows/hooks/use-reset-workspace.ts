@@ -1,4 +1,5 @@
 "use client";
+import { getErrorMessage } from "@/lib/error-utils";
 
 import { useCallback, useState } from "react";
 import { resetWorkspace as apiResetWorkspace } from "@/services/systemApi";
@@ -20,8 +21,8 @@ export function useResetWorkspace() {
       setRuns([]);
       setFlows([]);
       showSuccess("Workspace reset", "All flows and runs were removed.");
-    } catch (err: any) {
-      showError("Reset failed", err?.message || "Unable to reset workspace");
+    } catch (err: unknown) {
+      showError("Reset failed", getErrorMessage(err) || "Unable to reset workspace");
       throw err;
     } finally {
       setResetting(false);

@@ -1,4 +1,5 @@
 "use client";
+import { getErrorMessage } from "@/lib/error-utils";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { listRunSteps } from "../services/runsApi";
@@ -21,8 +22,8 @@ export function useRunStepsQuery(runId?: string, options: Options = {}) {
     try {
       const data = await listRunSteps(runId);
       setSteps(runId, data);
-    } catch (err: any) {
-      const msg = err?.message || "Failed to load steps";
+    } catch (err: unknown) {
+      const msg = getErrorMessage(err) || "Failed to load steps";
       setError(msg);
       showError("Load failed", msg);
     } finally {

@@ -45,8 +45,8 @@ export function useBuilderLoad(flowId?: string) {
           };
         }
         hydrate(def, data.name);
-      } catch (err: any) {
-        const msg = err?.message || "Failed to load flow";
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : "Failed to load flow";
         setError(msg);
         showError("Load failed", msg);
       } finally {

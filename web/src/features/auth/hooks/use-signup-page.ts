@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import type { Route } from "next";
+import { getErrorMessage } from "@/lib/error-utils";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useSignup } from "./use-signup";
 
@@ -56,7 +57,7 @@ export function useSignupPage(): UseSignupPageReturn {
   const inputErrorStyle = inlineError ? ({ borderColor: "var(--error)" } as const) : undefined;
 
   const toInlineMessage = (err: any) => {
-    const raw = String(err?.message || "").trim();
+    const raw = String(getErrorMessage(err) || "").trim();
     if (!raw) return "Sign up failed.";
     if (raw.toLowerCase().includes("already")) return "This email/username is already in use.";
     return raw;
@@ -78,7 +79,7 @@ export function useSignupPage(): UseSignupPageReturn {
     try {
       await signUp({ name: name.trim(), email: e, username: u, password });
       router.replace(next as Route);
-    } catch (err: any) {
+    } catch (err: unknown) {
       setInlineError(toInlineMessage(err));
     }
   };

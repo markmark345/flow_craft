@@ -1,4 +1,5 @@
 "use client";
+import { getErrorMessage } from "@/lib/error-utils";
 
 import { useEffect, useMemo, useState } from "react";
 import { CredentialDTO } from "@/types/dto";
@@ -40,9 +41,9 @@ export function useCredentialOptions(provider?: string, enabled = true) {
         const data = await listCredentials(scope, projectId || undefined);
         if (!mounted) return;
         setItems(data);
-      } catch (err: any) {
+      } catch (err: unknown) {
         if (!mounted) return;
-        setError(err?.message || "Failed to load credentials");
+        setError(getErrorMessage(err) || "Failed to load credentials");
         setItems([]);
       } finally {
         if (mounted) setLoading(false);

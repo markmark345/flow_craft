@@ -1,4 +1,5 @@
 "use client";
+import { getErrorMessage } from "@/lib/error-utils";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { getRun } from "../services/runsApi";
@@ -22,8 +23,8 @@ export function useRunDetailQuery(runId?: string, options: Options = {}) {
     try {
       const data = await getRun(runId);
       upsertRun(data);
-    } catch (err: any) {
-      const msg = err?.message || "Failed to load run";
+    } catch (err: unknown) {
+      const msg = getErrorMessage(err) || "Failed to load run";
       setError(msg);
       showError("Load failed", msg);
     } finally {

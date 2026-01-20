@@ -25,8 +25,8 @@ export function useBuilderSave(flowId?: string) {
       });
       markSaved();
       if (!opts.silent) showSuccess("Flow saved");
-    } catch (err: any) {
-      showError("Save failed", err?.message || "Unable to save");
+    } catch (err: unknown) {
+      showError("Save failed", err instanceof Error ? err.message : "Unable to save");
       throw err;
     } finally {
       setSaving(false);

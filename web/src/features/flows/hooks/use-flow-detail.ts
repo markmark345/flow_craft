@@ -1,4 +1,5 @@
 "use client";
+import { getErrorMessage } from "@/lib/error-utils";
 
 import { useCallback, useEffect, useState } from "react";
 import { getFlow } from "../services/flowsApi";
@@ -20,8 +21,8 @@ export function useFlowDetailQuery(flowId?: string) {
     try {
       const data = await getFlow(flowId);
       upsertFlow(data);
-    } catch (err: any) {
-      const msg = err?.message || "Failed to load flow";
+    } catch (err: unknown) {
+      const msg = getErrorMessage(err) || "Failed to load flow";
       setError(msg);
       showError("Load failed", msg);
     } finally {

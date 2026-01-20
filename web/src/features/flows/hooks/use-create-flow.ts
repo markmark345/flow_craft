@@ -1,4 +1,5 @@
 import { useState, useCallback } from "react";
+import { getErrorMessage } from "@/lib/error-utils";
 import { useFlowsStore } from "../store/use-flows-store";
 import { FlowDTO } from "@/types/dto";
 import { createWorkflow } from "@/features/workflows/services/workflowsApi";
@@ -51,8 +52,8 @@ export function useCreateFlow(): UseCreateFlowResult {
               });
         addFlow(flow);
         return flow;
-      } catch (err: any) {
-        setError(err?.message || "Failed to create flow");
+      } catch (err: unknown) {
+        setError(getErrorMessage(err) || "Failed to create flow");
         throw err;
       } finally {
         setLoading(false);

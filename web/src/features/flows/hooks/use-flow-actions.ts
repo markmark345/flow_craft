@@ -1,4 +1,5 @@
 "use client";
+import { getErrorMessage } from "@/lib/error-utils";
 
 import { useCallback, useState } from "react";
 import { deleteFlow, getFlow, updateFlow } from "../services/flowsApi";
@@ -57,8 +58,8 @@ export function useFlowActions() {
         addFlow(flow);
         showSuccess("Flow imported", flow.name);
         return { flow };
-      } catch (err: any) {
-        showError("Import failed", err?.message || "Unable to import flow");
+      } catch (err: unknown) {
+        showError("Import failed", getErrorMessage(err) || "Unable to import flow");
         throw err;
       } finally {
         setImporting(false);
@@ -99,8 +100,8 @@ export function useFlowActions() {
         addFlow(created);
         showSuccess("Flow duplicated", created.name);
         return created;
-      } catch (err: any) {
-        showError("Duplicate failed", err?.message || "Unable to duplicate flow");
+      } catch (err: unknown) {
+        showError("Duplicate failed", getErrorMessage(err) || "Unable to duplicate flow");
         throw err;
       } finally {
         setDuplicatingId(undefined);
@@ -117,8 +118,8 @@ export function useFlowActions() {
         upsertFlow(updated);
         showSuccess("Flow archived", updated.name);
         return updated;
-      } catch (err: any) {
-        showError("Archive failed", err?.message || "Unable to archive flow");
+      } catch (err: unknown) {
+        showError("Archive failed", getErrorMessage(err) || "Unable to archive flow");
         throw err;
       } finally {
         setArchivingId(undefined);
@@ -134,8 +135,8 @@ export function useFlowActions() {
         await deleteFlow(flow.id);
         removeFlow(flow.id);
         showSuccess("Flow deleted", flow.name);
-      } catch (err: any) {
-        showError("Delete failed", err?.message || "Unable to delete flow");
+      } catch (err: unknown) {
+        showError("Delete failed", getErrorMessage(err) || "Unable to delete flow");
         throw err;
       } finally {
         setDeletingId(undefined);

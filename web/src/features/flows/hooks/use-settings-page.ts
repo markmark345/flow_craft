@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { getErrorMessage } from "@/lib/error-utils";
 import { useAppStore } from "@/hooks/use-app-store";
 import { useAuthStore } from "@/features/auth/store/use-auth-store";
 import { useResetWorkspace } from "./use-reset-workspace";
@@ -85,8 +86,8 @@ export function useSettingsPage(): UseSettingsPageReturn {
     try {
       await navigator.clipboard.writeText(workspaceId);
       showSuccess("Copied", "Workspace ID copied to clipboard.");
-    } catch (err: any) {
-      showError("Copy failed", err?.message || "Unable to copy");
+    } catch (err: unknown) {
+      showError("Copy failed", getErrorMessage(err) || "Unable to copy");
     }
   };
 

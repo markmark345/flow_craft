@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { getErrorMessage } from "@/lib/error-utils";
 import { useAppStore } from "@/hooks/use-app-store";
 import { resetPassword } from "../services/authApi";
 
@@ -63,8 +64,8 @@ export function useResetPasswordPage(): UseResetPasswordPageReturn {
       setDone(true);
       showSuccess("Password updated", "You can now log in with your new password.");
       setTimeout(() => router.replace("/login"), 800);
-    } catch (err: any) {
-      showError("Reset failed", err?.message || "Unable to reset password");
+    } catch (err: unknown) {
+      showError("Reset failed", getErrorMessage(err) || "Unable to reset password");
     } finally {
       setLoading(false);
     }

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { getErrorMessage } from "@/lib/error-utils";
 import { useAppStore } from "@/hooks/use-app-store";
 import type { CodeTab } from "../components/code-tabs";
 
@@ -28,8 +29,8 @@ export function useCodeTabs(tabs: CodeTab[], initialTabId?: string): UseCodeTabs
     try {
       await navigator.clipboard.writeText(active.code);
       showSuccess("Copied", "Code copied to clipboard.");
-    } catch (err: any) {
-      showError("Copy failed", err?.message || "Unable to copy");
+    } catch (err: unknown) {
+      showError("Copy failed", getErrorMessage(err) || "Unable to copy");
     }
   };
 

@@ -1,59 +1,19 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAppStore } from "@/hooks/use-app-store";
 import { useWorkspaceStore } from "@/features/workspaces/store/use-workspace-store";
 import type { CredentialDTO, ProjectDTO } from "@/types/dto";
 import { deleteCredential, listCredentials, startCredentialOAuth } from "../services/credentialsApi";
 import { getProject } from "@/features/projects/services/projectsApi";
-
-type SortKey = "updated" | "created" | "name";
-
-export interface UseCredentialsPageReturn {
-  // Data
-  items: CredentialDTO[];
-  filtered: CredentialDTO[];
-  project: ProjectDTO | null;
-
-  // UI state
-  loading: boolean;
-  menuOpen: boolean;
-  menuRef: React.RefObject<HTMLDivElement>;
-  confirmDeleteOpen: boolean;
-  selectedId: string | null;
-  deleting: boolean;
-  isAdmin: boolean;
-  headerTitle: string;
-
-  // Filters
-  query: string;
-  sortKey: SortKey;
-
-  // Workspace
-  returnPath: string;
-  projectNavItems: Array<{
-    id: string;
-    label: string;
-    href: string;
-    active?: boolean;
-    onClick?: () => void;
-  }>;
-
-  // Actions
-  setQuery: (query: string) => void;
-  setSortKey: (key: SortKey) => void;
-  setMenuOpen: (open: boolean | ((prev: boolean) => boolean)) => void;
-  setConfirmDeleteOpen: (open: boolean) => void;
-  setSelectedId: (id: string | null) => void;
-  reload: () => Promise<void>;
-  onConnect: (provider: "google" | "github") => Promise<void>;
-  onDelete: () => Promise<void>;
-}
+import { useCredentialsFilters } from "./use-credentials-filters";
+import { useCredentialsState } from "./use-credentials-state";
 
 /**
  * Custom hook for managing Credentials Page state and logic.
  * Handles credential listing, OAuth flow, and deletion.
  */
-export function useCredentialsPage(scope: "personal" | "project", projectId?: string): UseCredentialsPageReturn {
+export function useCredentialsPage(scope: "personal" | "project", projectId?: string) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const showError = useAppStore((s) => s.showError);
@@ -65,13 +25,10 @@ export function useCredentialsPage(scope: "personal" | "project", projectId?: st
   const [items, setItems] = useState<CredentialDTO[]>([]);
   const [loading, setLoading] = useState(true);
   const [project, setProject] = useState<ProjectDTO | null>(null);
-  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [deleting, setDeleting] = useState(false);
-  const [query, setQuery] = useState("");
-  const [sortKey, setSortKey] = useState<SortKey>("updated");
-  const [menuOpen, setMenuOpen] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
+
+  // Sub-hooks
+  const filters = useCredentialsFilters(items);
+  const ui = useCredentialsState();
 
   // Computed properties
   const headerTitle = scope === "project" ? "Project Credentials" : "Credentials";
@@ -91,8 +48,9 @@ export function useCredentialsPage(scope: "personal" | "project", projectId?: st
     try {
       const data = await listCredentials(scope, projectId);
       setItems(data);
-    } catch (err: any) {
-      showError("Load failed", err?.message || "Unable to load credentials");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Unable to load credentials";
+      showError("Load failed", message);
       setItems([]);
     } finally {
       setLoading(false);
@@ -132,27 +90,6 @@ export function useCredentialsPage(scope: "personal" | "project", projectId?: st
     router.replace(returnPath as any);
   }, [connected, connectError, reload, returnPath, router, showError, showSuccess]);
 
-  // Close menu on outside click
-  useEffect(() => {
-    if (!menuOpen) return;
-    const onMouseDown = (event: MouseEvent) => {
-      const root = menuRef.current;
-      if (!root) return;
-      if (event.target instanceof Node && !root.contains(event.target)) {
-        setMenuOpen(false);
-      }
-    };
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setMenuOpen(false);
-    };
-    window.addEventListener("mousedown", onMouseDown);
-    window.addEventListener("keydown", onKeyDown);
-    return () => {
-      window.removeEventListener("mousedown", onMouseDown);
-      window.removeEventListener("keydown", onKeyDown);
-    };
-  }, [menuOpen]);
-
   // Actions
   const onConnect = async (provider: "google" | "github") => {
     try {
@@ -162,24 +99,26 @@ export function useCredentialsPage(scope: "personal" | "project", projectId?: st
         returnTo: returnPath,
       });
       window.location.href = res.url;
-    } catch (err: any) {
-      showError("Connection failed", err?.message || "Unable to start OAuth flow");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Unable to start OAuth flow";
+      showError("Connection failed", message);
     }
   };
 
   const onDelete = async () => {
-    if (!selectedId) return;
-    setDeleting(true);
+    if (!ui.selectedId) return;
+    ui.setDeleting(true);
     try {
-      await deleteCredential(selectedId);
+      await deleteCredential(ui.selectedId);
       showSuccess("Credential removed");
-      setItems((prev) => prev.filter((item) => item.id !== selectedId));
-    } catch (err: any) {
-      showError("Delete failed", err?.message || "Unable to delete credential");
+      setItems((prev) => prev.filter((item) => item.id !== ui.selectedId));
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Unable to delete credential";
+      showError("Delete failed", message);
     } finally {
-      setDeleting(false);
-      setConfirmDeleteOpen(false);
-      setSelectedId(null);
+      ui.setDeleting(false);
+      ui.setConfirmDeleteOpen(false);
+      ui.setSelectedId(null);
     }
   };
 
@@ -195,57 +134,25 @@ export function useCredentialsPage(scope: "personal" | "project", projectId?: st
     ];
   }, [projectId, scope, setActiveProject]);
 
-  // Filtered and sorted items
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    const list = q
-      ? items.filter((item) => {
-          const hay = `${item.name} ${item.provider} ${item.accountEmail || ""}`.toLowerCase();
-          return hay.includes(q);
-        })
-      : items;
-    const sorted = [...list];
-    sorted.sort((a, b) => {
-      if (sortKey === "name") return (a.name || "").localeCompare(b.name || "");
-      const aTime = sortKey === "created" ? a.createdAt : a.updatedAt;
-      const bTime = sortKey === "created" ? b.createdAt : b.updatedAt;
-      return (bTime || "").localeCompare(aTime || "");
-    });
-    return sorted;
-  }, [items, query, sortKey]);
-
   return {
     // Data
     items,
-    filtered,
     project,
-
-    // UI state
     loading,
-    menuOpen,
-    menuRef,
-    confirmDeleteOpen,
-    selectedId,
-    deleting,
     isAdmin,
     headerTitle,
-
-    // Filters
-    query,
-    sortKey,
-
-    // Workspace
-    returnPath,
     projectNavItems,
+    
+    // Spread sub-hooks
+    ...filters,
+    ...ui,
 
     // Actions
-    setQuery,
-    setSortKey,
-    setMenuOpen,
-    setConfirmDeleteOpen,
-    setSelectedId,
     reload,
     onConnect,
     onDelete,
+    
+    // Explicit return for returnPath if needed in UI, though less common
+    returnPath,
   };
 }

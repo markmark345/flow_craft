@@ -1,16 +1,14 @@
+
 "use client";
 
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { createPortal } from "react-dom";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { cn } from "@/lib/cn";
 import { Icon } from "@/components/ui/icon";
+import { SelectDropdown } from "./select/SelectDropdown";
+import { useSelectPosition } from "./select/useSelectPosition";
+import { SelectOption } from "./select/types";
 
-export type SelectOption = {
-  value: string | number;
-  label: string;
-  description?: string;
-  disabled?: boolean;
-};
+export type { SelectOption };
 
 type Props = {
   value: string | number;
@@ -39,15 +37,7 @@ export function Select({
   const triggerRef = useRef<HTMLButtonElement | null>(null);
   const dropdownRef = useRef<HTMLDivElement | null>(null);
 
-  type DropdownPos = {
-    left: number;
-    width: number;
-    top?: number;
-    bottom?: number;
-    maxHeight: number;
-  };
-
-  const [dropdownPos, setDropdownPos] = useState<DropdownPos | null>(null);
+  const dropdownPos = useSelectPosition(open, triggerRef);
 
   const selected = useMemo(() => options.find((o) => o.value === value) || null, [options, value]);
   const filtered = useMemo(() => {
@@ -57,6 +47,7 @@ export function Select({
     return options.filter((o) => o.label.toLowerCase().includes(q));
   }, [options, query, searchable]);
 
+  // Close when clicking outside
   useEffect(() => {
     if (!open) return;
     const onMouseDown = (e: MouseEvent) => {
@@ -64,6 +55,7 @@ export function Select({
       if (!el) return;
       if (!(e.target instanceof Node)) return;
       const dropdown = dropdownRef.current;
+      // If click is inside trigger (root) or dropdown, ignore
       if (el.contains(e.target)) return;
       if (dropdown && dropdown.contains(e.target)) return;
       setOpen(false);
@@ -79,66 +71,12 @@ export function Select({
     };
   }, [open]);
 
+  // Reset query on close
   useEffect(() => {
     if (!open) {
       setQuery("");
-      setDropdownPos(null);
     }
   }, [open]);
-
-  const updateDropdownPosition = () => {
-    if (typeof window === "undefined") return;
-    const trigger = triggerRef.current;
-    if (!trigger) return;
-
-    const rect = trigger.getBoundingClientRect();
-    const margin = 8;
-    const maxWidth = Math.max(0, window.innerWidth - margin * 2);
-    const width = Math.min(Math.max(rect.width, 220), maxWidth);
-
-    let left = rect.left;
-    left = Math.max(margin, Math.min(left, window.innerWidth - margin - width));
-
-    const spaceBelow = window.innerHeight - rect.bottom - margin;
-    const spaceAbove = rect.top - margin;
-    const shouldOpenUp = spaceBelow < 240 && spaceAbove > spaceBelow;
-
-    if (shouldOpenUp) {
-      setDropdownPos({
-        left,
-        width,
-        bottom: window.innerHeight - rect.top + margin,
-        maxHeight: Math.max(160, rect.top - margin * 2),
-      });
-      return;
-    }
-
-    const top = rect.bottom + margin;
-    setDropdownPos({
-      left,
-      width,
-      top,
-      maxHeight: Math.max(160, window.innerHeight - top - margin),
-    });
-  };
-
-  useLayoutEffect(() => {
-    if (!open) return;
-    updateDropdownPosition();
-  }, [open]);
-
-  useEffect(() => {
-    if (!open) return;
-    const onViewportChange = () => updateDropdownPosition();
-    window.addEventListener("resize", onViewportChange);
-    window.addEventListener("scroll", onViewportChange, true);
-    return () => {
-      window.removeEventListener("resize", onViewportChange);
-      window.removeEventListener("scroll", onViewportChange, true);
-    };
-  }, [open]);
-
-  const portalTarget = typeof document !== "undefined" ? document.body : null;
 
   return (
     <div ref={rootRef} className={cn("relative", className)}>
@@ -164,70 +102,19 @@ export function Select({
         />
       </button>
 
-      {open && portalTarget && dropdownPos
-        ? createPortal(
-            <div
-              ref={dropdownRef}
-              className="fixed z-[60] rounded-xl border border-border bg-panel shadow-lift overflow-hidden flex flex-col"
-              style={{
-                left: dropdownPos.left,
-                width: dropdownPos.width,
-                top: dropdownPos.top,
-                bottom: dropdownPos.bottom,
-                maxHeight: dropdownPos.maxHeight,
-              }}
-              role="listbox"
-            >
-              {searchable ? (
-                <div className="p-2 border-b border-border">
-                  <input
-                    value={query}
-                    onChange={(e) => setQuery(e.target.value)}
-                    placeholder={searchPlaceholder}
-                    className="w-full h-9 rounded-lg bg-surface border border-border px-3 text-sm text-text focus:outline-none focus:shadow-focus"
-                    autoFocus
-                  />
-                </div>
-              ) : null}
-
-              <div className="flex-1 overflow-auto p-1 fc-scrollbar">
-                {filtered.length === 0 ? (
-                  <div className="px-3 py-2 text-sm text-muted">No results</div>
-                ) : (
-                  filtered.map((opt) => {
-                    const isSelected = opt.value === value;
-                    return (
-                      <button
-                        key={String(opt.value)}
-                        type="button"
-                        disabled={opt.disabled}
-                        className={cn(
-                          "w-full text-left px-3 py-2 rounded-lg transition-colors",
-                          "flex items-start gap-2",
-                          opt.disabled ? "opacity-60" : "hover:bg-surface2",
-                          isSelected ? "bg-surface2" : ""
-                        )}
-                        onClick={() => {
-                          onChange(String(opt.value));
-                          setOpen(false);
-                        }}
-                      >
-                        <span className="min-w-0 flex-1">
-                          <div className={cn("text-sm", isSelected ? "font-semibold text-text" : "text-text")}>
-                            {opt.label}
-                          </div>
-                          {opt.description ? <div className="text-xs text-muted">{opt.description}</div> : null}
-                        </span>
-                        {isSelected ? <Icon name="check_circle" className="text-[16px] text-accent mt-0.5" /> : null}
-                      </button>
-                    );
-                  })
-                )}
-              </div>
-            </div>,
-            portalTarget
-          )
-        : null}
+      <SelectDropdown
+        open={open}
+        dropdownPos={dropdownPos}
+        dropdownRef={dropdownRef}
+        searchable={searchable}
+        searchPlaceholder={searchPlaceholder}
+        query={query}
+        setQuery={setQuery}
+        filtered={filtered}
+        value={value}
+        onChange={onChange}
+        setOpen={setOpen}
+      />
     </div>
   );
 }
