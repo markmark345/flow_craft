@@ -13,12 +13,12 @@ export interface UseBuilderTopbarReturn {
   flowId: string | undefined;
   save: (opts?: { silent?: boolean }) => Promise<void>;
   saving: boolean;
-  startRun: (flowId: string) => Promise<any>;
+  startRun: (flowId: string) => Promise<{ id: string }>;
   running: boolean;
   showSuccess: (title: string, message?: string) => void;
   showInfo: (title: string, message?: string) => void;
   showError: (title: string, message?: string) => void;
-  user: any;
+  user: { id: string; name: string; email: string } | undefined;
   signOut: () => Promise<void>;
   signingOut: boolean;
   localName: string;

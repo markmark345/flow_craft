@@ -46,7 +46,7 @@ export function useLoginPage(): UseLoginPageReturn {
 
   const inputErrorStyle = inlineError ? ({ borderColor: "var(--error)" } as const) : undefined;
 
-  const toInlineMessage = (err: any) => {
+  const toInlineMessage = (err: unknown) => {
     const raw = String(getErrorMessage(err) || "").trim();
     if (!raw) return "Login failed.";
     if (raw.toLowerCase().includes("invalid")) return "Email/username or password is incorrect.";

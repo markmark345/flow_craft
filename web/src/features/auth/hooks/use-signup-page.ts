@@ -56,7 +56,7 @@ export function useSignupPage(): UseSignupPageReturn {
   const usernameSuggestion = useMemo(() => inferUsername(email), [email]);
   const inputErrorStyle = inlineError ? ({ borderColor: "var(--error)" } as const) : undefined;
 
-  const toInlineMessage = (err: any) => {
+  const toInlineMessage = (err: unknown) => {
     const raw = String(getErrorMessage(err) || "").trim();
     if (!raw) return "Sign up failed.";
     if (raw.toLowerCase().includes("already")) return "This email/username is already in use.";
