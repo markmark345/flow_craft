@@ -1,5 +1,7 @@
 import { useMemo, useState } from "react";
 import { AGENT_TOOL_CATALOG } from "@/features/builder/nodeCatalog/catalog";
+import type { AgentToolConfig } from "../../types/agent";
+import type { AgentDraft } from "../store/types";
 
 export interface UseAgentToolsStepReturn {
   query: string;
@@ -14,8 +16,8 @@ export interface UseAgentToolsStepReturn {
  * Handles tool search, adding/removing tools from draft.
  */
 export function useAgentToolsStep(
-  tools: any[],
-  setDraft: (patch: any) => void
+  tools: AgentToolConfig[],
+  setDraft: (patch: Partial<AgentDraft>) => void
 ): UseAgentToolsStepReturn {
   const [query, setQuery] = useState("");
 

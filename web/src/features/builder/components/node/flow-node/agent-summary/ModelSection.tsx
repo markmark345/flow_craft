@@ -2,11 +2,11 @@
 
 import { NodeIcon } from "../../node-icon";
 import { cn } from "@/lib/cn";
-import { isValidAgentModelConfig } from "../../../../types/agent";
+import { isValidAgentModelConfig, AgentModelConfig } from "../../../../types/agent";
 import { ConnectorLine } from "./ConnectorLine";
 
 interface ModelSectionProps {
-  modelCfg: any;
+  modelCfg: AgentModelConfig | null;
   onOpenTab: (tab: "model") => void;
 }
 
