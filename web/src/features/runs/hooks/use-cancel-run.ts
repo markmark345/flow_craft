@@ -1,4 +1,5 @@
 "use client";
+import { getErrorMessage } from "@/lib/error-utils";
 
 import { useCallback, useState } from "react";
 import { cancelRun } from "../services/runsApi";
@@ -19,8 +20,8 @@ export function useCancelRun() {
         upsertRun(run);
         showSuccess("Run canceled");
         return run;
-      } catch (err: any) {
-        showError("Cancel failed", err?.message || "Unable to cancel run");
+      } catch (err: unknown) {
+        showError("Cancel failed", getErrorMessage(err) || "Unable to cancel run");
         throw err;
       } finally {
         setCanceling(false);

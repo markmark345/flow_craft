@@ -1,3 +1,4 @@
+import { getErrorMessage } from "@/lib/error-utils";
 "use client";
 
 import type { ReactNode } from "react";
@@ -137,8 +138,8 @@ export function CopyIconButton({ value }: { value: string }) {
         try {
           await navigator.clipboard.writeText(value);
           showSuccess("Copied");
-        } catch (err: any) {
-          showError("Copy failed", err?.message || "Unable to copy");
+        } catch (err: unknown) {
+          showError("Copy failed", getErrorMessage(err) || "Unable to copy");
         }
       }}
     />

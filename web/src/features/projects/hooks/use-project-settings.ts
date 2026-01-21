@@ -1,4 +1,5 @@
 "use client";
+import { getErrorMessage } from "@/lib/error-utils";
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -54,8 +55,8 @@ export function useProjectSettings(projectId: string) {
         setActiveProject(p.id);
         const ms = await listProjectMembers(projectId);
         setMembers(ms);
-      } catch (err: any) {
-        showError("Load failed", err?.message || "Unable to load project");
+      } catch (err: unknown) {
+        showError("Load failed", getErrorMessage(err) || "Unable to load project");
         router.replace("/flows");
       } finally {
         setLoading(false);
@@ -97,8 +98,8 @@ export function useProjectSettings(projectId: string) {
       setDescription(updated.description || "");
       showSuccess("Saved", "Project updated.");
       await refreshProjects();
-    } catch (err: any) {
-      showError("Save failed", err?.message || "Unable to save project");
+    } catch (err: unknown) {
+      showError("Save failed", getErrorMessage(err) || "Unable to save project");
     } finally {
       setSaving(false);
     }
@@ -117,8 +118,8 @@ export function useProjectSettings(projectId: string) {
       const ms = await listProjectMembers(projectId);
       setMembers(ms);
       showSuccess("Member added");
-    } catch (err: any) {
-      showError("Add member failed", err?.message || "Unable to add member");
+    } catch (err: unknown) {
+      showError("Add member failed", getErrorMessage(err) || "Unable to add member");
     } finally {
       setAddingMember(false);
     }
@@ -129,8 +130,8 @@ export function useProjectSettings(projectId: string) {
       await removeProjectMember(projectId, userId);
       setMembers((prev) => prev.filter((m) => m.user.id !== userId));
       showSuccess("Member removed");
-    } catch (err: any) {
-      showError("Remove failed", err?.message || "Unable to remove member");
+    } catch (err: unknown) {
+      showError("Remove failed", getErrorMessage(err) || "Unable to remove member");
     }
   };
 
@@ -142,8 +143,8 @@ export function useProjectSettings(projectId: string) {
       setScope("personal");
       showSuccess("Project deleted");
       router.replace("/flows");
-    } catch (err: any) {
-      showError("Delete failed", err?.message || "Unable to delete project");
+    } catch (err: unknown) {
+      showError("Delete failed", getErrorMessage(err) || "Unable to delete project");
     } finally {
       setDeleting(false);
       setConfirmDeleteOpen(false);

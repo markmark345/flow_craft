@@ -33,13 +33,15 @@ export interface UseInspectorChatModelConfigReturn {
   invalid: boolean;
 }
 
+import type { CredentialOption } from "@/features/credentials/hooks/use-credential-options";
+
 /**
  * Custom hook for managing chat model configuration in inspector.
  * Handles provider selection, credential options, and validation.
  */
 export function useInspectorChatModelConfig(
   config: Record<string, unknown>,
-  credentialOptionsData: { options: any[]; loading: boolean; error: string | null }
+  credentialOptionsData: { options: CredentialOption[]; loading: boolean; error: string | null }
 ): UseInspectorChatModelConfigReturn {
   const provider = normalizeProvider(config?.provider);
   const defaults = getProviderDefaults(provider);

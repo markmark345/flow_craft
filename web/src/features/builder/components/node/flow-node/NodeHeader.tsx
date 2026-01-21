@@ -14,12 +14,14 @@ type Props = {
   iconRing: string;
   iconNodeType: string;
   runtimeTone?: string;
-  meta?: any;
+  meta?: Record<string, unknown>;
 };
 
 export function NodeHeader({ data, accentColor, iconBg, iconRing, iconNodeType, runtimeTone, meta }: Props) {
   const runtimeStatus = data.runtimeStatus;
   const runtimeStepKey = data.runtimeStepKey;
+  const metaDesc = typeof meta?.description === "string" ? meta.description : undefined;
+  const metaOp = typeof meta?.op === "string" ? meta.op : undefined;
 
   return (
     <div className="flex items-center justify-between mb-3">
@@ -45,8 +47,8 @@ export function NodeHeader({ data, accentColor, iconBg, iconRing, iconNodeType, 
             {data.nodeType === "app"
               ? appLabelFromConfig(data.config) || "App Action"
               : data.nodeType === "aiAgent"
-                ? meta?.description || "AI Agent"
-                : meta?.op || meta?.description || data.description}
+                ? metaDesc || "AI Agent"
+                : metaOp || metaDesc || data.description}
           </div>
         </div>
       </div>

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
+import { getErrorMessage } from "@/lib/error-utils";
 import { useAppStore } from "@/hooks/use-app-store";
 import { requestPasswordReset } from "../services/authApi";
 
@@ -49,8 +50,8 @@ export function useForgotPasswordPage(): UseForgotPasswordPageReturn {
       await requestPasswordReset(trimmed, lang);
       setDone(true);
       showSuccess("Check your inbox", "If the account exists, we sent a reset link.");
-    } catch (err: any) {
-      showError("Request failed", err?.message || "Unable to send reset email");
+    } catch (err: unknown) {
+      showError("Request failed", getErrorMessage(err) || "Unable to send reset email");
     } finally {
       setLoading(false);
     }

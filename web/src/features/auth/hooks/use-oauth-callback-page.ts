@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import type { Route } from "next";
+import { getErrorMessage } from "@/lib/error-utils";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAppStore } from "@/hooks/use-app-store";
 import { useAuthStore } from "../store/use-auth-store";
@@ -48,9 +49,9 @@ export function useOAuthCallbackPage(): UseOAuthCallbackPageReturn {
         setSession({ token, user: res.data });
         showSuccess("Welcome", res.data.email);
         router.replace(normalizeNext(nextParam) as Route);
-      } catch (err: any) {
+      } catch (err: unknown) {
         if (cancelled) return;
-        showError("Login failed", err?.message || "Unable to complete sign-in");
+        showError("Login failed", getErrorMessage(err) || "Unable to complete sign-in");
         router.replace("/login" as Route);
       }
     };

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { getErrorMessage } from "@/lib/error-utils";
 import { useBuilderStore } from "../store/use-builder-store";
 import { useBuilderSave } from "./use-builder-save";
 import { useAppStore, useDebounce, useMounted } from "@/hooks/use-app-store";
@@ -12,12 +13,12 @@ export interface UseBuilderTopbarReturn {
   flowId: string | undefined;
   save: (opts?: { silent?: boolean }) => Promise<void>;
   saving: boolean;
-  startRun: (flowId: string) => Promise<any>;
+  startRun: (flowId: string) => Promise<{ id: string }>;
   running: boolean;
   showSuccess: (title: string, message?: string) => void;
   showInfo: (title: string, message?: string) => void;
   showError: (title: string, message?: string) => void;
-  user: any;
+  user: { id: string; name: string; email: string } | undefined;
   signOut: () => Promise<void>;
   signingOut: boolean;
   localName: string;
@@ -119,8 +120,8 @@ export function useBuilderTopbar(): UseBuilderTopbarReturn {
       const run = await startRun(flowId);
       setActiveRunId(run.id);
       showSuccess("Run started", run.id.slice(0, 8));
-    } catch (err: any) {
-      showError("Run failed", err?.message || "Unable to start run");
+    } catch (err: unknown) {
+      showError("Run failed", getErrorMessage(err) || "Unable to start run");
     }
   };
 

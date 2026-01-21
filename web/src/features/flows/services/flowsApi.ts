@@ -22,7 +22,7 @@ export async function listFlows(): Promise<FlowDTO[]> {
 }
 
 export async function getFlow(id: string): Promise<FlowDTO & { definitionJson?: string }> {
-  const res = await request<{ data: any }>(`${API_BASE_URL}/flows/${id}`);
+  const res = await request<{ data: FlowDTO }>(`${API_BASE_URL}/flows/${id}`);
   return res.data;
 }
 

@@ -2,11 +2,12 @@ import { useEffect, useMemo, useRef } from "react";
 import { useAppStore } from "@/hooks/use-app-store";
 import { useBuilderStore } from "../store/use-builder-store";
 import { useRunDetailQuery } from "@/features/runs/hooks/use-run-detail";
+import type { RunDTO } from "@/types/dto";
 
 export interface UseLogsDrawerReturn {
   flowId: string | undefined;
   runId: string | undefined;
-  run: any;
+  run: RunDTO | undefined;
   loading: boolean;
   reload: () => Promise<void>;
   logText: string;

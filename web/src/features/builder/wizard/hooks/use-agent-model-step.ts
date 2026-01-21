@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { MODEL_PROVIDERS } from "@/features/builder/nodeCatalog/catalog";
+import type { AgentDraft } from "../store/types";
 
 export interface UseAgentModelStepReturn {
   provider: string;
@@ -12,7 +13,7 @@ export interface UseAgentModelStepReturn {
   patchModel: (patch: Record<string, unknown>) => void;
 }
 
-export function useAgentModelStep(draft: any, setDraft: (patch: any) => void): UseAgentModelStepReturn {
+export function useAgentModelStep(draft: AgentDraft, setDraft: (patch: Partial<AgentDraft>) => void): UseAgentModelStepReturn {
   useEffect(() => {
     if (draft.model) return;
     const openai = MODEL_PROVIDERS.find((p) => p.key === "openai")!;

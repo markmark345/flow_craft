@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { getErrorMessage } from "@/lib/error-utils";
 import { useFlowsStore } from "../store/use-flows-store";
 import { useAppStore } from "@/hooks/use-app-store";
 import { useWorkspaceStore } from "@/features/workspaces/store/use-workspace-store";
@@ -23,8 +24,8 @@ export function useFlowsQuery() {
       const flows =
         scope === "project" && projectId ? await listProjectWorkflows(projectId) : await listPersonalWorkflows();
       setFlows(flows);
-    } catch (err: any) {
-      const msg = err?.message || "Failed to load flows";
+    } catch (err: unknown) {
+      const msg = getErrorMessage(err) || "Failed to load flows";
       setError(msg);
       showError("Load failed", msg);
     } finally {

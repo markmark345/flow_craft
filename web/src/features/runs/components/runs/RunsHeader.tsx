@@ -5,15 +5,18 @@ import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Toggle } from "@/components/ui/toggle";
 import { Icon } from "@/components/ui/icon";
-import { RunDTO } from "@/types/dto";
+import { FlowDTO, RunDTO } from "@/types/dto";
+
+type RunStatus = "all" | "queued" | "running" | "success" | "failed" | "canceled";
+type Timeframe = "24h" | "7d" | "30d" | "all";
 
 type Props = {
   query: string;
   setQuery: (v: string) => void;
   status: string;
-  setStatus: (v: any) => void;
+  setStatus: (v: RunStatus) => void;
   timeframe: string;
-  setTimeframe: (v: any) => void;
+  setTimeframe: (v: Timeframe) => void;
   flowId: string;
   setFlowId: (v: string) => void;
   autoRefresh: boolean;
@@ -24,7 +27,7 @@ type Props = {
   exportLogs: () => void;
   refreshAll: () => void;
   runningAny: boolean;
-  flows: any[];
+  flows: FlowDTO[];
 };
 
 export function RunsHeader({

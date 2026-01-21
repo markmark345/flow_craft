@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { Route } from "next";
+import { getErrorMessage } from "@/lib/error-utils";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAppStore } from "@/hooks/use-app-store";
 import { API_BASE_URL } from "@/lib/env";
@@ -45,8 +46,8 @@ export function useLoginPage(): UseLoginPageReturn {
 
   const inputErrorStyle = inlineError ? ({ borderColor: "var(--error)" } as const) : undefined;
 
-  const toInlineMessage = (err: any) => {
-    const raw = String(err?.message || "").trim();
+  const toInlineMessage = (err: unknown) => {
+    const raw = String(getErrorMessage(err) || "").trim();
     if (!raw) return "Login failed.";
     if (raw.toLowerCase().includes("invalid")) return "Email/username or password is incorrect.";
     return raw;
@@ -62,7 +63,7 @@ export function useLoginPage(): UseLoginPageReturn {
     try {
       await signIn(id, password);
       router.replace(next as Route);
-    } catch (err: any) {
+    } catch (err: unknown) {
       setInlineError(toInlineMessage(err));
     }
   };

@@ -18,7 +18,7 @@ export function useLogin() {
         setSession(session);
         showSuccess("Welcome back", `Signed in as ${session.user.email}`);
         return session;
-      } catch (err: any) {
+      } catch (err: unknown) {
         throw err;
       } finally {
         setLoading(false);

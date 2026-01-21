@@ -22,8 +22,8 @@ export function useRunsQuery() {
       }
       const runs = await listRuns({ scope, projectId });
       setRuns(runs);
-    } catch (err: any) {
-      const msg = err?.message || "Failed to load runs";
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Failed to load runs";
       setError(msg);
       showError("Load failed", msg);
     } finally {

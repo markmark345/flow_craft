@@ -18,7 +18,7 @@ export function useSignup() {
         setSession(session);
         showSuccess("Account created", `Signed in as ${session.user.email}`);
         return session;
-      } catch (err: any) {
+      } catch (err: unknown) {
         throw err;
       } finally {
         setLoading(false);
