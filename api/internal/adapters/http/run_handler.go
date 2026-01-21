@@ -39,6 +39,7 @@ func (h *RunHandler) Register(r *gin.RouterGroup) {
 	r.GET("/runs/:id/steps", h.listSteps)
 	r.GET("/runs/:id/steps/:stepId", h.getStep)
 	r.POST("/runs/:id/cancel", h.cancel)
+	r.GET("/stats", h.stats)
 }
 
 func toRFC3339(t *time.Time) *string {
@@ -280,4 +281,20 @@ func (h *RunHandler) CreateForFlow(c *gin.Context) {
 	}
 
 	utils.JSONResponse(c, http.StatusAccepted, runToResponse(created))
+}
+
+func (h *RunHandler) stats(c *gin.Context) {
+	user, _ := currentAuthUser(c)
+	stats, err := h.runs.GetStats(c.Request.Context(), user.ID)
+	if err != nil {
+		utils.JSONError(c, http.StatusInternalServerError, apierrors.ErrInternalServer, err.Error(), nil)
+		return
+	}
+	utils.JSONResponse(c, http.StatusOK, dto.RunStatsResponse{
+		Total:   stats.Total,
+		Success: stats.Success,
+		Failed:  stats.Failed,
+		Running: stats.Running,
+		Queued:  stats.Queued,
+	})
 }

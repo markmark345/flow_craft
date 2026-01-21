@@ -31,3 +31,11 @@ type Run struct {
 	CreatedAt        time.Time
 	UpdatedAt        time.Time
 }
+
+type RunStats struct {
+	Total   int
+	Success int
+	Failed  int
+	Running int
+	Queued  int
+}

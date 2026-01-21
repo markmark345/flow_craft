@@ -176,6 +176,30 @@ func (r *RunRepository) UpdateStatus(ctx context.Context, id string, status stri
 	return nil
 }
 
+func (r *RunRepository) GetStats(ctx context.Context, userID string) (*domain.RunStats, error) {
+	row := r.db.QueryRowContext(ctx, `
+        SELECT
+            COUNT(*) AS total,
+            COUNT(CASE WHEN status = 'success' THEN 1 END) AS success,
+            COUNT(CASE WHEN status = 'failed' THEN 1 END) AS failed,
+            COUNT(CASE WHEN status = 'running' THEN 1 END) AS running,
+            COUNT(CASE WHEN status = 'queued' THEN 1 END) AS queued
+        FROM runs r
+        JOIN flows f ON f.id = r.flow_id
+        LEFT JOIN project_members pm ON pm.project_id = f.project_id AND pm.user_id = $1
+        WHERE
+          (f.scope = 'personal' AND (f.owner_user_id = $1 OR (f.owner_user_id IS NULL AND f.created_by = $1)))
+          OR (f.scope = 'project' AND pm.user_id IS NOT NULL)
+    `, userID)
+
+	var stats domain.RunStats
+	err := row.Scan(&stats.Total, &stats.Success, &stats.Failed, &stats.Running, &stats.Queued)
+	if err != nil {
+		return nil, err
+	}
+	return &stats, nil
+}
+
 func scanRunRows(rows *sql.Rows) ([]domain.Run, error) {
 	var items []domain.Run
 	for rows.Next() {

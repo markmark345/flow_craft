@@ -86,3 +86,11 @@ export type VariableDTO = {
   createdAt?: string;
   updatedAt?: string;
 };
+
+export type RunStatsDTO = {
+  total: number;
+  success: number;
+  failed: number;
+  running: number;
+  queued: number;
+};

@@ -44,10 +44,11 @@ func (s *VariableService) ListScoped(ctx context.Context, user domain.AuthUser, 
 
 func (s *VariableService) Create(ctx context.Context, user domain.AuthUser, scope string, projectID string, variable domain.Variable) (domain.Variable, error) {
 	scope = strings.TrimSpace(scope)
-	if scope == "" || scope == "personal" {
+	switch scope {
+	case "", "personal":
 		variable.UserID = user.ID
 		variable.ProjectID = ""
-	} else if scope == "project" {
+	case "project":
 		if strings.TrimSpace(projectID) == "" {
 			return domain.Variable{}, errors.New("projectId is required for project scope")
 		}
@@ -66,7 +67,7 @@ func (s *VariableService) Create(ctx context.Context, user domain.AuthUser, scop
 		}
 		variable.ProjectID = projectID
 		variable.UserID = user.ID
-	} else {
+	default:
 		return domain.Variable{}, errors.New("invalid scope")
 	}
 

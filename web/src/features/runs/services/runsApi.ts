@@ -44,3 +44,8 @@ export async function getRunStep(runId: string, stepId: string): Promise<RunStep
   const res = await request<{ data: RunStepDTO }>(`${API_BASE_URL}/runs/${runId}/steps/${stepId}`);
   return res.data;
 }
+
+export async function getStats(): Promise<import("@/types/dto").RunStatsDTO> {
+  const res = await request<{ data: import("@/types/dto").RunStatsDTO }>(`${API_BASE_URL}/stats`);
+  return res.data;
+}
