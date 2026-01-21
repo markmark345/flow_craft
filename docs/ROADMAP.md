@@ -24,8 +24,11 @@ This document outlines the planned work, in-progress tasks, and completed milest
 - [x] Refactor `settings-page.tsx` (Reduced to 104 lines)
 - [x] Refactor `run-detail-page.tsx` (Reduced to 92 lines)
 - [x] Refactor `docs-app.tsx` (Reduced to 74 lines)
-- [/] Systematic elimination of `any` types (In Progress)
-- [ ] Refactor remaining large files (> 150 lines)
+- [x] Systematic elimination of `any` types (Codebase-wide pass complete)
+- [x] Refactor remaining large files (> 150 lines)
+    - Split `use-builder-store` into slices (nodes, edges, selection)
+    - Modularized App Catalog (Github, Gmail, Google Sheets, Bannerbear)
+    - Component Refactors (Sidebar, SchemaForm, Select)
 - [ ] **Architecture Audit**: Ensure backend dependency rules (Hexagonal Architecture) are strictly followed.
 
 ---
