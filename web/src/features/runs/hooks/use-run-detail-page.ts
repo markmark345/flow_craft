@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import { useRunDetailQuery } from "./use-run-detail";
 import { useRunStepsQuery } from "./use-run-steps";
 import { useCancelRun } from "./use-cancel-run";
@@ -36,7 +37,7 @@ export interface UseRunDetailPageReturn {
   setSelectedStepId: (id: string | undefined) => void;
   setLogQuery: (query: string) => void;
   refreshAll: () => Promise<void>;
-  reloadSteps: () => Promise<void>;
+  reloadSteps: () => unknown;
   onCancel: () => Promise<void>;
   onRerun: () => Promise<void>;
   getTone: (status: RunDTO["status"]) => "default" | "success" | "warning" | "danger";
@@ -53,6 +54,7 @@ export interface UseRunDetailPageReturn {
  */
 export function useRunDetailPage(runId: string): UseRunDetailPageReturn {
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   // Data queries
   // Initial fetch only, no polling. Real-time updates handled via WebSocket.
@@ -69,11 +71,11 @@ export function useRunDetailPage(runId: string): UseRunDetailPageReturn {
     return subscribe("run_update", (payload) => {
       const event = payload as RunUpdateEvent;
       if (event.runId === runId) {
-        reloadRun();
-        reloadSteps();
+        queryClient.invalidateQueries({ queryKey: ["run", runId] });
+        queryClient.invalidateQueries({ queryKey: ["run-steps", runId] });
       }
     });
-  }, [runId, subscribe, reloadRun, reloadSteps]);
+  }, [runId, subscribe, queryClient]);
 
   // UI messages
   const showSuccess = useAppStore((s) => s.showSuccess);

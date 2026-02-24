@@ -1,8 +1,9 @@
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAppStore } from "@/hooks/use-app-store";
 import { useWorkspaceStore } from "@/features/workspaces/store/use-workspace-store";
-import type { ProjectDTO, VariableDTO } from "@/types/dto";
+import type { ProjectDTO } from "@/types/dto";
 import { getProject } from "@/features/projects/services/projectsApi";
 import { createVariable, deleteVariable, listVariables, updateVariable } from "../services/variablesApi";
 import { useVariablesFilters } from "./use-variables-filters";
@@ -13,43 +14,30 @@ import { useVariablesState } from "./use-variables-state";
  * Handles variable CRUD operations and filtering.
  */
 export function useVariablesPage(scope: "personal" | "project", projectId?: string) {
+  const queryClient = useQueryClient();
   const showError = useAppStore((s) => s.showError);
   const showSuccess = useAppStore((s) => s.showSuccess);
   const setActiveProject = useWorkspaceStore((s) => s.setActiveProject);
   const setScope = useWorkspaceStore((s) => s.setScope);
 
-  // Local state - data
-  const [items, setItems] = useState<VariableDTO[]>([]);
-  const [loading, setLoading] = useState(true);
+  // Local state for project
   const [project, setProject] = useState<ProjectDTO | null>(null);
 
   // Sub-hooks
-  const filters = useVariablesFilters(items);
   const ui = useVariablesState();
+
+  // Data query
+  const { data: items = [], isLoading: loading, refetch: reload } = useQuery({
+    queryKey: ["variables", scope, projectId],
+    queryFn: () => listVariables(scope, projectId),
+    enabled: scope !== "project" || !!projectId,
+  });
+
+  const filters = useVariablesFilters(items);
 
   // Computed properties
   const headerTitle = scope === "project" ? "Project Variables" : "Variables";
   const isAdmin = scope !== "project" || project?.role === "admin";
-
-  // Data loading
-  const reload = useCallback(async () => {
-    if (scope === "project" && !projectId) return;
-    setLoading(true);
-    try {
-      const data = await listVariables(scope, projectId);
-      setItems(data);
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "Unable to load variables";
-      showError("Load failed", message);
-      setItems([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [projectId, scope, showError]);
-
-  useEffect(() => {
-    reload();
-  }, [reload]);
 
   // Load project data
   useEffect(() => {
@@ -68,6 +56,27 @@ export function useVariablesPage(scope: "personal" | "project", projectId?: stri
     }
   }, [projectId, scope, setActiveProject, setScope]);
 
+  const invalidateVariables = () => queryClient.invalidateQueries({ queryKey: ["variables"] });
+
+  // Mutations
+  const createMutation = useMutation({
+    mutationFn: (params: Parameters<typeof createVariable>[0]) => createVariable(params),
+    onSuccess: () => { invalidateVariables(); showSuccess("Created", "Variable created."); },
+    onError: (err: unknown) => showError("Save failed", err instanceof Error ? err.message : "Unable to save variable"),
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: ({ id, key, value }: { id: string; key: string; value: string }) => updateVariable(id, { key, value }),
+    onSuccess: () => { invalidateVariables(); showSuccess("Updated", "Variable updated."); },
+    onError: (err: unknown) => showError("Save failed", err instanceof Error ? err.message : "Unable to save variable"),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => deleteVariable(id),
+    onSuccess: () => { invalidateVariables(); showSuccess("Deleted", "Variable removed."); },
+    onError: (err: unknown) => showError("Delete failed", err instanceof Error ? err.message : "Unable to delete variable"),
+  });
+
   // Actions
   const onSave = async () => {
     const key = ui.draftKey.trim();
@@ -82,18 +91,11 @@ export function useVariablesPage(scope: "personal" | "project", projectId?: stri
     ui.setSaving(true);
     try {
       if (ui.editing) {
-        const updated = await updateVariable(ui.editing.id, { key, value: ui.draftValue });
-        setItems((prev) => prev.map((item) => (item.id === updated.id ? updated : item)));
-        showSuccess("Updated", "Variable updated.");
+        await updateMutation.mutateAsync({ id: ui.editing.id, key, value: ui.draftValue });
       } else {
-        const created = await createVariable({ scope, projectId, key, value: ui.draftValue });
-        setItems((prev) => [created, ...prev]);
-        showSuccess("Created", "Variable created.");
+        await createMutation.mutateAsync({ scope, projectId, key, value: ui.draftValue });
       }
       ui.setModalOpen(false);
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "Unable to save variable";
-      showError("Save failed", message);
     } finally {
       ui.setSaving(false);
     }
@@ -103,12 +105,7 @@ export function useVariablesPage(scope: "personal" | "project", projectId?: stri
     if (!ui.selectedId) return;
     ui.setDeleting(true);
     try {
-      await deleteVariable(ui.selectedId);
-      setItems((prev) => prev.filter((item) => item.id !== ui.selectedId));
-      showSuccess("Deleted", "Variable removed.");
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "Unable to delete variable";
-      showError("Delete failed", message);
+      await deleteMutation.mutateAsync(ui.selectedId);
     } finally {
       ui.setDeleting(false);
       ui.setConfirmDeleteOpen(false);
@@ -136,7 +133,7 @@ export function useVariablesPage(scope: "personal" | "project", projectId?: stri
     isAdmin,
     headerTitle,
     projectNavItems,
-    
+
     // Spread sub-hooks
     ...filters,
     ...ui,

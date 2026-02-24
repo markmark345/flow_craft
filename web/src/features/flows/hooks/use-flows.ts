@@ -1,41 +1,20 @@
-import { useCallback, useEffect, useState } from "react";
-import { getErrorMessage } from "@/lib/error-utils";
-import { useFlowsStore } from "../store/use-flows-store";
-import { useAppStore } from "@/hooks/use-app-store";
+import { useQuery } from "@tanstack/react-query";
 import { useWorkspaceStore } from "@/features/workspaces/store/use-workspace-store";
 import { listPersonalWorkflows, listProjectWorkflows } from "@/features/workflows/services/workflowsApi";
 
 export function useFlowsQuery() {
-  const setFlows = useFlowsStore((s) => s.setFlows);
-  const showError = useAppStore((s) => s.showError);
   const scope = useWorkspaceStore((s) => s.activeScope);
   const projectId = useWorkspaceStore((s) => s.activeProjectId);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | undefined>(undefined);
 
-  const reload = useCallback(async () => {
-    setLoading(true);
-    setError(undefined);
-    try {
-      if (scope === "project" && !projectId) {
-        setFlows([]);
-        return;
-      }
-      const flows =
-        scope === "project" && projectId ? await listProjectWorkflows(projectId) : await listPersonalWorkflows();
-      setFlows(flows);
-    } catch (err: unknown) {
-      const msg = getErrorMessage(err) || "Failed to load flows";
-      setError(msg);
-      showError("Load failed", msg);
-    } finally {
-      setLoading(false);
-    }
-  }, [projectId, scope, setFlows, showError]);
+  const { data: flows = [], isLoading, error, refetch } = useQuery({
+    queryKey: ["flows", scope, projectId],
+    queryFn: () => {
+      if (scope === "project" && !projectId) return Promise.resolve([]);
+      return scope === "project" && projectId
+        ? listProjectWorkflows(projectId)
+        : listPersonalWorkflows();
+    },
+  });
 
-  useEffect(() => {
-    reload();
-  }, [reload, scope, projectId]);
-
-  return { loading, error, reload };
+  return { flows, loading: isLoading, error: error?.message, reload: refetch };
 }

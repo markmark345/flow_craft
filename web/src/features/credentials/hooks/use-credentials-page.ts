@@ -1,13 +1,15 @@
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAppStore } from "@/hooks/use-app-store";
 import { useWorkspaceStore } from "@/features/workspaces/store/use-workspace-store";
-import type { CredentialDTO, ProjectDTO } from "@/types/dto";
+import type { ProjectDTO } from "@/types/dto";
 import { deleteCredential, listCredentials, startCredentialOAuth } from "../services/credentialsApi";
 import { getProject } from "@/features/projects/services/projectsApi";
 import { useCredentialsFilters } from "./use-credentials-filters";
 import { useCredentialsState } from "./use-credentials-state";
+import { useState } from "react";
 
 /**
  * Custom hook for managing Credentials Page state and logic.
@@ -16,19 +18,26 @@ import { useCredentialsState } from "./use-credentials-state";
 export function useCredentialsPage(scope: "personal" | "project", projectId?: string) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const queryClient = useQueryClient();
   const showError = useAppStore((s) => s.showError);
   const showSuccess = useAppStore((s) => s.showSuccess);
   const setActiveProject = useWorkspaceStore((s) => s.setActiveProject);
   const setScope = useWorkspaceStore((s) => s.setScope);
 
-  // Local state
-  const [items, setItems] = useState<CredentialDTO[]>([]);
-  const [loading, setLoading] = useState(true);
+  // Local state for project (not part of credentials query)
   const [project, setProject] = useState<ProjectDTO | null>(null);
 
   // Sub-hooks
-  const filters = useCredentialsFilters(items);
   const ui = useCredentialsState();
+
+  // Data query
+  const { data: items = [], isLoading: loading, refetch: reload } = useQuery({
+    queryKey: ["credentials", scope, projectId],
+    queryFn: () => listCredentials(scope, projectId),
+    enabled: scope !== "project" || !!projectId,
+  });
+
+  const filters = useCredentialsFilters(items);
 
   // Computed properties
   const headerTitle = scope === "project" ? "Project Credentials" : "Credentials";
@@ -40,26 +49,6 @@ export function useCredentialsPage(scope: "personal" | "project", projectId?: st
     if (typeof window === "undefined") return "/";
     return window.location.pathname;
   }, []);
-
-  // Data loading
-  const reload = useCallback(async () => {
-    if (scope === "project" && !projectId) return;
-    setLoading(true);
-    try {
-      const data = await listCredentials(scope, projectId);
-      setItems(data);
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "Unable to load credentials";
-      showError("Load failed", message);
-      setItems([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [projectId, scope, showError]);
-
-  useEffect(() => {
-    reload();
-  }, [reload]);
 
   // Load project data
   useEffect(() => {
@@ -86,9 +75,19 @@ export function useCredentialsPage(scope: "personal" | "project", projectId?: st
     } else if (connected) {
       showSuccess("Connected", `${connected} credential added.`);
     }
-    reload();
+    queryClient.invalidateQueries({ queryKey: ["credentials", scope, projectId] });
     router.replace(returnPath as any);
-  }, [connected, connectError, reload, returnPath, router, showError, showSuccess]);
+  }, [connected, connectError, queryClient, returnPath, router, scope, projectId, showError, showSuccess]);
+
+  // Delete mutation
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => deleteCredential(id),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["credentials"] }),
+    onError: (err: unknown) => {
+      const message = err instanceof Error ? err.message : "Unable to delete credential";
+      showError("Delete failed", message);
+    },
+  });
 
   // Actions
   const onConnect = async (provider: "google" | "github") => {
@@ -109,12 +108,8 @@ export function useCredentialsPage(scope: "personal" | "project", projectId?: st
     if (!ui.selectedId) return;
     ui.setDeleting(true);
     try {
-      await deleteCredential(ui.selectedId);
+      await deleteMutation.mutateAsync(ui.selectedId);
       showSuccess("Credential removed");
-      setItems((prev) => prev.filter((item) => item.id !== ui.selectedId));
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "Unable to delete credential";
-      showError("Delete failed", message);
     } finally {
       ui.setDeleting(false);
       ui.setConfirmDeleteOpen(false);
@@ -142,7 +137,7 @@ export function useCredentialsPage(scope: "personal" | "project", projectId?: st
     isAdmin,
     headerTitle,
     projectNavItems,
-    
+
     // Spread sub-hooks
     ...filters,
     ...ui,
@@ -151,8 +146,7 @@ export function useCredentialsPage(scope: "personal" | "project", projectId?: st
     reload,
     onConnect,
     onDelete,
-    
-    // Explicit return for returnPath if needed in UI, though less common
+
     returnPath,
   };
 }

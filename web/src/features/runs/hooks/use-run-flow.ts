@@ -1,37 +1,26 @@
 "use client";
-import { getErrorMessage } from "@/lib/error-utils";
-
-import { useCallback, useState } from "react";
+import { useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { runFlow } from "../services/runsApi";
-import { useRunsStore } from "../store/use-runs-store";
 import { RunDTO } from "@/types/dto";
 
 export function useRunFlow() {
-  const upsertRun = useRunsStore((s) => s.upsertRun);
-  const [running, setRunning] = useState(false);
+  const queryClient = useQueryClient();
   const [runningFlowId, setRunningFlowId] = useState<string | undefined>(undefined);
-  const [error, setError] = useState<string | undefined>(undefined);
 
-  const startRun = useCallback(
-    async (flowId: string): Promise<RunDTO> => {
-      setRunning(true);
-      setRunningFlowId(flowId);
-      setError(undefined);
-      try {
-        const run = await runFlow(flowId);
-        upsertRun(run);
-        return run;
-      } catch (err: unknown) {
-        const msg = getErrorMessage(err) || "Failed to start run";
-        setError(msg);
-        throw err;
-      } finally {
-        setRunning(false);
-        setRunningFlowId(undefined);
-      }
-    },
-    [upsertRun]
-  );
+  const { mutateAsync, isPending: running } = useMutation({
+    mutationFn: (flowId: string) => runFlow(flowId),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["runs"] }),
+  });
 
-  return { startRun, running, runningFlowId, error };
+  const startRun = async (flowId: string): Promise<RunDTO> => {
+    setRunningFlowId(flowId);
+    try {
+      return await mutateAsync(flowId);
+    } finally {
+      setRunningFlowId(undefined);
+    }
+  };
+
+  return { startRun, running, runningFlowId };
 }

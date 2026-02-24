@@ -1,6 +1,6 @@
-import { useState, useCallback } from "react";
+import { useCallback } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { getErrorMessage } from "@/lib/error-utils";
-import { useFlowsStore } from "../store/use-flows-store";
 import { FlowDTO } from "@/types/dto";
 import { createWorkflow } from "@/features/workflows/services/workflowsApi";
 import { useWorkspaceStore, type WorkspaceScope } from "@/features/workspaces/store/use-workspace-store";
@@ -12,55 +12,34 @@ type UseCreateFlowResult = {
 };
 
 export function useCreateFlow(): UseCreateFlowResult {
-  const addFlow = useFlowsStore((s) => s.addFlow);
+  const queryClient = useQueryClient();
   const scope = useWorkspaceStore((s) => s.activeScope);
   const projectId = useWorkspaceStore((s) => s.activeProjectId);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | undefined>(undefined);
+
+  const { mutateAsync, isPending: loading, error: mutationError } = useMutation({
+    mutationFn: (params: Parameters<typeof createWorkflow>[0]) => createWorkflow(params),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["flows"] }),
+  });
 
   const createFlow = useCallback(
-    async (name: string, opts?: { scope?: WorkspaceScope; projectId?: string | null }) => {
-      setLoading(true);
-      setError(undefined);
-      try {
-        const definitionJson = JSON.stringify({
-          id: "",
-          name,
-          version: 1,
-          reactflow: { nodes: [], edges: [], viewport: { x: 0, y: 0, zoom: 1 } },
-          notes: [],
-        });
-        const targetScope = opts?.scope || scope;
-        const targetProjectId = opts?.projectId ?? projectId;
+    async (name: string, opts?: { scope?: WorkspaceScope; projectId?: string | null }): Promise<FlowDTO> => {
+      const definitionJson = JSON.stringify({
+        id: "",
+        name,
+        version: 1,
+        reactflow: { nodes: [], edges: [], viewport: { x: 0, y: 0, zoom: 1 } },
+        notes: [],
+      });
+      const targetScope = opts?.scope || scope;
+      const targetProjectId = opts?.projectId ?? projectId;
 
-        const flow =
-          targetScope === "project" && targetProjectId
-            ? await createWorkflow({
-                name,
-                scope: "project",
-                projectId: targetProjectId,
-                status: "draft",
-                version: 1,
-                definitionJson,
-              })
-            : await createWorkflow({
-                name,
-                scope: "personal",
-                status: "draft",
-                version: 1,
-                definitionJson,
-              });
-        addFlow(flow);
-        return flow;
-      } catch (err: unknown) {
-        setError(getErrorMessage(err) || "Failed to create flow");
-        throw err;
-      } finally {
-        setLoading(false);
+      if (targetScope === "project" && targetProjectId) {
+        return mutateAsync({ name, scope: "project", projectId: targetProjectId, status: "draft", version: 1, definitionJson });
       }
+      return mutateAsync({ name, scope: "personal", status: "draft", version: 1, definitionJson });
     },
-    [addFlow, projectId, scope]
+    [mutateAsync, projectId, scope]
   );
 
-  return { createFlow, loading, error };
+  return { createFlow, loading, error: mutationError ? (getErrorMessage(mutationError) || "Failed to create flow") : undefined };
 }

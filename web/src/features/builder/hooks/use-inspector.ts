@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useBuilderStore } from "../store/use-builder-store";
-import { useRunStepsStore } from "@/features/runs/store/use-run-steps-store";
+import { listRunSteps } from "@/features/runs/services/runsApi";
 import type { RunStepDTO } from "@/types/dto";
 
 export type InspectorTab = "config" | "io" | "notes";
@@ -68,8 +69,11 @@ export function useInspector(): UseInspectorReturn {
   }, [selectedEdgeId, selectedEdge]);
 
   // Get run steps for active run
-  const steps =
-    useRunStepsStore((s) => (activeRunId ? s.stepsByRunId[activeRunId] : undefined)) || [];
+  const { data: steps = [] } = useQuery({
+    queryKey: ["run-steps", activeRunId],
+    queryFn: () => listRunSteps(activeRunId!),
+    enabled: !!activeRunId,
+  });
 
   // Map steps by node ID for quick lookup
   const stepByNodeId = useMemo(() => {

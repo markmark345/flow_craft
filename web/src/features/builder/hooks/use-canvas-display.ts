@@ -10,7 +10,7 @@ export function useCanvasDisplay(activeRunId?: string) {
   const edges = useBuilderStore((s) => s.edges);
   const reduceMotion = useAppStore((s) => s.reduceMotion);
 
-  const { steps } = useRunStepsQuery(activeRunId, { enableWebSocket: true });
+  const { steps } = useRunStepsQuery(activeRunId);
 
   // Map steps by node ID for quick lookup
   const stepByNodeId = useMemo(() => {

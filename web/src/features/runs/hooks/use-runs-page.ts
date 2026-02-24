@@ -1,12 +1,10 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useRunsStore } from "../store/use-runs-store";
 import { useRunsQuery } from "./use-runs";
 import { useRunFlow } from "./use-run-flow";
 import { useAppStore } from "@/hooks/use-app-store";
 import { useFlowsQuery } from "@/features/flows/hooks/use-flows";
-import { useFlowsStore } from "@/features/flows/store/use-flows-store";
 import type { RunDTO } from "@/types/dto";
 
 import { useRunsFilters } from "./use-runs-filters";
@@ -20,10 +18,8 @@ export function useRunsPage() {
   const router = useRouter();
 
   // Data queries
-  const { loading: runsLoading, error: runsError, reload: reloadRuns } = useRunsQuery();
-  const { loading: flowsLoading, reload: reloadFlows } = useFlowsQuery();
-  const runs = useRunsStore((s) => s.items);
-  const flows = useFlowsStore((s) => s.items);
+  const { runs, loading: runsLoading, error: runsError, reload: reloadRuns } = useRunsQuery();
+  const { flows, loading: flowsLoading, reload: reloadFlows } = useFlowsQuery();
   const { startRun, running, runningFlowId } = useRunFlow();
 
   // UI messages

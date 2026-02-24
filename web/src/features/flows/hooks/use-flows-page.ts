@@ -3,10 +3,8 @@ import { useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { useFlowsQuery } from "./use-flows";
 import { useFlowActions } from "./use-flow-actions";
-import { useFlowsStore } from "../store/use-flows-store";
 import { useRunsQuery } from "@/features/runs/hooks/use-runs";
 import { useRunFlow } from "@/features/runs/hooks/use-run-flow";
-import { useRunsStore } from "@/features/runs/store/use-runs-store";
 import { runMeta, runSortTime } from "../lib/flow-utils";
 import { RunDTO } from "@/types/dto";
 
@@ -34,10 +32,8 @@ export function useFlowsPage() {
   const router = useRouter();
 
   // Data queries
-  const { loading: flowsLoading, error: flowsError, reload: reloadFlows } = useFlowsQuery();
-  const { loading: runsLoading, reload: reloadRuns } = useRunsQuery();
-  const flows = useFlowsStore((s) => s.items);
-  const runs = useRunsStore((s) => s.items);
+  const { flows, loading: flowsLoading, error: flowsError, reload: reloadFlows } = useFlowsQuery();
+  const { runs, loading: runsLoading, reload: reloadRuns } = useRunsQuery();
 
   // Flow actions
   const {

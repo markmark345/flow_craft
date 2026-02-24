@@ -1,39 +1,18 @@
-import { useCallback, useEffect, useState } from "react";
-import { useRunsStore } from "../store/use-runs-store";
-import { listRuns } from "../services/runsApi";
-import { useAppStore } from "@/hooks/use-app-store";
+import { useQuery } from "@tanstack/react-query";
 import { useWorkspaceStore } from "@/features/workspaces/store/use-workspace-store";
+import { listRuns } from "../services/runsApi";
 
 export function useRunsQuery() {
-  const setRuns = useRunsStore((s) => s.setRuns);
-  const showError = useAppStore((s) => s.showError);
   const scope = useWorkspaceStore((s) => s.activeScope);
   const projectId = useWorkspaceStore((s) => s.activeProjectId);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | undefined>(undefined);
 
-  const reload = useCallback(async () => {
-    setLoading(true);
-    setError(undefined);
-    try {
-      if (scope === "project" && !projectId) {
-        setRuns([]);
-        return;
-      }
-      const runs = await listRuns({ scope, projectId });
-      setRuns(runs);
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Failed to load runs";
-      setError(msg);
-      showError("Load failed", msg);
-    } finally {
-      setLoading(false);
-    }
-  }, [projectId, scope, setRuns, showError]);
+  const { data: runs = [], isLoading, error, refetch } = useQuery({
+    queryKey: ["runs", scope, projectId],
+    queryFn: () => {
+      if (scope === "project" && !projectId) return Promise.resolve([]);
+      return listRuns({ scope, projectId });
+    },
+  });
 
-  useEffect(() => {
-    reload();
-  }, [reload, scope, projectId]);
-
-  return { loading, error, reload };
+  return { runs, loading: isLoading, error: error?.message, reload: refetch };
 }

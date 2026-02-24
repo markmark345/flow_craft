@@ -1,35 +1,23 @@
 "use client";
 import { getErrorMessage } from "@/lib/error-utils";
-
-import { useCallback, useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { cancelRun } from "../services/runsApi";
-import { useRunsStore } from "../store/use-runs-store";
 import { useAppStore } from "@/hooks/use-app-store";
 
 export function useCancelRun() {
-  const upsertRun = useRunsStore((s) => s.upsertRun);
+  const queryClient = useQueryClient();
   const showSuccess = useAppStore((s) => s.showSuccess);
   const showError = useAppStore((s) => s.showError);
-  const [canceling, setCanceling] = useState(false);
 
-  const cancel = useCallback(
-    async (runId: string) => {
-      setCanceling(true);
-      try {
-        const run = await cancelRun(runId);
-        upsertRun(run);
-        showSuccess("Run canceled");
-        return run;
-      } catch (err: unknown) {
-        showError("Cancel failed", getErrorMessage(err) || "Unable to cancel run");
-        throw err;
-      } finally {
-        setCanceling(false);
-      }
+  const { mutateAsync: cancel, isPending: canceling } = useMutation({
+    mutationFn: (runId: string) => cancelRun(runId),
+    onSuccess: (run) => {
+      queryClient.invalidateQueries({ queryKey: ["run", run.id] });
+      queryClient.invalidateQueries({ queryKey: ["runs"] });
+      showSuccess("Run canceled");
     },
-    [showError, showSuccess, upsertRun]
-  );
+    onError: (err) => showError("Cancel failed", getErrorMessage(err) || "Unable to cancel run"),
+  });
 
   return { cancel, canceling };
 }
-
