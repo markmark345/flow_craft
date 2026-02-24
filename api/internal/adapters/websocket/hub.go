@@ -31,7 +31,7 @@ type Hub struct {
 
 func NewHub(logger zerolog.Logger) *Hub {
 	return &Hub{
-		broadcast:  make(chan []byte),
+		broadcast:  make(chan []byte, 256), // I6: buffered to avoid blocking callers
 		register:   make(chan *Client),
 		unregister: make(chan *Client),
 		clients:    make(map[*Client]bool),
@@ -59,16 +59,28 @@ func (h *Hub) Run() {
 			}
 			h.mu.Unlock()
 		case message := <-h.broadcast:
+			// C1: collect slow/dead clients under RLock, then delete under Lock
+			// to avoid mutating the map while holding a read lock (data race).
+			var dead []*Client
 			h.mu.RLock()
 			for client := range h.clients {
 				select {
 				case client.send <- message:
 				default:
-					close(client.send)
-					delete(h.clients, client)
+					dead = append(dead, client)
 				}
 			}
 			h.mu.RUnlock()
+			if len(dead) > 0 {
+				h.mu.Lock()
+				for _, c := range dead {
+					if _, ok := h.clients[c]; ok {
+						delete(h.clients, c)
+						close(c.send)
+					}
+				}
+				h.mu.Unlock()
+			}
 		case <-ticker.C:
 			// Prune dead connections or send heartbeats?
 			// Handled by writePump
@@ -107,7 +119,7 @@ func (c *Client) readPump() {
 		_, _, err := c.conn.ReadMessage()
 		if err != nil {
 			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
-				// log error
+				c.hub.logger.Warn().Err(err).Str("remote_addr", c.conn.RemoteAddr().String()).Msg("unexpected websocket close")
 			}
 			break
 		}
