@@ -70,7 +70,10 @@ func CreatePage(ctx context.Context, token string, parentID string, title string
 func makeRequest(ctx context.Context, token string, method string, url string, body interface{}) (map[string]any, error) {
 	var bodyReader *bytes.Buffer
 	if body != nil {
-		jsonBody, _ := json.Marshal(body)
+		jsonBody, err := json.Marshal(body)
+		if err != nil {
+			return nil, fmt.Errorf("failed to marshal request body: %w", err)
+		}
 		bodyReader = bytes.NewBuffer(jsonBody)
 	} else {
 		bodyReader = bytes.NewBuffer(nil)
