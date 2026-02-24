@@ -19,7 +19,7 @@ export function useRunStepsQuery(runId?: string, options: Options = {}) {
 
   const reload = useCallback(async () => {
     if (!runId) return;
-    setLoading(true); // Maybe avoid setting loading true on background refresh?
+    if (!useRunStepsStore.getState().stepsByRunId[runId]?.length) setLoading(true);
     setError(undefined);
     try {
       const data = await listRunSteps(runId);
@@ -62,8 +62,9 @@ export function useRunStepsQuery(runId?: string, options: Options = {}) {
   useEffect(() => {
     if (!runId || !options.enableWebSocket) return;
 
-    const unsubscribe = subscribe("run_update", (payload: any) => {
-        if (payload.runId === runId) {
+    const unsubscribe = subscribe("run_update", (payload) => {
+        const event = payload as import("@/hooks/use-websocket").RunUpdateEvent;
+        if (event.runId === runId) {
             void reload();
         }
     });

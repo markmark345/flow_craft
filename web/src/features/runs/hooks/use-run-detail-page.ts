@@ -8,7 +8,6 @@ import { useFlowDetailQuery } from "@/features/flows/hooks/use-flow-detail";
 import { useAppStore } from "@/hooks/use-app-store";
 import type { RunDTO, RunStepDTO } from "@/types/dto";
 import { useWebSocket, RunUpdateEvent } from "@/hooks/use-websocket";
-import { useQueryClient } from "@tanstack/react-query";
 
 export interface UseRunDetailPageReturn {
   // Data
@@ -65,22 +64,16 @@ export function useRunDetailPage(runId: string): UseRunDetailPageReturn {
 
   // Real-time updates
   const { subscribe } = useWebSocket();
-  const queryClient = useQueryClient();
 
   useEffect(() => {
     return subscribe("run_update", (payload) => {
       const event = payload as RunUpdateEvent;
       if (event.runId === runId) {
-        // Reload run and steps when our run updates
         reloadRun();
         reloadSteps();
-        
-        // Also invalidate globally to ensure freshness
-        queryClient.invalidateQueries({ queryKey: ["run", runId] });
-        queryClient.invalidateQueries({ queryKey: ["run-steps", runId] });
       }
     });
-  }, [runId, subscribe, reloadRun, reloadSteps, queryClient]);
+  }, [runId, subscribe, reloadRun, reloadSteps]);
 
   // UI messages
   const showSuccess = useAppStore((s) => s.showSuccess);
@@ -117,7 +110,9 @@ export function useRunDetailPage(runId: string): UseRunDetailPageReturn {
     try {
       await cancel(run.id);
       await refreshAll();
-    } catch {}
+    } catch (err: unknown) {
+      showError("Cancel failed", err instanceof Error ? err.message : "Could not cancel run");
+    }
   };
 
   const onRerun = async () => {
@@ -126,7 +121,9 @@ export function useRunDetailPage(runId: string): UseRunDetailPageReturn {
       const created = await startRun(run.flowId);
       showSuccess("Run started", "Redirecting to run detail…");
       router.push(`/runs/${created.id}`);
-    } catch {}
+    } catch (err: unknown) {
+      showError("Rerun failed", err instanceof Error ? err.message : "Could not start run");
+    }
   };
 
   const getTone = (s: RunDTO["status"]): "default" | "success" | "warning" | "danger" => {

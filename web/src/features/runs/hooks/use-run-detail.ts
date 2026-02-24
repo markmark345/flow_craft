@@ -20,7 +20,7 @@ export function useRunDetailQuery(runId?: string, options: Options = {}) {
 
   const reload = useCallback(async () => {
     if (!runId) return;
-    setLoading(true);
+    if (!useRunsStore.getState().items.find((r) => r.id === runId)) setLoading(true);
     setError(undefined);
     try {
       const data = await getRun(runId);
@@ -63,8 +63,9 @@ export function useRunDetailQuery(runId?: string, options: Options = {}) {
   useEffect(() => {
     if (!runId || !options.enableWebSocket) return;
 
-    const unsubscribe = subscribe("run_update", (payload: any) => {
-        if (payload.runId === runId) {
+    const unsubscribe = subscribe("run_update", (payload) => {
+        const event = payload as import("@/hooks/use-websocket").RunUpdateEvent;
+        if (event.runId === runId) {
             void reload();
         }
     });
