@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { API_BASE_URL } from "@/lib/env";
+import { getAuthToken } from "@/lib/auth";
 
 export type RunUpdateEvent = {
   runId: string;
@@ -9,77 +10,102 @@ export type RunUpdateEvent = {
 
 type WebSocketMessage = {
   channel: string;
-  payload: any;
+  payload: unknown;
 };
 
-type Listener = (payload: any) => void;
+type Listener = (payload: unknown) => void;
 
-// Simple exponential backoff for reconnection
 const RECONNECT_INTERVAL = 3000;
 
-export function useWebSocket() {
-  const [isConnected, setIsConnected] = useState(false);
-  const socketRef = useRef<WebSocket | null>(null);
-  const listenersRef = useRef<Map<string, Set<Listener>>>(new Map());
-  const reconnectTimeoutRef = useRef<NodeJS.Timeout>();
+// --- Module-level singleton ---
+// A single WebSocket is shared across all hook instances so that mounting
+// multiple components does not open duplicate connections.
 
-  const connect = useCallback(() => {
-    if (socketRef.current?.readyState === WebSocket.OPEN) return;
+let _socket: WebSocket | null = null;
+let _isConnected = false;
+let _reconnectTimeout: ReturnType<typeof setTimeout> | undefined;
+const _listeners = new Map<string, Set<Listener>>();
+const _stateListeners = new Set<(connected: boolean) => void>();
 
-    // Replace http/https with ws/wss
-    const wsUrl = API_BASE_URL.replace(/^http/, "ws") + "/ws";
-    const ws = new WebSocket(wsUrl);
+function _notifyState(connected: boolean) {
+  _isConnected = connected;
+  _stateListeners.forEach((fn) => fn(connected));
+}
 
-    ws.onopen = () => {
-      console.log("[WS] Connected");
-      setIsConnected(true);
-    };
+function _connect() {
+  if (
+    _socket?.readyState === WebSocket.OPEN ||
+    _socket?.readyState === WebSocket.CONNECTING
+  ) {
+    return;
+  }
 
-    ws.onclose = () => {
-      console.log("[WS] Disconnected, reconnecting...");
-      setIsConnected(false);
-      socketRef.current = null;
-      reconnectTimeoutRef.current = setTimeout(connect, RECONNECT_INTERVAL);
-    };
+  const token = getAuthToken();
+  if (!token) {
+    // No auth token yet; retry after the reconnect interval
+    _reconnectTimeout = setTimeout(_connect, RECONNECT_INTERVAL);
+    return;
+  }
 
-    ws.onerror = (err) => {
-      console.error("[WS] Error:", err);
-      ws.close();
-    };
+  const wsUrl =
+    API_BASE_URL.replace(/^http/, "ws") +
+    "/ws?token=" +
+    encodeURIComponent(token);
+  const ws = new WebSocket(wsUrl);
 
-    ws.onmessage = (event) => {
-      try {
-        const msg: WebSocketMessage = JSON.parse(event.data);
-        const { channel, payload } = msg;
-        
-        const listeners = listenersRef.current.get(channel);
-        if (listeners) {
-          listeners.forEach((listener: Listener) => listener(payload));
-        }
-      } catch (e) {
-        console.error("[WS] Failed to parse message", e);
+  ws.onopen = () => {
+    if (_reconnectTimeout) clearTimeout(_reconnectTimeout);
+    _notifyState(true);
+  };
+
+  ws.onclose = () => {
+    _notifyState(false);
+    _socket = null;
+    _reconnectTimeout = setTimeout(_connect, RECONNECT_INTERVAL);
+  };
+
+  ws.onerror = () => {
+    ws.close();
+  };
+
+  ws.onmessage = (event) => {
+    try {
+      const msg = JSON.parse(event.data as string) as WebSocketMessage;
+      const channelListeners = _listeners.get(msg.channel);
+      if (channelListeners) {
+        channelListeners.forEach((fn) => fn(msg.payload));
       }
-    };
+    } catch {
+      // ignore malformed messages
+    }
+  };
 
-    socketRef.current = ws;
-  }, []);
+  _socket = ws;
+}
+
+// --- Hook ---
+// Multiple components can call useWebSocket(); they all share the same
+// underlying connection.  State changes (connect/disconnect) are fanned out
+// to every mounted instance via _stateListeners.
+
+export function useWebSocket() {
+  const [isConnected, setIsConnected] = useState(_isConnected);
 
   useEffect(() => {
-    connect();
+    _stateListeners.add(setIsConnected);
+    _connect();
     return () => {
-      if (reconnectTimeoutRef.current) clearTimeout(reconnectTimeoutRef.current);
-      if (socketRef.current) socketRef.current.close();
+      _stateListeners.delete(setIsConnected);
     };
-  }, [connect]);
+  }, []);
 
   const subscribe = useCallback((channel: string, listener: Listener) => {
-    if (!listenersRef.current.has(channel)) {
-      listenersRef.current.set(channel, new Set());
+    if (!_listeners.has(channel)) {
+      _listeners.set(channel, new Set());
     }
-    listenersRef.current.get(channel)?.add(listener);
-
+    _listeners.get(channel)!.add(listener);
     return () => {
-      listenersRef.current.get(channel)?.delete(listener);
+      _listeners.get(channel)?.delete(listener);
     };
   }, []);
 

@@ -68,8 +68,9 @@ export function useRunDetailPage(runId: string): UseRunDetailPageReturn {
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    return subscribe("run_update", (payload: RunUpdateEvent) => {
-      if (payload.runId === runId) {
+    return subscribe("run_update", (payload) => {
+      const event = payload as RunUpdateEvent;
+      if (event.runId === runId) {
         // Reload run and steps when our run updates
         reloadRun();
         reloadSteps();

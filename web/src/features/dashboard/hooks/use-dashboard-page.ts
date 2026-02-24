@@ -9,7 +9,7 @@ import type { FlowDTO, RunDTO } from "@/types/dto";
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getStats, getRunHistory, DailyStatDTO } from "@/features/runs/services/runsApi";
-import { useWebSocket, RunUpdateEvent } from "@/hooks/use-websocket";
+import { useWebSocket } from "@/hooks/use-websocket";
 import { useEffect } from "react";
 
 export interface UseDashboardPageReturn {
@@ -56,7 +56,7 @@ export function useDashboardPage(): UseDashboardPageReturn {
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    return subscribe("run_update", (payload: RunUpdateEvent) => {
+    return subscribe("run_update", () => {
       // Invalidate queries to refresh data
       queryClient.invalidateQueries({ queryKey: ["runs", "stats"] });
       queryClient.invalidateQueries({ queryKey: ["runs", "history"] });
