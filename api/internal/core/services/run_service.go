@@ -79,6 +79,6 @@ func (s *RunService) GetStats(ctx context.Context, userID string) (*domain.RunSt
 	return s.runs.GetStats(ctx, userID)
 }
 
-func (s *RunService) GetDailyStats(ctx context.Context, days int) ([]domain.DailyStat, error) {
-	return s.runs.GetDailyStats(ctx, days)
+func (s *RunService) GetDailyStats(ctx context.Context, userID string, days int) ([]domain.DailyStat, error) {
+	return s.runs.GetDailyStats(ctx, userID, days)
 }

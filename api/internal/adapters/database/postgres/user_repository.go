@@ -34,10 +34,10 @@ func (r *UserRepository) GetByEmailOrUsername(ctx context.Context, identifier st
 	var u domain.User
 	var passwordHash sql.NullString
 	err := r.db.QueryRowContext(ctx, `
-		SELECT id, name, email, username, password_hash, created_at, updated_at
+		SELECT id, name, email, username, password_hash, role, created_at, updated_at
 		FROM users
 		WHERE email = $1 OR username = $1
-	`, ident).Scan(&u.ID, &u.Name, &u.Email, &u.Username, &passwordHash, &u.CreatedAt, &u.UpdatedAt)
+	`, ident).Scan(&u.ID, &u.Name, &u.Email, &u.Username, &passwordHash, &u.Role, &u.CreatedAt, &u.UpdatedAt)
 	if err == sql.ErrNoRows {
 		return nil, utils.ErrNotFound
 	}
@@ -55,10 +55,10 @@ func (r *UserRepository) GetByEmail(ctx context.Context, email string) (*domain.
 	var u domain.User
 	var passwordHash sql.NullString
 	err := r.db.QueryRowContext(ctx, `
-		SELECT id, name, email, username, password_hash, created_at, updated_at
+		SELECT id, name, email, username, password_hash, role, created_at, updated_at
 		FROM users
 		WHERE email = $1
-	`, ident).Scan(&u.ID, &u.Name, &u.Email, &u.Username, &passwordHash, &u.CreatedAt, &u.UpdatedAt)
+	`, ident).Scan(&u.ID, &u.Name, &u.Email, &u.Username, &passwordHash, &u.Role, &u.CreatedAt, &u.UpdatedAt)
 	if err == sql.ErrNoRows {
 		return nil, utils.ErrNotFound
 	}
@@ -75,10 +75,10 @@ func (r *UserRepository) Get(ctx context.Context, id string) (*domain.User, erro
 	var u domain.User
 	var passwordHash sql.NullString
 	err := r.db.QueryRowContext(ctx, `
-		SELECT id, name, email, username, password_hash, created_at, updated_at
+		SELECT id, name, email, username, password_hash, role, created_at, updated_at
 		FROM users
 		WHERE id = $1
-	`, id).Scan(&u.ID, &u.Name, &u.Email, &u.Username, &passwordHash, &u.CreatedAt, &u.UpdatedAt)
+	`, id).Scan(&u.ID, &u.Name, &u.Email, &u.Username, &passwordHash, &u.Role, &u.CreatedAt, &u.UpdatedAt)
 	if err == sql.ErrNoRows {
 		return nil, utils.ErrNotFound
 	}

@@ -52,6 +52,9 @@ func (s *VariableService) Create(ctx context.Context, user domain.AuthUser, scop
 		variable.UserID = user.ID
 		variable.ProjectID = ""
 	case "global":
+		if user.Role != "system_admin" {
+			return domain.Variable{}, utils.ErrForbidden
+		}
 		variable.UserID = ""
 		variable.ProjectID = ""
 	case "project":
@@ -125,7 +128,10 @@ func (s *VariableService) Update(ctx context.Context, user domain.AuthUser, id s
 	}
 	if existing.ProjectID == "" {
 		if existing.UserID == "" {
-			// Global: allow update
+			// Global: only system_admin may update
+			if user.Role != "system_admin" {
+				return nil, utils.ErrForbidden
+			}
 		} else if existing.UserID != user.ID {
 			return nil, utils.ErrForbidden
 		}
@@ -167,8 +173,10 @@ func (s *VariableService) Delete(ctx context.Context, user domain.AuthUser, id s
 	}
 	if variable.ProjectID == "" {
 		if variable.UserID == "" {
-			// Global: allow delete (should restrict to admin/creator?)
-			// For now allow all
+			// Global: only system_admin may delete
+			if user.Role != "system_admin" {
+				return utils.ErrForbidden
+			}
 			return s.vars.Delete(ctx, id)
 		}
 		if variable.UserID != user.ID {

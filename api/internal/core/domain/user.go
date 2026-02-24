@@ -8,6 +8,7 @@ type User struct {
 	Email        string
 	Username     string
 	PasswordHash string
+	Role         string // "user" | "system_admin"
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
 }

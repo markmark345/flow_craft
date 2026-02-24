@@ -71,7 +71,7 @@ type RunRepository interface {
 	Get(ctx context.Context, id string) (*domain.Run, error)
 	GetForUser(ctx context.Context, id string, userID string) (*domain.Run, error)
 	GetStats(ctx context.Context, userID string) (*domain.RunStats, error)
-	GetDailyStats(ctx context.Context, days int) ([]domain.DailyStat, error)
+	GetDailyStats(ctx context.Context, userID string, days int) ([]domain.DailyStat, error)
 	UpdateStatus(ctx context.Context, id string, status string, log string) error
 }
 

@@ -3,6 +3,7 @@ package httpadapter
 import (
 	"context"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
@@ -304,8 +305,15 @@ func (h *RunHandler) stats(c *gin.Context) {
 }
 
 func (h *RunHandler) history(c *gin.Context) {
-	days := 7 // Default to 7 days
-	stats, err := h.runs.GetDailyStats(c.Request.Context(), days)
+	user := c.MustGet("authUser").(domain.AuthUser)
+
+	// S5: accept ?days=N, default 7
+	days := 7
+	if d, err := strconv.Atoi(c.Query("days")); err == nil && d > 0 && d <= 90 {
+		days = d
+	}
+
+	stats, err := h.runs.GetDailyStats(c.Request.Context(), user.ID, days)
 	if err != nil {
 		utils.JSONError(c, http.StatusInternalServerError, apierrors.ErrInternalServer, err.Error(), nil)
 		return

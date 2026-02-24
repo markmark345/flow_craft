@@ -96,7 +96,7 @@ func (s *AuthService) SignUp(ctx context.Context, name string, email string, use
 	if err != nil {
 		return "", domain.AuthUser{}, err
 	}
-	return token, domain.AuthUser{ID: user.ID, Name: user.Name, Email: user.Email}, nil
+	return token, domain.AuthUser{ID: user.ID, Name: user.Name, Email: user.Email, Role: user.Role}, nil
 }
 
 func (s *AuthService) Login(ctx context.Context, identifier string, password string) (string, domain.AuthUser, error) {
@@ -125,7 +125,7 @@ func (s *AuthService) Login(ctx context.Context, identifier string, password str
 	if err != nil {
 		return "", domain.AuthUser{}, err
 	}
-	return token, domain.AuthUser{ID: user.ID, Name: user.Name, Email: user.Email}, nil
+	return token, domain.AuthUser{ID: user.ID, Name: user.Name, Email: user.Email, Role: user.Role}, nil
 }
 
 func (s *AuthService) Validate(ctx context.Context, token string) (domain.AuthUser, error) {
@@ -137,7 +137,7 @@ func (s *AuthService) Validate(ctx context.Context, token string) (domain.AuthUs
 	if err != nil {
 		return domain.AuthUser{}, err
 	}
-	return domain.AuthUser{ID: user.ID, Name: user.Name, Email: user.Email}, nil
+	return domain.AuthUser{ID: user.ID, Name: user.Name, Email: user.Email, Role: user.Role}, nil
 }
 
 func (s *AuthService) Logout(ctx context.Context, token string) error {

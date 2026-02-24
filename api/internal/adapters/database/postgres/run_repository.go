@@ -236,19 +236,21 @@ func scanRunRows(rows *sql.Rows) ([]domain.Run, error) {
 	return items, rows.Err()
 }
 
-// GetDailyStats returns run statistics grouped by day for the last N days
-func (r *RunRepository) GetDailyStats(ctx context.Context, days int) ([]domain.DailyStat, error) {
+// GetDailyStats returns run statistics grouped by day for the last N days,
+// scoped to the given user. Only that user's runs are counted.
+func (r *RunRepository) GetDailyStats(ctx context.Context, userID string, days int) ([]domain.DailyStat, error) {
 	rows, err := r.db.QueryContext(ctx, `
-		SELECT 
+		SELECT
 			DATE(created_at) as date,
 			COUNT(*) as total,
 			COUNT(*) FILTER (WHERE status = 'success') as success,
 			COUNT(*) FILTER (WHERE status = 'failed') as failed
 		FROM runs
-		WHERE created_at >= NOW() - INTERVAL '1 day' * $1
+		WHERE user_id = $1
+		  AND created_at >= NOW() - INTERVAL '1 day' * $2
 		GROUP BY DATE(created_at)
 		ORDER BY date ASC
-	`, days)
+	`, userID, days)
 	if err != nil {
 		return nil, err
 	}
