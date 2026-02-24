@@ -1,6 +1,7 @@
 package httpadapter
 
 import (
+	"context"
 	"database/sql"
 	"net/http"
 	"strconv"
@@ -50,11 +51,6 @@ func NewRouter(cfg config.Config, db *sql.DB, logger zerolog.Logger, temporalCli
 		}
 		c.Next()
 	})
-
-		c.Next()
-	})
-
-	r.GET("/metrics", gin.WrapH(promhttp.Handler()))
 
 	r.Use(func(c *gin.Context) {
 		c.Set("logger", logger)
@@ -180,15 +176,11 @@ func NewRouter(cfg config.Config, db *sql.DB, logger zerolog.Logger, temporalCli
 	apiProtected.POST("/flows/:id/run", runHandler.CreateForFlow)
 	apiProtected.POST("/workflows/:id/run", runHandler.CreateForFlow)
 
-	wsHandler := websocket.NewHandler(hub)
-	// Authenticated WS connection? For now let's make it public/protected?
-	// If protected, we need to handle token query param because WS doesn't support headers easily in browser api (except protocol).
-	// Let's put it on apiProtected for consistency if we use headers, BUT standard JS WebSocket API doesn't allow headers.
-	// Users might need to pass token via query param ?token=...
-
-	// For now, let's just make it public and handle auth inside if needed, or put it in public group.
-	// `API_BASE_URL` usually includes `/api/v1`.
-	// If I use `apiPublic.GET("/ws")`, it becomes `/api/v1/ws`.
+	// I1: WS auth via ?token= query param (browsers cannot set WS request headers).
+	wsHandler := websocket.NewHandler(hub, func(ctx context.Context, token string) error {
+		_, err := authSvc.Validate(ctx, token)
+		return err
+	})
 	apiPublic.GET("/ws", wsHandler.HandleWS)
 
 	return r
