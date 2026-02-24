@@ -39,11 +39,7 @@ func main() {
 	if err != nil {
 		logger.Fatal().Err(err).Msg("failed to initialize postgres listener")
 	}
-	go func() {
-		if err := pgListener.Listen(context.Background()); err != nil {
-			logger.Error().Err(err).Msg("postgres listener stopped")
-		}
-	}()
+	go pgListener.ListenWithRetry(context.Background())
 
 	router := httpadapter.NewRouter(cfg, db, logger, temporalClient, hub)
 	logger.Info().Msgf("api server listening on :%s", cfg.AppPort)

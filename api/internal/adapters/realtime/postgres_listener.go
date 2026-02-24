@@ -3,6 +3,7 @@ package realtime
 import (
 	"context"
 	"encoding/json"
+	"time"
 
 	"flowcraft-api/internal/adapters/websocket"
 	"flowcraft-api/internal/core/domain"
@@ -60,6 +61,34 @@ func (l *PostgresListener) Listen(ctx context.Context) error {
 		}
 
 		l.handleNotification(notification)
+	}
+}
+
+// ListenWithRetry runs Listen in a loop with exponential backoff on failure.
+// It stops only when ctx is cancelled. Use this instead of Listen directly.
+func (l *PostgresListener) ListenWithRetry(ctx context.Context) {
+	const maxBackoff = 30 * time.Second
+	backoff := 1 * time.Second
+
+	for {
+		if ctx.Err() != nil {
+			return
+		}
+		if err := l.Listen(ctx); err != nil {
+			if ctx.Err() != nil {
+				return
+			}
+			l.logger.Error().Err(err).Dur("retry_in", backoff).Msg("postgres listener disconnected, retrying")
+			select {
+			case <-ctx.Done():
+				return
+			case <-time.After(backoff):
+			}
+			backoff *= 2
+			if backoff > maxBackoff {
+				backoff = maxBackoff
+			}
+		}
 	}
 }
 
