@@ -47,5 +47,15 @@ web/node_modules/
 web/.next/
 web/out/
 
+# Claude Code local settings
+.claude/settings.local.json
+
+# Playwright output
+web/playwright-report/
+web/test-results/
+
+# npm lockfile (project uses pnpm)
+web/package-lock.json
+
 # Temporary assets
 *.zip
