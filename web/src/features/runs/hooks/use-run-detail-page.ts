@@ -7,6 +7,8 @@ import { useRunFlow } from "./use-run-flow";
 import { useFlowDetailQuery } from "@/features/flows/hooks/use-flow-detail";
 import { useAppStore } from "@/hooks/use-app-store";
 import type { RunDTO, RunStepDTO } from "@/types/dto";
+import { useWebSocket, RunUpdateEvent } from "@/hooks/use-websocket";
+import { useQueryClient } from "@tanstack/react-query";
 
 export interface UseRunDetailPageReturn {
   // Data
@@ -54,11 +56,30 @@ export function useRunDetailPage(runId: string): UseRunDetailPageReturn {
   const router = useRouter();
 
   // Data queries
-  const { run, loading: runLoading, error: runError, reload: reloadRun } = useRunDetailQuery(runId, { pollMs: 2000 });
-  const { steps, loading: stepsLoading, error: stepsError, reload: reloadSteps } = useRunStepsQuery(runId, { pollMs: 2000 });
+  // Initial fetch only, no polling. Real-time updates handled via WebSocket.
+  const { run, loading: runLoading, error: runError, reload: reloadRun } = useRunDetailQuery(runId);
+  const { steps, loading: stepsLoading, error: stepsError, reload: reloadSteps } = useRunStepsQuery(runId);
   const { cancel, canceling } = useCancelRun();
   const { startRun, running, runningFlowId } = useRunFlow();
   const { flow } = useFlowDetailQuery(run?.flowId);
+
+  // Real-time updates
+  const { subscribe } = useWebSocket();
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    return subscribe("run_update", (payload: RunUpdateEvent) => {
+      if (payload.runId === runId) {
+        // Reload run and steps when our run updates
+        reloadRun();
+        reloadSteps();
+        
+        // Also invalidate globally to ensure freshness
+        queryClient.invalidateQueries({ queryKey: ["run", runId] });
+        queryClient.invalidateQueries({ queryKey: ["run-steps", runId] });
+      }
+    });
+  }, [runId, subscribe, reloadRun, reloadSteps, queryClient]);
 
   // UI messages
   const showSuccess = useAppStore((s) => s.showSuccess);

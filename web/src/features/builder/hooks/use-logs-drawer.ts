@@ -28,7 +28,7 @@ export function useLogsDrawer(): UseLogsDrawerReturn {
   const showInfo = useAppStore((s) => s.showInfo);
 
   const runId = activeRunId;
-  const { run, loading, reload } = useRunDetailQuery(runId, { pollMs: 2000 });
+  const { run, loading, reload } = useRunDetailQuery(runId, { enableWebSocket: true });
 
   const logText = useMemo(() => (run?.log ? run.log : ""), [run?.log]);
   const logRef = useRef<HTMLPreElement | null>(null);

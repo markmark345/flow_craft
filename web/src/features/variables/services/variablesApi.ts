@@ -3,7 +3,7 @@ import { request } from "@/lib/fetcher";
 import { VariableDTO } from "@/types/dto";
 
 export async function listVariables(
-  scope: "personal" | "project",
+  scope: "personal" | "project" | "global",
   projectId?: string
 ): Promise<VariableDTO[]> {
   const params = new URLSearchParams();

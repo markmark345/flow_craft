@@ -4,8 +4,10 @@ import { bannerbearApp } from "./apps/bannerbear";
 import { gmailApp } from "./apps/gmail";
 import { githubApp } from "./apps/github";
 import { googleSheetsApp } from "./apps/googleSheets";
+import { slackApp } from "./apps/slack";
+import { notionApp } from "./apps/notion";
 
-export type AppKey = "googleSheets" | "gmail" | "github" | "bannerbear";
+export type AppKey = "googleSheets" | "gmail" | "github" | "bannerbear" | "slack" | "notion";
 
 export type AppCatalogActionKind = "action" | "trigger";
 
@@ -39,6 +41,8 @@ export const APP_CATALOG: Record<AppKey, AppCatalogApp> = {
   gmail: gmailApp,
   github: githubApp,
   bannerbear: bannerbearApp,
+  slack: slackApp,
+  notion: notionApp,
 };
 
 export function normalizeAppKey(value: unknown): AppKey | null {
@@ -48,6 +52,8 @@ export function normalizeAppKey(value: unknown): AppKey | null {
   if (v === "gmail") return "gmail";
   if (v === "github") return "github";
   if (v === "bannerbear" || v === "bananabear") return "bannerbear";
+  if (v === "slack") return "slack";
+  if (v === "notion") return "notion";
   return null;
 }
 

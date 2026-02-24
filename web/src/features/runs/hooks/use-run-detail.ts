@@ -6,8 +6,9 @@ import { getRun } from "../services/runsApi";
 import { useRunsStore } from "../store/use-runs-store";
 import { useAppStore } from "@/hooks/use-app-store";
 import { RunDTO } from "@/types/dto";
+import { useWebSocket } from "@/hooks/use-websocket";
 
-type Options = { pollMs?: number };
+type Options = { pollMs?: number; enableWebSocket?: boolean };
 
 export function useRunDetailQuery(runId?: string, options: Options = {}) {
   const upsertRun = useRunsStore((s) => s.upsertRun);
@@ -15,6 +16,7 @@ export function useRunDetailQuery(runId?: string, options: Options = {}) {
   const showError = useAppStore((s) => s.showError);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | undefined>(undefined);
+  const { subscribe } = useWebSocket();
 
   const reload = useCallback(async () => {
     if (!runId) return;
@@ -47,13 +49,28 @@ export function useRunDetailQuery(runId?: string, options: Options = {}) {
     if (!options.pollMs) return;
     if (!isActive) return;
 
+    // Disable polling if WS is enabled
+    if (options.enableWebSocket) return;
+
     const id = window.setInterval(() => {
       void reload();
     }, options.pollMs);
 
     return () => window.clearInterval(id);
-  }, [isActive, options.pollMs, reload, runId]);
+  }, [isActive, options.pollMs, options.enableWebSocket, reload, runId]);
+
+  // WebSocket Subscription
+  useEffect(() => {
+    if (!runId || !options.enableWebSocket) return;
+
+    const unsubscribe = subscribe("run_update", (payload: any) => {
+        if (payload.runId === runId) {
+            void reload();
+        }
+    });
+
+    return () => unsubscribe();
+  }, [runId, options.enableWebSocket, subscribe, reload]);
 
   return { run: run as RunDTO | undefined, loading, error, reload };
 }
-

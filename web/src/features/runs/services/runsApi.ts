@@ -49,3 +49,15 @@ export async function getStats(): Promise<import("@/types/dto").RunStatsDTO> {
   const res = await request<{ data: import("@/types/dto").RunStatsDTO }>(`${API_BASE_URL}/stats`);
   return res.data;
 }
+
+export interface DailyStatDTO {
+  date: string;
+  total: number;
+  success: number;
+  failed: number;
+}
+
+export async function getRunHistory(): Promise<DailyStatDTO[]> {
+  const res = await request<{ data: DailyStatDTO[] }>(`${API_BASE_URL}/runs/history`);
+  return res.data;
+}
