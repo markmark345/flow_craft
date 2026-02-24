@@ -2,7 +2,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BarChart3, TrendingUp } from "lucide-react";
-import type { DailyStatDTO } from "@/features/runs/services/runsApi";
+import type { DailyStatDTO } from "@/types/dto";
 import {
   BarChart,
   Bar,
@@ -83,15 +83,15 @@ export function RunActivityChart({ data, isLoading }: RunActivityChartProps) {
             />
             <Tooltip
               contentStyle={{
-                backgroundColor: "rgba(255, 255, 255, 0.95)",
-                border: "1px solid rgba(0, 0, 0, 0.1)",
+                backgroundColor: "var(--card)",
+                border: "1px solid var(--border)",
                 borderRadius: "8px",
                 fontSize: "12px",
                 boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
               }}
-              labelStyle={{ color: "#1a1a1a", fontWeight: 600, marginBottom: "4px" }}
-              itemStyle={{ color: "#666", padding: "2px 0" }}
-              cursor={{ fill: "rgba(0, 0, 0, 0.04)" }}
+              labelStyle={{ color: "var(--card-foreground)", fontWeight: 600, marginBottom: "4px" }}
+              itemStyle={{ color: "var(--muted-foreground)", padding: "2px 0" }}
+              cursor={{ fill: "var(--muted)" }}
             />
             <Legend
               wrapperStyle={{ fontSize: "11px", paddingTop: "8px" }}

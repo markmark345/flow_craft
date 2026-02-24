@@ -5,10 +5,10 @@ import { useFlowsStore } from "@/features/flows/store/use-flows-store";
 import { useRunsQuery } from "@/features/runs/hooks/use-runs";
 import { useRunsStore } from "@/features/runs/store/use-runs-store";
 import { useAppStore } from "@/hooks/use-app-store";
-import type { FlowDTO, RunDTO } from "@/types/dto";
+import type { FlowDTO, RunDTO, DailyStatDTO } from "@/types/dto";
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { getStats, getRunHistory, DailyStatDTO } from "@/features/runs/services/runsApi";
+import { getStats, getRunHistory } from "@/features/runs/services/runsApi";
 import { useWebSocket } from "@/hooks/use-websocket";
 import { useEffect } from "react";
 

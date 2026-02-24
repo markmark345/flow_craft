@@ -95,3 +95,10 @@ export type RunStatsDTO = {
   running: number;
   queued: number;
 };
+
+export type DailyStatDTO = {
+  date: string;
+  total: number;
+  success: number;
+  failed: number;
+};

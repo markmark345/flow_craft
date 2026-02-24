@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { API_BASE_URL } from "@/lib/env";
 import { getAuthToken } from "@/lib/auth";
+import { constants } from "@/lib/constants";
 
 export type RunUpdateEvent = {
   runId: string;
@@ -14,8 +15,6 @@ type WebSocketMessage = {
 };
 
 type Listener = (payload: unknown) => void;
-
-const RECONNECT_INTERVAL = 3000;
 
 // --- Module-level singleton ---
 // A single WebSocket is shared across all hook instances so that mounting
@@ -43,7 +42,7 @@ function _connect() {
   const token = getAuthToken();
   if (!token) {
     // No auth token yet; retry after the reconnect interval
-    _reconnectTimeout = setTimeout(_connect, RECONNECT_INTERVAL);
+    _reconnectTimeout = setTimeout(_connect, constants.wsReconnectIntervalMs);
     return;
   }
 
@@ -61,7 +60,7 @@ function _connect() {
   ws.onclose = () => {
     _notifyState(false);
     _socket = null;
-    _reconnectTimeout = setTimeout(_connect, RECONNECT_INTERVAL);
+    _reconnectTimeout = setTimeout(_connect, constants.wsReconnectIntervalMs);
   };
 
   ws.onerror = () => {
