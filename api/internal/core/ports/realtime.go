@@ -1,12 +1,10 @@
 package ports
 
-import (
-	"context"
-
-	"flowcraft-api/internal/core/domain"
-)
-
+// RealtimeService pushes messages to connected WebSocket clients.
+// Implemented by the WebSocket Hub; injected into adapters that need
+// to broadcast events without importing the websocket package directly.
 type RealtimeService interface {
-	BroadcastRunUpdate(ctx context.Context, run domain.Run) error
-	Broadcast(channel string, message interface{})
+	// Broadcast serialises payload as JSON and sends it to all clients
+	// subscribed to the given channel.
+	Broadcast(channel string, payload any)
 }

@@ -88,8 +88,10 @@ func (h *Hub) Run() {
 	}
 }
 
-func (h *Hub) Broadcast(channel string, payload interface{}) {
-	msg := map[string]interface{}{
+// Broadcast serialises payload as JSON and pushes it to all connected clients
+// on the given channel. It satisfies the ports.RealtimeService interface.
+func (h *Hub) Broadcast(channel string, payload any) {
+	msg := map[string]any{
 		"channel": channel,
 		"payload": payload,
 	}

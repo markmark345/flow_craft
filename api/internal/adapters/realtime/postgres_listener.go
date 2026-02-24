@@ -5,28 +5,32 @@ import (
 	"encoding/json"
 	"time"
 
-	"flowcraft-api/internal/adapters/websocket"
 	"flowcraft-api/internal/core/domain"
+	"flowcraft-api/internal/core/ports"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/rs/zerolog"
 )
 
+// PostgresListener subscribes to Postgres NOTIFY channels and forwards
+// events to WebSocket clients via the RealtimeService abstraction.
 type PostgresListener struct {
 	connConfig *pgx.ConnConfig
-	hub        *websocket.Hub
+	realtime   ports.RealtimeService // I2: depend on interface, not concrete *Hub
 	logger     zerolog.Logger
 }
 
-func NewPostgresListener(databaseURL string, hub *websocket.Hub, logger zerolog.Logger) (*PostgresListener, error) {
+// NewPostgresListener creates a listener that broadcasts to realtime.
+// Pass the WebSocket hub as realtime — it satisfies ports.RealtimeService.
+func NewPostgresListener(databaseURL string, realtime ports.RealtimeService, logger zerolog.Logger) (*PostgresListener, error) {
 	config, err := pgx.ParseConfig(databaseURL)
 	if err != nil {
 		return nil, err
 	}
 	return &PostgresListener{
 		connConfig: config,
-		hub:        hub,
+		realtime:   realtime,
 		logger:     logger,
 	}, nil
 }
@@ -102,6 +106,6 @@ func (l *PostgresListener) handleNotification(n *pgconn.Notification) {
 			return
 		}
 		// Broadcast to all connected WS clients
-		l.hub.Broadcast("run_update", update)
+		l.realtime.Broadcast("run_update", update)
 	}
 }
