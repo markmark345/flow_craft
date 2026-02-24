@@ -5,15 +5,17 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"math"
 	"sort"
 	"strings"
+	"time"
 
 	"github.com/google/uuid"
 	"go.temporal.io/sdk/activity"
 
+	"flowcraft-api/internal/adapters/database/postgres"
 	"flowcraft-api/internal/config"
 	"flowcraft-api/internal/core/domain"
-	"flowcraft-api/internal/adapters/database/postgres"
 	"flowcraft-api/internal/utils"
 )
 
@@ -72,11 +74,11 @@ func (a *Activities) ExecuteNodeActivity(ctx context.Context, runID string, defi
 					Y float64 `json:"y"`
 				} `json:"position"`
 				Data struct {
-					NodeType string         `json:"nodeType"`
-					Label    string         `json:"label"`
-					Config   map[string]any `json:"config"`
-					Model    map[string]any `json:"model"`
-					Memory   map[string]any `json:"memory"`
+					NodeType string           `json:"nodeType"`
+					Label    string           `json:"label"`
+					Config   map[string]any   `json:"config"`
+					Model    map[string]any   `json:"model"`
+					Memory   map[string]any   `json:"memory"`
 					Tools    []map[string]any `json:"tools"`
 				} `json:"data"`
 			} `json:"nodes"`
@@ -483,7 +485,41 @@ func (a *Activities) ExecuteNodeActivity(ctx context.Context, runID string, defi
 		}
 
 		deps := stepDependencies{cfg: a.cfg, creds: a.creds, credsKey: a.credsKey}
-		outputs, logText, execErr := executeStep(ctx, p.step.NodeType, stepConfig, input, outputsByNodeID, deps)
+
+		// Retry Logic
+		maxAttempts := readIntWithDefault(p.config, "maxAttempts", 1)
+		initialInterval := readIntWithDefault(p.config, "initialInterval", 1000)
+		retryBackoff := 2.0
+
+		var outputs map[string]any
+		var logText string
+		var execErr error
+
+		for attempt := 1; attempt <= maxAttempts; attempt++ {
+			outputs, logText, execErr = executeStep(ctx, p.step.NodeType, stepConfig, input, outputsByNodeID, deps)
+			if execErr == nil {
+				break
+			}
+			// If we have attempts left, wait and retry
+			if attempt < maxAttempts {
+				if errors.Is(execErr, context.Canceled) || errors.Is(execErr, context.DeadlineExceeded) {
+					break // Do not retry if context is canceled
+				}
+				sleepTime := time.Duration(float64(initialInterval)*math.Pow(retryBackoff, float64(attempt-1))) * time.Millisecond
+				// Log retry attempt
+				retryMsg := fmt.Sprintf("attempt %d failed: %v. retrying in %v...", attempt, execErr, sleepTime)
+				_ = a.steps.UpdateState(ctx, p.step.ID, "running", inputsJSON, nil, retryMsg, "")
+
+				select {
+				case <-ctx.Done():
+					execErr = ctx.Err()
+					goto StopRetry
+				case <-time.After(sleepTime):
+					continue
+				}
+			}
+		}
+	StopRetry:
 		outputsJSON, _ := json.Marshal(outputs)
 
 		if p.step.NodeID != "" {
@@ -499,38 +535,59 @@ func (a *Activities) ExecuteNodeActivity(ctx context.Context, runID string, defi
 			}
 		}
 
+		// Check for Error Branch
+		hasErrorBranch := false
+		for _, e := range execEdges[nodeID] {
+			if strings.EqualFold(e.sourceHandle, "error") {
+				hasErrorBranch = true
+				break
+			}
+		}
+
+		routeMode := "success"
 		if execErr != nil {
 			if errors.Is(execErr, context.Canceled) || errors.Is(execErr, context.DeadlineExceeded) {
 				_ = a.steps.UpdateState(context.WithoutCancel(ctx), p.step.ID, "canceled", inputsJSON, outputsJSON, "canceled", "canceled by user")
 				return execErr
 			}
-			_ = a.steps.UpdateState(ctx, p.step.ID, "failed", inputsJSON, outputsJSON, logText, execErr.Error())
 
-			routeToError := readBool(p.config, "routeToErrorTrigger")
-			if routeToError && errorTriggerID != "" && errorTriggerID != p.step.NodeID {
-				failedRouted++
-				errorPayload := map[string]any{
-					"error": execErr.Error(),
-					"failed": map[string]any{
-						"run_id":    runID,
-						"step_key":  p.step.StepKey,
-						"name":      p.step.Name,
-						"node_id":   p.step.NodeID,
-						"node_type": p.step.NodeType,
-					},
-					"inputs":  inputs,
-					"outputs": outputs,
-				}
-				if err := executeNode(errorTriggerID, errorPayload); err != nil {
-					return err
-				}
-				return nil
-			}
+			// Error Branching Logic
+			if hasErrorBranch {
+				// Swallow error and route to error branch
+				swallowedMsg := fmt.Sprintf("Error caught by error branch: %v", execErr)
+				_ = a.steps.UpdateState(ctx, p.step.ID, "success", inputsJSON, outputsJSON, logText, swallowedMsg)
+				routeMode = "error"
+				execErr = nil // Clear error to continue flow
+			} else {
+				// Normal Failure
+				_ = a.steps.UpdateState(ctx, p.step.ID, "failed", inputsJSON, outputsJSON, logText, execErr.Error())
 
-			if !continueOnFail {
-				return execErr
+				routeToError := readBool(p.config, "routeToErrorTrigger")
+				if routeToError && errorTriggerID != "" && errorTriggerID != p.step.NodeID {
+					failedRouted++
+					errorPayload := map[string]any{
+						"error": execErr.Error(),
+						"failed": map[string]any{
+							"run_id":    runID,
+							"step_key":  p.step.StepKey,
+							"name":      p.step.Name,
+							"node_id":   p.step.NodeID,
+							"node_type": p.step.NodeType,
+						},
+						"inputs":  inputs,
+						"outputs": outputs,
+					}
+					if err := executeNode(errorTriggerID, errorPayload); err != nil {
+						return err
+					}
+					return nil
+				}
+
+				if !continueOnFail {
+					return execErr
+				}
+				failedButContinued++
 			}
-			failedButContinued++
 		} else {
 			if err := a.steps.UpdateState(ctx, p.step.ID, "success", inputsJSON, outputsJSON, logText, ""); err != nil {
 				return err
@@ -556,9 +613,34 @@ func (a *Activities) ExecuteNodeActivity(ctx context.Context, runID string, defi
 				}
 			}
 			nextEdges = filtered
+		} else if readBool(p.config, "enableErrorBranch") {
+			// Filter edges based on routeMode
+			filtered := make([]edge, 0, len(nextEdges))
+			for _, e := range nextEdges {
+				isErrorEdge := strings.EqualFold(e.sourceHandle, "error")
+				if routeMode == "error" {
+					if isErrorEdge {
+						filtered = append(filtered, e)
+					}
+				} else {
+					// Success mode: include default edges (empty handle) or "default" handle
+					// BUT exclude "error" handle
+					if !isErrorEdge {
+						filtered = append(filtered, e)
+					}
+				}
+			}
+			nextEdges = filtered
 		}
 
 		for _, e := range nextEdges {
+			// For error branch execution, we pass error details as input if needed,
+			// or just satisfy standard input injection.
+			// Current logic just passes 'nextInput' (outputs).
+			// In error mode, 'outputs' might be nil or partial.
+			if routeMode == "error" && nextInput == nil {
+				nextInput = map[string]any{"error": "previous node failed"}
+			}
 			if err := executeNode(e.target, nextInput); err != nil {
 				return err
 			}

@@ -78,3 +78,7 @@ func (s *RunService) UpdateStatus(ctx context.Context, id string, status string,
 func (s *RunService) GetStats(ctx context.Context, userID string) (*domain.RunStats, error) {
 	return s.runs.GetStats(ctx, userID)
 }
+
+func (s *RunService) GetDailyStats(ctx context.Context, days int) ([]domain.DailyStat, error) {
+	return s.runs.GetDailyStats(ctx, days)
+}

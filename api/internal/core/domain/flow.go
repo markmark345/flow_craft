@@ -39,3 +39,10 @@ type RunStats struct {
 	Running int
 	Queued  int
 }
+
+type DailyStat struct {
+	Date    string
+	Total   int
+	Success int
+	Failed  int
+}

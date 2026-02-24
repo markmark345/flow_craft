@@ -51,6 +51,14 @@ func buildStepInputs(nodeType string, config map[string]any, runID string, stepK
 		if strings.TrimSpace(body) != "" {
 			inputs["body"] = parseJSONOrString(body)
 		}
+
+		if authType := readString(config, "authType"); authType != "" && authType != "None" {
+			inputs["auth_type"] = authType
+			inputs["auth_value"] = "***" // Masked
+		}
+		if timeout := config["timeout"]; timeout != nil {
+			inputs["timeout"] = timeout
+		}
 	case "aiAgent":
 		if prompt := readString(config, "prompt"); strings.TrimSpace(prompt) != "" {
 			inputs["prompt"] = prompt

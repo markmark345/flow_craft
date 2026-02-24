@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/rs/zerolog"
 	"go.temporal.io/sdk/client"
 
 	"flowcraft-api/internal/core/domain"
@@ -35,6 +36,7 @@ func NewRunHandler(
 
 func (h *RunHandler) Register(r *gin.RouterGroup) {
 	r.GET("/runs", h.list)
+	r.GET("/runs/history", h.history)
 	r.GET("/runs/:id", h.get)
 	r.GET("/runs/:id/steps", h.listSteps)
 	r.GET("/runs/:id/steps/:stepId", h.getStep)
@@ -287,6 +289,8 @@ func (h *RunHandler) stats(c *gin.Context) {
 	user, _ := currentAuthUser(c)
 	stats, err := h.runs.GetStats(c.Request.Context(), user.ID)
 	if err != nil {
+		logger := c.MustGet("logger").(zerolog.Logger)
+		logger.Error().Err(err).Msg("failed to get run stats")
 		utils.JSONError(c, http.StatusInternalServerError, apierrors.ErrInternalServer, err.Error(), nil)
 		return
 	}
@@ -297,4 +301,30 @@ func (h *RunHandler) stats(c *gin.Context) {
 		Running: stats.Running,
 		Queued:  stats.Queued,
 	})
+}
+
+func (h *RunHandler) history(c *gin.Context) {
+	days := 7 // Default to 7 days
+	stats, err := h.runs.GetDailyStats(c.Request.Context(), days)
+	if err != nil {
+		utils.JSONError(c, http.StatusInternalServerError, apierrors.ErrInternalServer, err.Error(), nil)
+		return
+	}
+	// Convert to response format
+	type dailyStatResponse struct {
+		Date    string `json:"date"`
+		Total   int    `json:"total"`
+		Success int    `json:"success"`
+		Failed  int    `json:"failed"`
+	}
+	out := make([]dailyStatResponse, len(stats))
+	for i, s := range stats {
+		out[i] = dailyStatResponse{
+			Date:    s.Date,
+			Total:   s.Total,
+			Success: s.Success,
+			Failed:  s.Failed,
+		}
+	}
+	utils.JSONResponse(c, http.StatusOK, out)
 }

@@ -11,6 +11,7 @@ import (
 	"go.temporal.io/sdk/client"
 
 	"flowcraft-api/internal/adapters/database/postgres"
+	"flowcraft-api/internal/adapters/websocket"
 	"flowcraft-api/internal/config"
 	"flowcraft-api/internal/core/services"
 	"flowcraft-api/internal/mailer"
@@ -18,7 +19,7 @@ import (
 	"flowcraft-api/pkg/apierrors"
 )
 
-func NewRouter(cfg config.Config, db *sql.DB, logger zerolog.Logger, temporalClient client.Client) *gin.Engine {
+func NewRouter(cfg config.Config, db *sql.DB, logger zerolog.Logger, temporalClient client.Client, hub *websocket.Hub) *gin.Engine {
 	r := gin.Default()
 
 	// Simple CORS middleware
@@ -49,6 +50,11 @@ func NewRouter(cfg config.Config, db *sql.DB, logger zerolog.Logger, temporalCli
 		}
 		c.Next()
 	})
+
+		c.Next()
+	})
+
+	r.GET("/metrics", gin.WrapH(promhttp.Handler()))
 
 	r.Use(func(c *gin.Context) {
 		c.Set("logger", logger)
@@ -173,6 +179,17 @@ func NewRouter(cfg config.Config, db *sql.DB, logger zerolog.Logger, temporalCli
 	nodeTestHandler.Register(apiProtected)
 	apiProtected.POST("/flows/:id/run", runHandler.CreateForFlow)
 	apiProtected.POST("/workflows/:id/run", runHandler.CreateForFlow)
+
+	wsHandler := websocket.NewHandler(hub)
+	// Authenticated WS connection? For now let's make it public/protected?
+	// If protected, we need to handle token query param because WS doesn't support headers easily in browser api (except protocol).
+	// Let's put it on apiProtected for consistency if we use headers, BUT standard JS WebSocket API doesn't allow headers.
+	// Users might need to pass token via query param ?token=...
+
+	// For now, let's just make it public and handle auth inside if needed, or put it in public group.
+	// `API_BASE_URL` usually includes `/api/v1`.
+	// If I use `apiPublic.GET("/ws")`, it becomes `/api/v1/ws`.
+	apiPublic.GET("/ws", wsHandler.HandleWS)
 
 	return r
 }

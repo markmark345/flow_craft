@@ -154,36 +154,46 @@ func (r *RunRepository) GetForUser(ctx context.Context, id string, userID string
 }
 
 func (r *RunRepository) UpdateStatus(ctx context.Context, id string, status string, log string) error {
-	res, err := r.db.ExecContext(ctx, `
-        UPDATE runs
-        SET status=$2,
-            log=$3,
-            started_at = CASE WHEN $2 = 'running' AND started_at IS NULL THEN NOW() ELSE started_at END,
-            finished_at = CASE
-                WHEN ($2 = 'success' OR $2 = 'failed' OR $2 = 'canceled') AND finished_at IS NULL THEN NOW()
-                ELSE finished_at
-            END,
-            updated_at=NOW()
-        WHERE id=$1
-    `, id, status, log)
-	if err != nil {
-		return err
-	}
-	count, _ := res.RowsAffected()
-	if count == 0 {
+	var returnedID string
+	// pg_notify returns void, so we can't really scan it into a variable easily with standard sql package unless we ignore it?
+	// Actually, `SELECT pg_notify(...)` return result.
+	// Let's try a simpler approach: Update then Notify.
+	// But atomic is better.
+
+	// Using `func pg_notify(text, text)` returns `void`.
+	// Query: `SELECT 1 FROM updated, pg_notify(...)` -> returns 1.
+
+	err := r.db.QueryRowContext(ctx, `
+        WITH updated AS (
+            UPDATE runs
+            SET status=$2,
+                log=$3,
+                started_at = CASE WHEN $2 = 'running' AND started_at IS NULL THEN NOW() ELSE started_at END,
+                finished_at = CASE
+                    WHEN ($2 = 'success' OR $2 = 'failed' OR $2 = 'canceled') AND finished_at IS NULL THEN NOW()
+                    ELSE finished_at
+                END,
+                updated_at=NOW()
+            WHERE id=$1
+            RETURNING id, status, log
+        )
+        SELECT id FROM updated, pg_notify('run_updates', json_build_object('runId', id, 'status', status)::text)
+    `, id, status, log).Scan(&returnedID)
+
+	if err == sql.ErrNoRows {
 		return utils.ErrNotFound
 	}
-	return nil
+	return err
 }
 
 func (r *RunRepository) GetStats(ctx context.Context, userID string) (*domain.RunStats, error) {
 	row := r.db.QueryRowContext(ctx, `
         SELECT
             COUNT(*) AS total,
-            COUNT(CASE WHEN status = 'success' THEN 1 END) AS success,
-            COUNT(CASE WHEN status = 'failed' THEN 1 END) AS failed,
-            COUNT(CASE WHEN status = 'running' THEN 1 END) AS running,
-            COUNT(CASE WHEN status = 'queued' THEN 1 END) AS queued
+            COUNT(CASE WHEN r.status = 'success' THEN 1 END) AS success,
+            COUNT(CASE WHEN r.status = 'failed' THEN 1 END) AS failed,
+            COUNT(CASE WHEN r.status = 'running' THEN 1 END) AS running,
+            COUNT(CASE WHEN r.status = 'queued' THEN 1 END) AS queued
         FROM runs r
         JOIN flows f ON f.id = r.flow_id
         LEFT JOIN project_members pm ON pm.project_id = f.project_id AND pm.user_id = $1
@@ -224,4 +234,35 @@ func scanRunRows(rows *sql.Rows) ([]domain.Run, error) {
 		items = append(items, rItem)
 	}
 	return items, rows.Err()
+}
+
+// GetDailyStats returns run statistics grouped by day for the last N days
+func (r *RunRepository) GetDailyStats(ctx context.Context, days int) ([]domain.DailyStat, error) {
+	rows, err := r.db.QueryContext(ctx, `
+		SELECT 
+			DATE(created_at) as date,
+			COUNT(*) as total,
+			COUNT(*) FILTER (WHERE status = 'success') as success,
+			COUNT(*) FILTER (WHERE status = 'failed') as failed
+		FROM runs
+		WHERE created_at >= NOW() - INTERVAL '1 day' * $1
+		GROUP BY DATE(created_at)
+		ORDER BY date ASC
+	`, days)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var stats []domain.DailyStat
+	for rows.Next() {
+		var s domain.DailyStat
+		var date time.Time
+		if err := rows.Scan(&date, &s.Total, &s.Success, &s.Failed); err != nil {
+			return nil, err
+		}
+		s.Date = date.Format("2006-01-02")
+		stats = append(stats, s)
+	}
+	return stats, rows.Err()
 }

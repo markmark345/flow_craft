@@ -24,6 +24,9 @@ func (s *VariableService) ListScoped(ctx context.Context, user domain.AuthUser, 
 	if scope == "" || scope == "personal" {
 		return s.vars.ListForUser(ctx, user.ID)
 	}
+	if scope == "global" {
+		return s.vars.ListGlobal(ctx)
+	}
 	if scope != "project" {
 		return nil, errors.New("invalid scope")
 	}
@@ -47,6 +50,9 @@ func (s *VariableService) Create(ctx context.Context, user domain.AuthUser, scop
 	switch scope {
 	case "", "personal":
 		variable.UserID = user.ID
+		variable.ProjectID = ""
+	case "global":
+		variable.UserID = ""
 		variable.ProjectID = ""
 	case "project":
 		if strings.TrimSpace(projectID) == "" {
@@ -90,6 +96,11 @@ func (s *VariableService) Get(ctx context.Context, user domain.AuthUser, id stri
 		return nil, err
 	}
 	if variable.ProjectID == "" {
+		// Personal or Global
+		if variable.UserID == "" {
+			// Global: allow all (for now)
+			return variable, nil
+		}
 		if variable.UserID != user.ID {
 			return nil, utils.ErrForbidden
 		}
@@ -113,7 +124,9 @@ func (s *VariableService) Update(ctx context.Context, user domain.AuthUser, id s
 		return nil, err
 	}
 	if existing.ProjectID == "" {
-		if existing.UserID != user.ID {
+		if existing.UserID == "" {
+			// Global: allow update
+		} else if existing.UserID != user.ID {
 			return nil, utils.ErrForbidden
 		}
 	} else {
@@ -153,6 +166,11 @@ func (s *VariableService) Delete(ctx context.Context, user domain.AuthUser, id s
 		return err
 	}
 	if variable.ProjectID == "" {
+		if variable.UserID == "" {
+			// Global: allow delete (should restrict to admin/creator?)
+			// For now allow all
+			return s.vars.Delete(ctx, id)
+		}
 		if variable.UserID != user.ID {
 			return utils.ErrForbidden
 		}
