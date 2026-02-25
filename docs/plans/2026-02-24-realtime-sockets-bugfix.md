@@ -2,7 +2,7 @@
 
 **Date:** 2026-02-24
 **Branch:** fix/realtime-sockets-review *(สร้างตอนจะแก้)*
-**Status:** 🟡 Backlog — รอแก้
+**Status:** ✅ Complete — all fixes shipped, `tsc --noEmit` clean
 
 ---
 
@@ -219,45 +219,60 @@
 
 *(กรอกตอนจะเริ่มแก้จริง)*
 
-- [ ] C1: Fix Hub data race
-- [ ] C2: Add PG listener reconnect loop
-- [ ] I1: Add WS token auth
-- [ ] I2: Wire RealtimeService port properly
-- [ ] I3: Handle json.Marshal errors
-- [ ] I4: Scope GetDailyStats by userID
-- [ ] I5: Add global variable admin check
-- [ ] I6: Buffer broadcast channel
-- [ ] I7: Remove interface{} from ports/hub
-- [ ] I8: Make useWebSocket a singleton (module-level or Context Provider)
-- [ ] S1: Fix `any` in use-websocket.ts
-- [ ] S2: Fix tooltip colors in RunActivityChart
-- [ ] S3: Fix dashboard E2E test
-- [ ] S4: Move DailyStatDTO to dto.ts
-- [ ] S5: Accept `?days=` query param
-- [ ] S6: Remove dangling c.Next() in router
-- [ ] S7: Move RECONNECT_INTERVAL to constants.ts
-- [ ] S8: Actually log error in hub.go IsUnexpectedCloseError block
-- [ ] S9: Remove/guard console.log calls in use-websocket.ts
-- [ ] F1: Remove dead queryClient.invalidateQueries calls
-- [ ] F2a: Migrate useFlowsQuery → React Query
-- [ ] F2b: Migrate useRunsQuery → React Query
-- [ ] F2c: Migrate useRunDetailQuery → React Query
-- [ ] F2d: Migrate useRunStepsQuery → React Query
-- [ ] F2e: Migrate useFlowDetailQuery → React Query
-- [ ] F2f: Migrate useCredentialsPage fetch → React Query
-- [ ] F2g: Migrate useVariablesPage fetch → React Query
-- [ ] F2h: Remove Zustand stores for server data (flows, runs, run-steps)
-- [ ] F3: Add showError to onCancel/onRerun catch blocks
-- [ ] F4: Fix loading flash on background WS refresh
-- [ ] F5: Replace `any` payload with RunUpdateEvent in run hooks
-- [ ] F6: Fix `router.replace(returnPath as any)` cast
-- [ ] F7: Add AbortController to credentials/variables page fetches
-- [ ] F8: Standardize error extraction with getErrorMessage helper
+- [x] C1: Fix Hub data race
+- [x] C2: Add PG listener reconnect loop
+- [x] I1: Add WS token auth
+- [x] I2: Wire RealtimeService port properly
+- [x] I3: Handle json.Marshal errors
+- [x] I4: Scope GetDailyStats by userID
+- [x] I5: Add global variable admin check
+- [x] I6: Buffer broadcast channel
+- [x] I7: Remove interface{} from ports/hub
+- [x] I8: Make useWebSocket a singleton (module-level or Context Provider)
+- [x] S1: Fix `any` in use-websocket.ts
+- [x] S2: Fix tooltip colors in RunActivityChart
+- [x] S3: Fix dashboard E2E test
+- [x] S4: Move DailyStatDTO to dto.ts
+- [x] S5: Accept `?days=` query param
+- [x] S6: Remove dangling c.Next() in router
+- [x] S7: Move RECONNECT_INTERVAL to constants.ts
+- [x] S8: Actually log error in hub.go IsUnexpectedCloseError block
+- [x] S9: Remove/guard console.log calls in use-websocket.ts
+- [x] F1: Remove dead queryClient.invalidateQueries calls
+- [x] F2a: Migrate useFlowsQuery → React Query
+- [x] F2b: Migrate useRunsQuery → React Query
+- [x] F2c: Migrate useRunDetailQuery → React Query
+- [x] F2d: Migrate useRunStepsQuery → React Query
+- [x] F2e: Migrate useFlowDetailQuery → React Query
+- [x] F2f: Migrate useCredentialsPage fetch → React Query
+- [x] F2g: Migrate useVariablesPage fetch → React Query
+- [x] F2h: Remove Zustand stores for server data (flows, runs, run-steps)
+- [x] F3: Add showError to onCancel/onRerun catch blocks
+- [x] F4: Fix loading flash on background WS refresh
+- [x] F5: Replace `any` payload with RunUpdateEvent in run hooks
+- [x] F6: Fix `router.replace(returnPath as any)` cast
+- [x] F7: Mitigated — credentials/variables data fetch now uses React Query (auto-cancels); project IIFE left as-is (low risk)
+- [x] F8: Standardize error extraction with getErrorMessage helper
 
 ---
 
 ## Deviations
-*(กรอกหลังแก้เสร็จ)*
+
+- **F6**: `router.replace(returnPath as any)` → replaced with `window.history.replaceState(null, "", returnPath)` instead of a type cast. The `RouteImpl<T>` branded type in Next.js 14 typed routes cannot be safely satisfied with a dynamic string; `replaceState` is semantically more correct for OAuth param cleanup (no re-render needed).
+- **F7**: Partially mitigated. The credentials/variables data fetch is now handled by React Query which cancels automatically on unmount. The project-loading IIFE (`getProject`) still has no AbortController — risk is low (single small request) and left for a future cleanup pass.
+- **S5**: Was already implemented in a previous session (accepted `?days=N` param, default 7, max 90).
 
 ## Changelog
-*(กรอกหลังแก้เสร็จ)*
+
+All issues from the feature/realtime-sockets code review resolved across 6 commits:
+
+| Commit | Items |
+|--------|-------|
+| `5be94ec` | I4, I5 — stats scoped to user, global variable admin check |
+| `30643ad` | I8, S1, S7, S9 — WS singleton, any→unknown, constant extraction, remove console.log |
+| `89d32e8` | F1, F3, F4, F5 — dead invalidations, error surfacing, loading flash, any payload |
+| `bde6c9e` | S2, S4 — tooltip CSS vars, DailyStatDTO moved to dto.ts |
+| `4e86172` | F2 (all) — full React Query migration, remove Zustand server caches |
+| `30bfeec` | F6, F8, S3 — as-any router cast, getErrorMessage standardization, E2E test |
+
+Earlier commits (from previous sessions): C1, C2, I1, I2, I3, I6, I7, S6, S8
