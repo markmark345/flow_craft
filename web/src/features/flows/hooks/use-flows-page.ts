@@ -1,6 +1,7 @@
 
 import { useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
+import { getErrorMessage } from "@/lib/error-utils";
 import { useFlowsQuery } from "./use-flows";
 import { useFlowActions } from "./use-flow-actions";
 import { useRunsQuery } from "@/features/runs/hooks/use-runs";
@@ -76,8 +77,7 @@ export function useFlowsPage() {
       ui.showSuccess("Run started", run.id.slice(0, 8));
       router.push(`/runs/${run.id}`);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Unable to start run";
-      ui.showError("Run failed", errorMessage);
+      ui.showError("Run failed", getErrorMessage(err) || "Unable to start run");
     }
   };
 

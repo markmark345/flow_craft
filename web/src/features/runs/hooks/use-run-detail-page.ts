@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
+import { getErrorMessage } from "@/lib/error-utils";
 import { useRunDetailQuery } from "./use-run-detail";
 import { useRunStepsQuery } from "./use-run-steps";
 import { useCancelRun } from "./use-cancel-run";
@@ -113,7 +114,7 @@ export function useRunDetailPage(runId: string): UseRunDetailPageReturn {
       await cancel(run.id);
       await refreshAll();
     } catch (err: unknown) {
-      showError("Cancel failed", err instanceof Error ? err.message : "Could not cancel run");
+      showError("Cancel failed", getErrorMessage(err) || "Could not cancel run");
     }
   };
 
@@ -124,7 +125,7 @@ export function useRunDetailPage(runId: string): UseRunDetailPageReturn {
       showSuccess("Run started", "Redirecting to run detail…");
       router.push(`/runs/${created.id}`);
     } catch (err: unknown) {
-      showError("Rerun failed", err instanceof Error ? err.message : "Could not start run");
+      showError("Rerun failed", getErrorMessage(err) || "Could not start run");
     }
   };
 

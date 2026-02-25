@@ -1,7 +1,8 @@
 
 import { useEffect, useMemo } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { getErrorMessage } from "@/lib/error-utils";
 import { useAppStore } from "@/hooks/use-app-store";
 import { useWorkspaceStore } from "@/features/workspaces/store/use-workspace-store";
 import type { ProjectDTO } from "@/types/dto";
@@ -16,7 +17,6 @@ import { useState } from "react";
  * Handles credential listing, OAuth flow, and deletion.
  */
 export function useCredentialsPage(scope: "personal" | "project", projectId?: string) {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const queryClient = useQueryClient();
   const showError = useAppStore((s) => s.showError);
@@ -76,16 +76,16 @@ export function useCredentialsPage(scope: "personal" | "project", projectId?: st
       showSuccess("Connected", `${connected} credential added.`);
     }
     queryClient.invalidateQueries({ queryKey: ["credentials", scope, projectId] });
-    router.replace(returnPath as any);
-  }, [connected, connectError, queryClient, returnPath, router, scope, projectId, showError, showSuccess]);
+    // Remove OAuth query params from URL without triggering re-navigation
+    window.history.replaceState(null, "", returnPath);
+  }, [connected, connectError, queryClient, returnPath, scope, projectId, showError, showSuccess]);
 
   // Delete mutation
   const deleteMutation = useMutation({
     mutationFn: (id: string) => deleteCredential(id),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["credentials"] }),
     onError: (err: unknown) => {
-      const message = err instanceof Error ? err.message : "Unable to delete credential";
-      showError("Delete failed", message);
+      showError("Delete failed", getErrorMessage(err) || "Unable to delete credential");
     },
   });
 
@@ -99,8 +99,7 @@ export function useCredentialsPage(scope: "personal" | "project", projectId?: st
       });
       window.location.href = res.url;
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "Unable to start OAuth flow";
-      showError("Connection failed", message);
+      showError("Connection failed", getErrorMessage(err) || "Unable to start OAuth flow");
     }
   };
 

@@ -1,6 +1,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { getErrorMessage } from "@/lib/error-utils";
 import { useAppStore } from "@/hooks/use-app-store";
 import { useWorkspaceStore } from "@/features/workspaces/store/use-workspace-store";
 import type { ProjectDTO } from "@/types/dto";
@@ -62,19 +63,19 @@ export function useVariablesPage(scope: "personal" | "project", projectId?: stri
   const createMutation = useMutation({
     mutationFn: (params: Parameters<typeof createVariable>[0]) => createVariable(params),
     onSuccess: () => { invalidateVariables(); showSuccess("Created", "Variable created."); },
-    onError: (err: unknown) => showError("Save failed", err instanceof Error ? err.message : "Unable to save variable"),
+    onError: (err: unknown) => showError("Save failed", getErrorMessage(err) || "Unable to save variable"),
   });
 
   const updateMutation = useMutation({
     mutationFn: ({ id, key, value }: { id: string; key: string; value: string }) => updateVariable(id, { key, value }),
     onSuccess: () => { invalidateVariables(); showSuccess("Updated", "Variable updated."); },
-    onError: (err: unknown) => showError("Save failed", err instanceof Error ? err.message : "Unable to save variable"),
+    onError: (err: unknown) => showError("Save failed", getErrorMessage(err) || "Unable to save variable"),
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => deleteVariable(id),
     onSuccess: () => { invalidateVariables(); showSuccess("Deleted", "Variable removed."); },
-    onError: (err: unknown) => showError("Delete failed", err instanceof Error ? err.message : "Unable to delete variable"),
+    onError: (err: unknown) => showError("Delete failed", getErrorMessage(err) || "Unable to delete variable"),
   });
 
   // Actions

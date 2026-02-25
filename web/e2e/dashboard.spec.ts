@@ -6,7 +6,7 @@ test.describe('Dashboard', () => {
         const timestamp = Date.now();
         const username = `dash_${timestamp}`;
         const email = `dash_${timestamp}@example.com`;
-        
+
         await page.goto('/signup?next=/dashboard');
         await page.getByPlaceholder('Your name').fill('Dash User');
         await page.getByPlaceholder('name@company.com').fill(email);
@@ -16,17 +16,11 @@ test.describe('Dashboard', () => {
         await expect(page).toHaveURL(/\/dashboard/, { timeout: 15000 });
     });
 
-    test('should display dashboard overview', async ({ page }) => {
-        // Take screenshot for debugging
-        await page.screenshot({ path: 'test-results/dashboard-debug.png' });
-        
-        // Wait a bit for page to fully render
-        await page.waitForTimeout(2000);
-        
-        // Take another screenshot
-        await page.screenshot({ path: 'test-results/dashboard-debug-2.png' });
-        
-        // Just check that page is on dashboard URL (since heading seems to have issues)
-        await expect(page).toHaveURL(/\/dashboard/);
+    test('should display stat cards on dashboard', async ({ page }) => {
+        // Wait for stats to load from the API (new user starts with zero counts)
+        await expect(page.getByText('Total Runs')).toBeVisible({ timeout: 10000 });
+        await expect(page.getByText('Success Rate')).toBeVisible();
+        await expect(page.getByText('Failed')).toBeVisible();
+        await expect(page.getByText('Active')).toBeVisible();
     });
 });
