@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 interface ImportFlowButtonProps {
   importing: boolean;
   onImportClick: () => void;
-  fileRef: RefObject<HTMLInputElement>;
+  fileRef: RefObject<HTMLInputElement | null>;
   handleImportFile: (file: File) => Promise<void> | void;
 }
 

@@ -11,7 +11,7 @@ export interface UseLogsDrawerReturn {
   loading: boolean;
   reload: () => unknown;
   logText: string;
-  logRef: React.RefObject<HTMLPreElement>;
+  logRef: React.RefObject<HTMLPreElement | null>;
   onClear: () => void;
   onDownload: () => void;
   tone: (status?: string) => "default" | "success" | "warning" | "danger";
@@ -31,7 +31,7 @@ export function useLogsDrawer(): UseLogsDrawerReturn {
   const { run, loading, reload } = useRunDetailQuery(runId);
 
   const logText = useMemo(() => (run?.log ? run.log : ""), [run?.log]);
-  const logRef = useRef<HTMLPreElement | null>(null);
+  const logRef = useRef<HTMLPreElement>(null);
 
   useEffect(() => {
     if (!logRef.current) return;

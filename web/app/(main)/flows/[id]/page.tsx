@@ -1,7 +1,8 @@
 import { FlowDetailPage } from "@/features/flows/components/flow-detail-page";
 
-type Props = { params: { id: string } };
+type Props = { params: Promise<{ id: string }> };
 
-export default function Page({ params }: Props) {
-  return <FlowDetailPage flowId={params.id} />;
+export default async function Page({ params }: Props) {
+  const { id } = await params;
+  return <FlowDetailPage flowId={id} />;
 }

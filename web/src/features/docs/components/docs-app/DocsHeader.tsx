@@ -17,7 +17,7 @@ type Props = {
   signingOut: boolean;
   menuOpen: boolean;
   setMenuOpen: (open: boolean) => void;
-  menuRef: React.RefObject<HTMLDivElement>;
+  menuRef: React.RefObject<HTMLDivElement | null>;
   initials: string;
   router: ReturnType<typeof useRouter>;
 };

@@ -8,7 +8,7 @@ import { DocsPage, DocsSection } from "../../lib/docs-data-types";
 
 type Props = {
   page: DocsPage;
-  scrollRef: React.RefObject<HTMLDivElement>;
+  scrollRef: React.RefObject<HTMLDivElement | null>;
   previousHref: string | undefined;
   nextHref: string | undefined;
 };

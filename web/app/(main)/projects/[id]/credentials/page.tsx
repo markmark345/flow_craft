@@ -1,7 +1,8 @@
 import { CredentialsPage } from "@/features/credentials/components/credentials-page";
 
-type Props = { params: { id: string } };
+type Props = { params: Promise<{ id: string }> };
 
-export default function Page({ params }: Props) {
-  return <CredentialsPage scope="project" projectId={params.id} />;
+export default async function Page({ params }: Props) {
+  const { id } = await params;
+  return <CredentialsPage scope="project" projectId={id} />;
 }

@@ -13,7 +13,7 @@ type Props = {
   isAdmin: boolean;
   menuOpen: boolean;
   setMenuOpen: (val: boolean | ((v: boolean) => boolean)) => void;
-  menuRef: React.RefObject<HTMLDivElement>;
+  menuRef: React.RefObject<HTMLDivElement | null>;
   projectNavItems: ReturnType<typeof useCredentialsPage>["projectNavItems"];
   onConnect: (provider: "google" | "github") => void;
 };

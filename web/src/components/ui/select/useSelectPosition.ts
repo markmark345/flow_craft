@@ -11,7 +11,7 @@ export type DropdownPos = {
 
 export function useSelectPosition(
   open: boolean,
-  triggerRef: React.RefObject<HTMLButtonElement>
+  triggerRef: React.RefObject<HTMLButtonElement | null>
 ) {
   const [dropdownPos, setDropdownPos] = useState<DropdownPos | null>(null);
 

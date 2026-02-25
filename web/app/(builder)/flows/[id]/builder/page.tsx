@@ -1,7 +1,8 @@
 import { BuilderPage } from "@/features/builder/components/builder-page";
 
-type Props = { params: { id: string } };
+type Props = { params: Promise<{ id: string }> };
 
-export default function Page({ params }: Props) {
-  return <BuilderPage flowId={params.id} />;
+export default async function Page({ params }: Props) {
+  const { id } = await params;
+  return <BuilderPage flowId={id} />;
 }

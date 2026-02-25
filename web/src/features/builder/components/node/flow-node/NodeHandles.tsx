@@ -13,7 +13,7 @@ interface NodeHandlesProps {
   ifFalseTop: string;
   inputHandleClass: string;
   outputHandleClass: string;
-  pickerRef: RefObject<HTMLDivElement>;
+  pickerRef: RefObject<HTMLDivElement | null>;
   onHandleClick: (sourceHandle?: string) => void;
   isErrorBranchEnabled?: boolean;
 }

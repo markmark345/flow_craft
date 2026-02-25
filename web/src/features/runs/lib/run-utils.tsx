@@ -3,6 +3,7 @@
  * Provides utilities for run status, step visualization, and log processing
  */
 
+import type { ReactElement } from "react";
 import { Icon } from "@/components/ui/icon";
 import { RunStepDTO } from "@/types/dto";
 import { pretty } from "@/lib/string-utils";
@@ -12,7 +13,7 @@ import { pretty } from "@/lib/string-utils";
  * @param status - Step status
  * @returns Icon JSX element with appropriate styling
  */
-export function stepStatusIcon(status: RunStepDTO["status"]): JSX.Element {
+export function stepStatusIcon(status: RunStepDTO["status"]): ReactElement {
   if (status === "success") return <Icon name="check_circle" className="text-[18px] text-green" />;
   if (status === "failed") return <Icon name="error" className="text-[18px] text-red" />;
   if (status === "running") return <Icon name="refresh" className="text-[18px] text-warning" />;

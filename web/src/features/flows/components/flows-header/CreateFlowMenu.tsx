@@ -6,7 +6,7 @@ import { Icon } from "@/components/ui/icon";
 import { cn } from "@/lib/cn";
 
 interface CreateFlowMenuProps {
-  createMenuRef: RefObject<HTMLDivElement>;
+  createMenuRef: RefObject<HTMLDivElement | null>;
   createMenuOpen: boolean;
   setCreateMenuOpen: (open: boolean | ((prev: boolean) => boolean)) => void;
   onCreatePersonal: () => void;

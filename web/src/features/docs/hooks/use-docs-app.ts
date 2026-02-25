@@ -13,13 +13,13 @@ export interface UseDocsAppReturn {
   query: string;
   setQuery: (value: string) => void;
   activeSectionId: string | undefined;
-  scrollRef: React.RefObject<HTMLDivElement>;
+  scrollRef: React.RefObject<HTMLDivElement | null>;
   user: UserDTO | undefined;
   signOut: ReturnType<typeof useLogout>["signOut"];
   signingOut: boolean;
   menuOpen: boolean;
   setMenuOpen: (value: boolean) => void;
-  menuRef: React.RefObject<HTMLDivElement>;
+  menuRef: React.RefObject<HTMLDivElement | null>;
   initials: string;
   filteredNav: typeof DOCS_NAV;
   navIndex: number;
@@ -37,12 +37,12 @@ export function useDocsApp(href: string): UseDocsAppReturn {
   const page = useMemo(() => getDocsPage(href) ?? getDocsPage("/docs/introduction"), [href]);
   const [query, setQuery] = useState("");
   const [activeSectionId, setActiveSectionId] = useState<string | undefined>(page?.sections[0]?.id);
-  const scrollRef = useRef<HTMLDivElement | null>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
   const authUser = useAuthStore((s) => s.user);
   const user = mounted ? authUser : undefined;
   const { signOut, loading: signingOut } = useLogout();
   const [menuOpen, setMenuOpen] = useState(false);
-  const menuRef = useRef<HTMLDivElement | null>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
 
   const initials = useMemo(() => {
     const n = (user?.name || "").trim();
