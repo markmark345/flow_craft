@@ -1,3 +1,6 @@
+# Development docker-compose — uses go run + source volume mounts (hot reload)
+# Usage: docker compose -f docker-compose.dev.yml up
+
 services:
   postgres:
     image: postgres:15
@@ -7,6 +10,7 @@ services:
       POSTGRES_DB: flowcraft
     ports:
       - "5432:5432"
+
   temporal:
     image: temporalio/auto-setup:1.22
     environment:
@@ -19,6 +23,7 @@ services:
       - "7233:7233"
     depends_on:
       - postgres
+
   temporal-ui:
     image: temporalio/ui:latest
     environment:
@@ -27,20 +32,17 @@ services:
       - "8081:8080"
     depends_on:
       - temporal
+
   api:
-    build:
-      context: .
-      args:
-        GOPROXY: ${GOPROXY:-https://proxy.golang.org,https://goproxy.io,direct}
-        GOSUMDB: ${GOSUMDB:-sum.golang.org}
-    env_file:
-      - .env
+    image: golang:1.24-alpine
     working_dir: /app
     volumes:
-      - ./:/app
+      - ./api:/app
+    env_file:
+      - ./api/.env
     command: ["go", "run", "./cmd/api-server"]
     environment:
-      APP_PORT: 8080
+      APP_PORT: "8080"
       DATABASE_URL: postgres://postgres:postgres@postgres:5432/flowcraft?sslmode=disable
       TEMPORAL_ADDRESS: temporal:7233
     ports:
@@ -48,17 +50,14 @@ services:
     depends_on:
       - postgres
       - temporal
+
   worker:
-    build:
-      context: .
-      args:
-        GOPROXY: ${GOPROXY:-https://proxy.golang.org,https://goproxy.io,direct}
-        GOSUMDB: ${GOSUMDB:-sum.golang.org}
-    env_file:
-      - .env
+    image: golang:1.24-alpine
     working_dir: /app
     volumes:
-      - ./:/app
+      - ./api:/app
+    env_file:
+      - ./api/.env
     command: ["go", "run", "./cmd/worker"]
     environment:
       DATABASE_URL: postgres://postgres:postgres@postgres:5432/flowcraft?sslmode=disable
@@ -66,11 +65,12 @@ services:
     depends_on:
       - temporal
       - postgres
+
   frontend:
     image: node:20
     working_dir: /app
     volumes:
-      - ../web:/app
+      - ./web:/app
       - frontend_node_modules:/app/node_modules
     command: >
       sh -c "corepack enable &&
