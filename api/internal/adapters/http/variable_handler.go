@@ -128,6 +128,8 @@ func variableToResponse(variable domain.Variable) dto.VariableResponse {
 	scope := "personal"
 	if variable.ProjectID != "" {
 		scope = "project"
+	} else if variable.UserID == "" {
+		scope = "global"
 	}
 	return dto.VariableResponse{
 		ID:        variable.ID,

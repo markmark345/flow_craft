@@ -1,6 +1,7 @@
 package httpadapter
 
 import (
+	"context"
 	"database/sql"
 	"net/http"
 	"strconv"
@@ -11,6 +12,7 @@ import (
 	"go.temporal.io/sdk/client"
 
 	"flowcraft-api/internal/adapters/database/postgres"
+	"flowcraft-api/internal/adapters/websocket"
 	"flowcraft-api/internal/config"
 	"flowcraft-api/internal/core/services"
 	"flowcraft-api/internal/mailer"
@@ -18,7 +20,7 @@ import (
 	"flowcraft-api/pkg/apierrors"
 )
 
-func NewRouter(cfg config.Config, db *sql.DB, logger zerolog.Logger, temporalClient client.Client) *gin.Engine {
+func NewRouter(cfg config.Config, db *sql.DB, logger zerolog.Logger, temporalClient client.Client, hub *websocket.Hub) *gin.Engine {
 	r := gin.Default()
 
 	// Simple CORS middleware
@@ -173,6 +175,13 @@ func NewRouter(cfg config.Config, db *sql.DB, logger zerolog.Logger, temporalCli
 	nodeTestHandler.Register(apiProtected)
 	apiProtected.POST("/flows/:id/run", runHandler.CreateForFlow)
 	apiProtected.POST("/workflows/:id/run", runHandler.CreateForFlow)
+
+	// I1: WS auth via ?token= query param (browsers cannot set WS request headers).
+	wsHandler := websocket.NewHandler(hub, func(ctx context.Context, token string) error {
+		_, err := authSvc.Validate(ctx, token)
+		return err
+	})
+	apiPublic.GET("/ws", wsHandler.HandleWS)
 
 	return r
 }

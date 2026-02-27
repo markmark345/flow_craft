@@ -1,5 +1,6 @@
-import { getErrorMessage } from "@/lib/error-utils";
 "use client";
+
+import { getErrorMessage } from "@/lib/error-utils";
 
 import type { ReactNode } from "react";
 import Link from "next/link";

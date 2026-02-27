@@ -22,11 +22,30 @@ func (r *VariableRepository) Create(ctx context.Context, variable domain.Variabl
 	if variable.ProjectID != "" {
 		projectID = variable.ProjectID
 	}
+	var userID any
+	if variable.UserID != "" {
+		userID = variable.UserID
+	}
 	_, err := r.db.ExecContext(ctx, `
         INSERT INTO variables (id, user_id, project_id, key, value)
         VALUES ($1, $2, $3, $4, $5)
-    `, variable.ID, variable.UserID, projectID, variable.Key, variable.Value)
+    `, variable.ID, userID, projectID, variable.Key, variable.Value)
 	return err
+}
+
+func (r *VariableRepository) ListGlobal(ctx context.Context) ([]domain.Variable, error) {
+	rows, err := r.db.QueryContext(ctx, `
+        SELECT id, user_id, project_id, key, value, created_at, updated_at
+        FROM variables
+        WHERE user_id IS NULL AND project_id IS NULL
+        ORDER BY updated_at DESC
+    `)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	return scanVariables(rows)
 }
 
 func (r *VariableRepository) ListForUser(ctx context.Context, userID string) ([]domain.Variable, error) {
@@ -61,6 +80,7 @@ func (r *VariableRepository) ListForProject(ctx context.Context, projectID strin
 
 func (r *VariableRepository) Get(ctx context.Context, id string) (*domain.Variable, error) {
 	var variable domain.Variable
+	var userID sql.NullString
 	var projectID sql.NullString
 	var createdAt time.Time
 	var updatedAt time.Time
@@ -68,7 +88,7 @@ func (r *VariableRepository) Get(ctx context.Context, id string) (*domain.Variab
         SELECT id, user_id, project_id, key, value, created_at, updated_at
         FROM variables
         WHERE id = $1
-    `, id).Scan(&variable.ID, &variable.UserID, &projectID, &variable.Key, &variable.Value, &createdAt, &updatedAt)
+    `, id).Scan(&variable.ID, &userID, &projectID, &variable.Key, &variable.Value, &createdAt, &updatedAt)
 	if err == sql.ErrNoRows {
 		return nil, utils.ErrNotFound
 	}
@@ -77,6 +97,9 @@ func (r *VariableRepository) Get(ctx context.Context, id string) (*domain.Variab
 	}
 	if projectID.Valid {
 		variable.ProjectID = projectID.String
+	}
+	if userID.Valid {
+		variable.UserID = userID.String
 	}
 	variable.CreatedAt = createdAt
 	variable.UpdatedAt = updatedAt
@@ -88,6 +111,10 @@ func (r *VariableRepository) Update(ctx context.Context, variable domain.Variabl
 	if variable.ProjectID != "" {
 		projectID = variable.ProjectID
 	}
+	var userID any
+	if variable.UserID != "" {
+		userID = variable.UserID
+	}
 	res, err := r.db.ExecContext(ctx, `
         UPDATE variables
         SET user_id = $2,
@@ -96,7 +123,7 @@ func (r *VariableRepository) Update(ctx context.Context, variable domain.Variabl
             value = $5,
             updated_at = NOW()
         WHERE id = $1
-    `, variable.ID, variable.UserID, projectID, variable.Key, variable.Value)
+    `, variable.ID, userID, projectID, variable.Key, variable.Value)
 	if err != nil {
 		return err
 	}
@@ -125,12 +152,13 @@ func scanVariables(rows *sql.Rows) ([]domain.Variable, error) {
 	var items []domain.Variable
 	for rows.Next() {
 		var variable domain.Variable
+		var userID sql.NullString
 		var projectID sql.NullString
 		var createdAt time.Time
 		var updatedAt time.Time
 		if err := rows.Scan(
 			&variable.ID,
-			&variable.UserID,
+			&userID,
 			&projectID,
 			&variable.Key,
 			&variable.Value,
@@ -138,6 +166,9 @@ func scanVariables(rows *sql.Rows) ([]domain.Variable, error) {
 			&updatedAt,
 		); err != nil {
 			return nil, err
+		}
+		if userID.Valid {
+			variable.UserID = userID.String
 		}
 		if projectID.Valid {
 			variable.ProjectID = projectID.String

@@ -13,8 +13,9 @@ interface NodeHandlesProps {
   ifFalseTop: string;
   inputHandleClass: string;
   outputHandleClass: string;
-  pickerRef: RefObject<HTMLDivElement>;
+  pickerRef: RefObject<HTMLDivElement | null>;
   onHandleClick: (sourceHandle?: string) => void;
+  isErrorBranchEnabled?: boolean;
 }
 
 export function NodeHandles({
@@ -29,6 +30,7 @@ export function NodeHandles({
   outputHandleClass,
   pickerRef,
   onHandleClick,
+  isErrorBranchEnabled,
 }: NodeHandlesProps) {
   return (
     <>
@@ -48,7 +50,58 @@ export function NodeHandles({
       )}
 
       <div ref={pickerRef}>
-        {isIf ? (
+        {isErrorBranchEnabled ? (
+          <>
+             <Handle
+              id="default"
+              type="source"
+              position={Position.Right}
+              className={outputHandleClass}
+              style={{
+                background: "var(--panel)",
+                borderColor: accentColor,
+                top: ifTrueTop,
+                right: -handleOutsideX,
+                transform: "translate(0, -50%)",
+              }}
+              onClick={(e) => {
+                e.stopPropagation();
+                onHandleClick(undefined);
+              }}
+              title="Success path"
+            />
+            <Handle
+              id="error"
+              type="source"
+              position={Position.Right}
+              className={outputHandleClass}
+              style={{
+                background: "var(--panel)",
+                borderColor: "var(--error)",
+                top: ifFalseTop,
+                right: -handleOutsideX,
+                transform: "translate(0, -50%)",
+              }}
+              onClick={(e) => {
+                e.stopPropagation();
+                onHandleClick("error");
+              }}
+              title="Error path"
+            />
+            <div
+              className="absolute text-[10px] text-muted select-none -translate-y-1/2"
+              style={{ top: ifTrueTop, left: `calc(100% + ${labelOutsideX}px)` }}
+            >
+              success
+            </div>
+            <div
+              className="absolute text-[10px] text-error select-none -translate-y-1/2"
+              style={{ top: ifFalseTop, left: `calc(100% + ${labelOutsideX}px)` }}
+            >
+              error
+            </div>
+          </>
+        ) : isIf ? (
           <>
             <Handle
               id="true"

@@ -10,7 +10,7 @@ import { defaultActionKeyForApp, normalizeAppKey } from "../nodeCatalog/catalog"
 
 type CanvasEventsProps = {
   rfInstance: ReactFlowInstance | null;
-  canvasRef: RefObject<HTMLDivElement>;
+  canvasRef: RefObject<HTMLDivElement | null>;
 };
 
 export function useCanvasEvents({ rfInstance, canvasRef }: CanvasEventsProps) {

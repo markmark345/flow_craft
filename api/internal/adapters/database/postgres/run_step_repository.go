@@ -236,29 +236,32 @@ func (r *RunStepRepository) Get(ctx context.Context, runID string, stepIDOrKey s
 }
 
 func (r *RunStepRepository) UpdateState(ctx context.Context, id string, status string, inputsJSON []byte, outputsJSON []byte, logText string, errText string) error {
-	res, err := r.db.ExecContext(ctx, `
-        UPDATE run_steps
-        SET status=$2,
-            log=$3,
-            error=$4,
-            inputs_json = COALESCE($5::jsonb, inputs_json),
-            outputs_json = COALESCE($6::jsonb, outputs_json),
-            started_at = CASE WHEN $2 = 'running' AND started_at IS NULL THEN NOW() ELSE started_at END,
-            finished_at = CASE
-                WHEN ($2 = 'success' OR $2 = 'failed' OR $2 = 'canceled' OR $2 = 'skipped') AND finished_at IS NULL THEN NOW()
-                ELSE finished_at
-            END,
-            updated_at=NOW()
-        WHERE id=$1
-    `, id, status, nullString(logText), nullString(errText), nullJSON(inputsJSON), nullJSON(outputsJSON))
-	if err != nil {
-		return err
-	}
-	count, _ := res.RowsAffected()
-	if count == 0 {
+	// We want to notify run execution updates. Return run_id to notify.
+	var runID string
+	err := r.db.QueryRowContext(ctx, `
+        WITH updated AS (
+            UPDATE run_steps
+            SET status=$2,
+                log=$3,
+                error=$4,
+                inputs_json = COALESCE($5::jsonb, inputs_json),
+                outputs_json = COALESCE($6::jsonb, outputs_json),
+                started_at = CASE WHEN $2 = 'running' AND started_at IS NULL THEN NOW() ELSE started_at END,
+                finished_at = CASE
+                    WHEN ($2 = 'success' OR $2 = 'failed' OR $2 = 'canceled' OR $2 = 'skipped') AND finished_at IS NULL THEN NOW()
+                    ELSE finished_at
+                END,
+                updated_at=NOW()
+            WHERE id=$1
+            RETURNING run_id
+        )
+        SELECT run_id FROM updated, pg_notify('run_updates', json_build_object('runId', run_id, 'event', 'step_update')::text)
+    `, id, status, nullString(logText), nullString(errText), nullJSON(inputsJSON), nullJSON(outputsJSON)).Scan(&runID)
+
+	if err == sql.ErrNoRows {
 		return utils.ErrNotFound
 	}
-	return nil
+	return err
 }
 
 func (r *RunStepRepository) CancelOpenSteps(ctx context.Context, runID string, message string) error {

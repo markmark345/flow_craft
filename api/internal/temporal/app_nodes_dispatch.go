@@ -19,6 +19,10 @@ func executeApp(ctx context.Context, config map[string]any, deps stepDependencie
 			app = "github"
 		case strings.HasPrefix(strings.ToLower(action), "bannerbear."):
 			app = "bannerbear"
+		case strings.HasPrefix(strings.ToLower(action), "slack."):
+			app = "slack"
+		case strings.HasPrefix(strings.ToLower(action), "notion."):
+			app = "notion"
 		}
 	}
 
@@ -46,6 +50,16 @@ func executeApp(ctx context.Context, config map[string]any, deps stepDependencie
 			action = "bannerbear.createImage"
 		}
 		return executeAppBannerbear(ctx, config, deps, action)
+	case "slack":
+		if action == "" {
+			action = "slack.sendMessage"
+		}
+		return executeAppSlack(ctx, config, deps, action)
+	case "notion":
+		if action == "" {
+			action = "notion.createPage"
+		}
+		return executeAppNotion(ctx, config, deps, action)
 	default:
 		return map[string]any{"status": 0}, "unsupported app", fmt.Errorf("app: unsupported app %q", app)
 	}

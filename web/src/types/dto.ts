@@ -77,12 +77,28 @@ export type CredentialDTO = {
   updatedAt?: string;
 };
 
-export type VariableDTO = {
+export interface VariableDTO {
   id: string;
   key: string;
   value: string;
-  scope: "personal" | "project";
-  projectId?: string;
-  createdAt?: string;
-  updatedAt?: string;
+  scope: "personal" | "project" | "global";
+  projectId: string; // Only for project vars
+  createdAt: string;
+  updatedAt: string;
+}
+;
+
+export type RunStatsDTO = {
+  total: number;
+  success: number;
+  failed: number;
+  running: number;
+  queued: number;
+};
+
+export type DailyStatDTO = {
+  date: string;
+  total: number;
+  success: number;
+  failed: number;
 };

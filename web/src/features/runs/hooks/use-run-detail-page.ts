@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
+import { getErrorMessage } from "@/lib/error-utils";
 import { useRunDetailQuery } from "./use-run-detail";
 import { useRunStepsQuery } from "./use-run-steps";
 import { useCancelRun } from "./use-cancel-run";
@@ -7,6 +9,7 @@ import { useRunFlow } from "./use-run-flow";
 import { useFlowDetailQuery } from "@/features/flows/hooks/use-flow-detail";
 import { useAppStore } from "@/hooks/use-app-store";
 import type { RunDTO, RunStepDTO } from "@/types/dto";
+import { useWebSocket, RunUpdateEvent } from "@/hooks/use-websocket";
 
 export interface UseRunDetailPageReturn {
   // Data
@@ -35,7 +38,7 @@ export interface UseRunDetailPageReturn {
   setSelectedStepId: (id: string | undefined) => void;
   setLogQuery: (query: string) => void;
   refreshAll: () => Promise<void>;
-  reloadSteps: () => Promise<void>;
+  reloadSteps: () => unknown;
   onCancel: () => Promise<void>;
   onRerun: () => Promise<void>;
   getTone: (status: RunDTO["status"]) => "default" | "success" | "warning" | "danger";
@@ -52,13 +55,28 @@ export interface UseRunDetailPageReturn {
  */
 export function useRunDetailPage(runId: string): UseRunDetailPageReturn {
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   // Data queries
-  const { run, loading: runLoading, error: runError, reload: reloadRun } = useRunDetailQuery(runId, { pollMs: 2000 });
-  const { steps, loading: stepsLoading, error: stepsError, reload: reloadSteps } = useRunStepsQuery(runId, { pollMs: 2000 });
+  // Initial fetch only, no polling. Real-time updates handled via WebSocket.
+  const { run, loading: runLoading, error: runError, reload: reloadRun } = useRunDetailQuery(runId);
+  const { steps, loading: stepsLoading, error: stepsError, reload: reloadSteps } = useRunStepsQuery(runId);
   const { cancel, canceling } = useCancelRun();
   const { startRun, running, runningFlowId } = useRunFlow();
   const { flow } = useFlowDetailQuery(run?.flowId);
+
+  // Real-time updates
+  const { subscribe } = useWebSocket();
+
+  useEffect(() => {
+    return subscribe("run_update", (payload) => {
+      const event = payload as RunUpdateEvent;
+      if (event.runId === runId) {
+        queryClient.invalidateQueries({ queryKey: ["run", runId] });
+        queryClient.invalidateQueries({ queryKey: ["run-steps", runId] });
+      }
+    });
+  }, [runId, subscribe, queryClient]);
 
   // UI messages
   const showSuccess = useAppStore((s) => s.showSuccess);
@@ -95,7 +113,9 @@ export function useRunDetailPage(runId: string): UseRunDetailPageReturn {
     try {
       await cancel(run.id);
       await refreshAll();
-    } catch {}
+    } catch (err: unknown) {
+      showError("Cancel failed", getErrorMessage(err) || "Could not cancel run");
+    }
   };
 
   const onRerun = async () => {
@@ -104,7 +124,9 @@ export function useRunDetailPage(runId: string): UseRunDetailPageReturn {
       const created = await startRun(run.flowId);
       showSuccess("Run started", "Redirecting to run detail…");
       router.push(`/runs/${created.id}`);
-    } catch {}
+    } catch (err: unknown) {
+      showError("Rerun failed", getErrorMessage(err) || "Could not start run");
+    }
   };
 
   const getTone = (s: RunDTO["status"]): "default" | "success" | "warning" | "danger" => {

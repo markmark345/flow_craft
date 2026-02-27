@@ -2,14 +2,12 @@
 import { getErrorMessage } from "@/lib/error-utils";
 
 import { useCallback, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { resetWorkspace as apiResetWorkspace } from "@/services/systemApi";
-import { useFlowsStore } from "../store/use-flows-store";
-import { useRunsStore } from "@/features/runs/store/use-runs-store";
 import { useAppStore } from "@/hooks/use-app-store";
 
 export function useResetWorkspace() {
-  const setFlows = useFlowsStore((s) => s.setFlows);
-  const setRuns = useRunsStore((s) => s.setRuns);
+  const queryClient = useQueryClient();
   const showSuccess = useAppStore((s) => s.showSuccess);
   const showError = useAppStore((s) => s.showError);
   const [resetting, setResetting] = useState(false);
@@ -18,8 +16,8 @@ export function useResetWorkspace() {
     setResetting(true);
     try {
       await apiResetWorkspace();
-      setRuns([]);
-      setFlows([]);
+      queryClient.invalidateQueries({ queryKey: ["flows"] });
+      queryClient.invalidateQueries({ queryKey: ["runs"] });
       showSuccess("Workspace reset", "All flows and runs were removed.");
     } catch (err: unknown) {
       showError("Reset failed", getErrorMessage(err) || "Unable to reset workspace");
@@ -27,8 +25,7 @@ export function useResetWorkspace() {
     } finally {
       setResetting(false);
     }
-  }, [setFlows, setRuns, showError, showSuccess]);
+  }, [queryClient, showError, showSuccess]);
 
   return { resetWorkspace, resetting };
 }
-

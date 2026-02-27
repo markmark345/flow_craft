@@ -112,3 +112,25 @@ func maxInt(a int, b int) int {
 	}
 	return b
 }
+
+func readIntWithDefault(cfg map[string]any, key string, defaultValue int) int {
+	if cfg == nil {
+		return defaultValue
+	}
+	v, ok := cfg[key]
+	if !ok || v == nil {
+		return defaultValue
+	}
+	if i, ok := v.(int); ok {
+		return i
+	}
+	if f, ok := v.(float64); ok {
+		return int(f)
+	}
+	if _, ok := v.(string); ok {
+		// simple string parsing or just return default if complex
+		// for now rely on json unmarshal types usually being float64
+		return defaultValue
+	}
+	return defaultValue
+}

@@ -3,8 +3,8 @@ import { useEffect, useRef, useState } from "react";
 export interface UseFlowsHeaderReturn {
   createMenuOpen: boolean;
   setCreateMenuOpen: (value: boolean | ((prev: boolean) => boolean)) => void;
-  createMenuRef: React.RefObject<HTMLDivElement>;
-  fileRef: React.RefObject<HTMLInputElement>;
+  createMenuRef: React.RefObject<HTMLDivElement | null>;
+  fileRef: React.RefObject<HTMLInputElement | null>;
   onImportClick: () => void;
   handleImportFile: (file: File) => Promise<void>;
 }
@@ -17,8 +17,8 @@ export function useFlowsHeader(
   onImportFile: (file: File) => Promise<void> | void
 ): UseFlowsHeaderReturn {
   const [createMenuOpen, setCreateMenuOpen] = useState(false);
-  const createMenuRef = useRef<HTMLDivElement | null>(null);
-  const fileRef = useRef<HTMLInputElement | null>(null);
+  const createMenuRef = useRef<HTMLDivElement>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!createMenuOpen) return;

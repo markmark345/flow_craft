@@ -74,3 +74,11 @@ func (s *RunService) GetForUser(ctx context.Context, id string, userID string) (
 func (s *RunService) UpdateStatus(ctx context.Context, id string, status string, log string) error {
 	return s.runs.UpdateStatus(ctx, id, status, log)
 }
+
+func (s *RunService) GetStats(ctx context.Context, userID string) (*domain.RunStats, error) {
+	return s.runs.GetStats(ctx, userID)
+}
+
+func (s *RunService) GetDailyStats(ctx context.Context, userID string, days int) ([]domain.DailyStat, error) {
+	return s.runs.GetDailyStats(ctx, userID, days)
+}

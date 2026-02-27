@@ -71,10 +71,11 @@ func (s *CredentialService) ListScoped(ctx context.Context, user domain.AuthUser
 
 func (s *CredentialService) Create(ctx context.Context, user domain.AuthUser, scope string, projectID string, cred domain.Credential) (domain.Credential, error) {
 	scope = strings.TrimSpace(scope)
-	if scope == "" || scope == "personal" {
+	switch scope {
+	case "", "personal":
 		cred.UserID = user.ID
 		cred.ProjectID = ""
-	} else if scope == "project" {
+	case "project":
 		if strings.TrimSpace(projectID) == "" {
 			return domain.Credential{}, errors.New("projectId is required for project scope")
 		}
@@ -93,7 +94,7 @@ func (s *CredentialService) Create(ctx context.Context, user domain.AuthUser, sc
 		}
 		cred.ProjectID = projectID
 		cred.UserID = user.ID
-	} else {
+	default:
 		return domain.Credential{}, errors.New("invalid scope")
 	}
 

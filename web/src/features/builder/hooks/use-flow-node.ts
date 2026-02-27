@@ -4,7 +4,7 @@ import type { BuilderNodeType } from "../types";
 import { useBuilderStore } from "../store/use-builder-store";
 
 export interface UseFlowNodeReturn {
-  pickerRef: React.RefObject<HTMLDivElement>;
+  pickerRef: React.RefObject<HTMLDivElement | null>;
   pickerOpen: boolean;
   setPickerOpen: (value: boolean) => void;
   query: string;
@@ -24,7 +24,7 @@ export function useFlowNode(
   nodeType: string,
   selected: boolean
 ): UseFlowNodeReturn {
-  const pickerRef = useRef<HTMLDivElement | null>(null);
+  const pickerRef = useRef<HTMLDivElement>(null);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [pickerSourceHandle, setPickerSourceHandle] = useState<string | undefined>(undefined);

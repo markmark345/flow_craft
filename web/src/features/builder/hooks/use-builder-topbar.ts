@@ -25,7 +25,7 @@ export interface UseBuilderTopbarReturn {
   setLocalName: (value: string) => void;
   menuOpen: boolean;
   setMenuOpen: (value: boolean | ((prev: boolean) => boolean)) => void;
-  menuRef: React.RefObject<HTMLDivElement>;
+  menuRef: React.RefObject<HTMLDivElement | null>;
   initials: string;
   setActiveRunId: (id: string | undefined) => void;
   onRun: () => Promise<void>;
@@ -56,7 +56,7 @@ export function useBuilderTopbar(): UseBuilderTopbarReturn {
   const saveRef = useRef(save);
   const savingRef = useRef(saving);
   const [menuOpen, setMenuOpen] = useState(false);
-  const menuRef = useRef<HTMLDivElement | null>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
 
   const initials = (() => {
     const n = (user?.name || "").trim();

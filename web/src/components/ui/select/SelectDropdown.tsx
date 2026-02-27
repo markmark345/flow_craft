@@ -8,7 +8,7 @@ import { DropdownPos } from "./useSelectPosition";
 interface SelectDropdownProps {
   open: boolean;
   dropdownPos: DropdownPos | null;
-  dropdownRef: React.RefObject<HTMLDivElement>;
+  dropdownRef: React.RefObject<HTMLDivElement | null>;
   searchable?: boolean;
   searchPlaceholder?: string;
   query: string;

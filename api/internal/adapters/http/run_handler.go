@@ -3,10 +3,12 @@ package httpadapter
 import (
 	"context"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/rs/zerolog"
 	"go.temporal.io/sdk/client"
 
 	"flowcraft-api/internal/core/domain"
@@ -35,10 +37,12 @@ func NewRunHandler(
 
 func (h *RunHandler) Register(r *gin.RouterGroup) {
 	r.GET("/runs", h.list)
+	r.GET("/runs/history", h.history)
 	r.GET("/runs/:id", h.get)
 	r.GET("/runs/:id/steps", h.listSteps)
 	r.GET("/runs/:id/steps/:stepId", h.getStep)
 	r.POST("/runs/:id/cancel", h.cancel)
+	r.GET("/stats", h.stats)
 }
 
 func toRFC3339(t *time.Time) *string {
@@ -280,4 +284,55 @@ func (h *RunHandler) CreateForFlow(c *gin.Context) {
 	}
 
 	utils.JSONResponse(c, http.StatusAccepted, runToResponse(created))
+}
+
+func (h *RunHandler) stats(c *gin.Context) {
+	user, _ := currentAuthUser(c)
+	stats, err := h.runs.GetStats(c.Request.Context(), user.ID)
+	if err != nil {
+		logger := c.MustGet("logger").(zerolog.Logger)
+		logger.Error().Err(err).Msg("failed to get run stats")
+		utils.JSONError(c, http.StatusInternalServerError, apierrors.ErrInternalServer, err.Error(), nil)
+		return
+	}
+	utils.JSONResponse(c, http.StatusOK, dto.RunStatsResponse{
+		Total:   stats.Total,
+		Success: stats.Success,
+		Failed:  stats.Failed,
+		Running: stats.Running,
+		Queued:  stats.Queued,
+	})
+}
+
+func (h *RunHandler) history(c *gin.Context) {
+	user := c.MustGet("authUser").(domain.AuthUser)
+
+	// S5: accept ?days=N, default 7
+	days := 7
+	if d, err := strconv.Atoi(c.Query("days")); err == nil && d > 0 && d <= 90 {
+		days = d
+	}
+
+	stats, err := h.runs.GetDailyStats(c.Request.Context(), user.ID, days)
+	if err != nil {
+		utils.JSONError(c, http.StatusInternalServerError, apierrors.ErrInternalServer, err.Error(), nil)
+		return
+	}
+	// Convert to response format
+	type dailyStatResponse struct {
+		Date    string `json:"date"`
+		Total   int    `json:"total"`
+		Success int    `json:"success"`
+		Failed  int    `json:"failed"`
+	}
+	out := make([]dailyStatResponse, len(stats))
+	for i, s := range stats {
+		out[i] = dailyStatResponse{
+			Date:    s.Date,
+			Total:   s.Total,
+			Success: s.Success,
+			Failed:  s.Failed,
+		}
+	}
+	utils.JSONResponse(c, http.StatusOK, out)
 }

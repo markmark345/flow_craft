@@ -1,5 +1,5 @@
-@import "../src/shared/styles/tokens.css";
-@import "../src/shared/styles/gradients.css";
+@import "../src/styles/tokens.css";
+@import "../src/styles/gradients.css";
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

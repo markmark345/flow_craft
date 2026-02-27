@@ -123,6 +123,8 @@ type MockRunRepository struct {
 	ListByProjectFunc func(ctx context.Context, projectID string) ([]domain.Run, error)
 	GetFunc           func(ctx context.Context, id string) (*domain.Run, error)
 	GetForUserFunc    func(ctx context.Context, id string, userID string) (*domain.Run, error)
+	GetStatsFunc      func(ctx context.Context, userID string) (*domain.RunStats, error)
+	GetDailyStatsFunc func(ctx context.Context, userID string, days int) ([]domain.DailyStat, error)
 	UpdateStatusFunc  func(ctx context.Context, id string, status string, log string) error
 }
 
@@ -171,6 +173,20 @@ func (m *MockRunRepository) Get(ctx context.Context, id string) (*domain.Run, er
 func (m *MockRunRepository) GetForUser(ctx context.Context, id string, userID string) (*domain.Run, error) {
 	if m.GetForUserFunc != nil {
 		return m.GetForUserFunc(ctx, id, userID)
+	}
+	return nil, nil
+}
+
+func (m *MockRunRepository) GetStats(ctx context.Context, userID string) (*domain.RunStats, error) {
+	if m.GetStatsFunc != nil {
+		return m.GetStatsFunc(ctx, userID)
+	}
+	return nil, nil
+}
+
+func (m *MockRunRepository) GetDailyStats(ctx context.Context, userID string, days int) ([]domain.DailyStat, error) {
+	if m.GetDailyStatsFunc != nil {
+		return m.GetDailyStatsFunc(ctx, userID, days)
 	}
 	return nil, nil
 }

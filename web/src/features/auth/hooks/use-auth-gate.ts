@@ -14,7 +14,7 @@ export function useAuthGate() {
   const signOut = useAuthStore((s) => s.signOut);
   const router = useRouter();
   const pathname = usePathname();
-  const validatedRef = useRef<string | undefined>();
+  const validatedRef = useRef<string | undefined>(undefined);
 
   useEffect(() => {
     const next = pathname && pathname !== "/login" ? `?next=${encodeURIComponent(pathname)}` : "";

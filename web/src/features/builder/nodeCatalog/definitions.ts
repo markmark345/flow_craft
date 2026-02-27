@@ -1,7 +1,7 @@
 
 import { BuilderNodeType, FlowNodeData } from "@/features/builder/types";
 
-export type NodeFieldType = "text" | "number" | "textarea" | "select" | "toggle" | "keyValue" | "credential";
+export type NodeFieldType = "text" | "number" | "textarea" | "select" | "toggle" | "keyValue" | "credential" | "password";
 
 export type NodeField = {
   key: string;

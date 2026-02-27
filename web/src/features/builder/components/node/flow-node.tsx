@@ -126,6 +126,7 @@ export function FlowNode({ id, data, selected }: NodeProps<FlowNodeData>) {
         outputHandleClass={outputHandleClass}
         pickerRef={pickerRef}
         onHandleClick={handlePickerHandleClick}
+        isErrorBranchEnabled={!!data.config?.enableErrorBranch}
       />
 
       <NodePicker

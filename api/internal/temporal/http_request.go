@@ -3,6 +3,7 @@ package temporal
 import (
 	"bytes"
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -48,6 +49,30 @@ func executeHTTPRequest(ctx context.Context, config map[string]any) (map[string]
 	headers := parseStringMapFromConfig(config, "headers")
 	body := readString(config, "body")
 
+	// Authentication handling
+	authType := strings.TrimSpace(readString(config, "authType"))
+	authValue := strings.TrimSpace(readString(config, "authValue"))
+	authHeader := strings.TrimSpace(readString(config, "authHeader"))
+	if authHeader == "" {
+		authHeader = "X-API-Key"
+	}
+
+	switch strings.ToLower(authType) {
+	case "api key":
+		if authValue != "" {
+			headers[authHeader] = authValue
+		}
+	case "bearer token":
+		if authValue != "" {
+			headers["Authorization"] = "Bearer " + authValue
+		}
+	case "basic auth":
+		if authValue != "" {
+			encoded := base64.StdEncoding.EncodeToString([]byte(authValue))
+			headers["Authorization"] = "Basic " + encoded
+		}
+	}
+
 	var bodyReader io.Reader
 	if strings.TrimSpace(body) != "" && method != http.MethodGet && method != http.MethodHead {
 		bodyReader = bytes.NewReader([]byte(body))
@@ -61,19 +86,40 @@ func executeHTTPRequest(ctx context.Context, config map[string]any) (map[string]
 	for k, v := range headers {
 		req.Header.Set(k, v)
 	}
+
+	// Content-Type handling
+	contentType := strings.TrimSpace(readString(config, "contentType"))
 	if bodyReader != nil && req.Header.Get("Content-Type") == "" {
-		trim := strings.TrimSpace(body)
-		if strings.HasPrefix(trim, "{") || strings.HasPrefix(trim, "[") {
-			req.Header.Set("Content-Type", "application/json")
+		if contentType != "" {
+			req.Header.Set("Content-Type", contentType)
 		} else {
-			req.Header.Set("Content-Type", "text/plain; charset=utf-8")
+			trim := strings.TrimSpace(body)
+			if strings.HasPrefix(trim, "{") || strings.HasPrefix(trim, "[") {
+				req.Header.Set("Content-Type", "application/json")
+			} else {
+				req.Header.Set("Content-Type", "text/plain; charset=utf-8")
+			}
 		}
 	}
 	if req.Header.Get("User-Agent") == "" {
 		req.Header.Set("User-Agent", "FlowCraft/0.1")
 	}
 
-	client := &http.Client{Timeout: 12 * time.Second}
+	// Timeout handling
+	timeout := 12 * time.Second
+	if rawTimeout, ok := config["timeout"]; ok && rawTimeout != nil {
+		switch v := rawTimeout.(type) {
+		case float64:
+			if v > 0 && v <= 120 {
+				timeout = time.Duration(v) * time.Second
+			}
+		case int:
+			if v > 0 && v <= 120 {
+				timeout = time.Duration(v) * time.Second
+			}
+		}
+	}
+	client := &http.Client{Timeout: timeout}
 	started := time.Now()
 	res, err := client.Do(req)
 	duration := time.Since(started)

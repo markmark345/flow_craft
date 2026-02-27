@@ -1,6 +1,6 @@
 import { API_BASE_URL } from "@/lib/env";
 import { request } from "@/lib/fetcher";
-import { RunDTO, RunStepDTO } from "@/types/dto";
+import { RunDTO, RunStepDTO, DailyStatDTO } from "@/types/dto";
 
 export async function listRuns(opts?: { scope?: "personal" | "project"; projectId?: string | null }): Promise<RunDTO[]> {
   const params = new URLSearchParams();
@@ -42,5 +42,15 @@ export async function listRunSteps(runId: string): Promise<RunStepDTO[]> {
 
 export async function getRunStep(runId: string, stepId: string): Promise<RunStepDTO> {
   const res = await request<{ data: RunStepDTO }>(`${API_BASE_URL}/runs/${runId}/steps/${stepId}`);
+  return res.data;
+}
+
+export async function getStats(): Promise<import("@/types/dto").RunStatsDTO> {
+  const res = await request<{ data: import("@/types/dto").RunStatsDTO }>(`${API_BASE_URL}/stats`);
+  return res.data;
+}
+
+export async function getRunHistory(): Promise<DailyStatDTO[]> {
+  const res = await request<{ data: DailyStatDTO[] }>(`${API_BASE_URL}/runs/history`);
   return res.data;
 }

@@ -2,8 +2,8 @@
 import { getErrorMessage } from "@/lib/error-utils";
 
 import { useCallback, useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { deleteFlow, getFlow, updateFlow } from "../services/flowsApi";
-import { useFlowsStore } from "../store/use-flows-store";
 import { useAppStore } from "@/hooks/use-app-store";
 import { FlowDTO } from "@/types/dto";
 import { createWorkflow } from "@/features/workflows/services/workflowsApi";
@@ -14,9 +14,7 @@ type ImportResult = {
 };
 
 export function useFlowActions() {
-  const addFlow = useFlowsStore((s) => s.addFlow);
-  const upsertFlow = useFlowsStore((s) => s.upsertFlow);
-  const removeFlow = useFlowsStore((s) => s.removeFlow);
+  const queryClient = useQueryClient();
   const showSuccess = useAppStore((s) => s.showSuccess);
   const showError = useAppStore((s) => s.showError);
 
@@ -28,6 +26,8 @@ export function useFlowActions() {
   const scope = useWorkspaceStore((s) => s.activeScope);
   const projectId = useWorkspaceStore((s) => s.activeProjectId);
 
+  const invalidateFlows = () => queryClient.invalidateQueries({ queryKey: ["flows"] });
+
   const createInActiveScope = useCallback(
     async (payload: Omit<Parameters<typeof createWorkflow>[0], "scope" | "projectId">) => {
       if (scope === "project" && projectId) {
@@ -38,34 +38,50 @@ export function useFlowActions() {
     [projectId, scope]
   );
 
+  const importMutation = useMutation({
+    mutationFn: async (file: File): Promise<FlowDTO> => {
+      const raw = await file.text();
+      const parsed = JSON.parse(raw);
+      const name = typeof parsed?.name === "string" ? parsed.name : file.name.replace(/\.json$/i, "");
+      const definitionJson = JSON.stringify({ ...parsed, name });
+      return createInActiveScope({ name, status: "draft", version: 1, definitionJson, description: "" });
+    },
+    onSuccess: (flow) => {
+      invalidateFlows();
+      showSuccess("Flow imported", flow.name);
+    },
+    onError: (err) => showError("Import failed", getErrorMessage(err) || "Unable to import flow"),
+  });
+
+  const archiveMutation = useMutation({
+    mutationFn: (flow: FlowDTO) => updateFlow(flow.id, { status: "archived" }),
+    onSuccess: (updated) => {
+      invalidateFlows();
+      showSuccess("Flow archived", updated.name);
+    },
+    onError: (err) => showError("Archive failed", getErrorMessage(err) || "Unable to archive flow"),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (flow: FlowDTO) => deleteFlow(flow.id).then(() => flow),
+    onSuccess: (flow) => {
+      invalidateFlows();
+      showSuccess("Flow deleted", flow.name);
+    },
+    onError: (err) => showError("Delete failed", getErrorMessage(err) || "Unable to delete flow"),
+  });
+
   const importFlowFromFile = useCallback(
     async (file: File): Promise<ImportResult> => {
       setImporting(true);
       try {
-        const raw = await file.text();
-        const parsed = JSON.parse(raw);
-        const name = typeof parsed?.name === "string" ? parsed.name : file.name.replace(/\.json$/i, "");
-        const definitionJson = JSON.stringify({ ...parsed, name });
-
-        const flow = await createInActiveScope({
-          name,
-          status: "draft",
-          version: 1,
-          definitionJson,
-          description: "",
-        });
-
-        addFlow(flow);
-        showSuccess("Flow imported", flow.name);
+        const flow = await importMutation.mutateAsync(file);
         return { flow };
-      } catch (err: unknown) {
-        showError("Import failed", getErrorMessage(err) || "Unable to import flow");
-        throw err;
       } finally {
         setImporting(false);
       }
     },
-    [addFlow, createInActiveScope, showError, showSuccess]
+    [importMutation]
   );
 
   const duplicateExistingFlow = useCallback(
@@ -77,7 +93,6 @@ export function useFlowActions() {
           const full = await getFlow(flow.id);
           definitionJson = full.definitionJson;
         }
-
         const nextName = `${flow.name} copy`;
         let nextDef = definitionJson;
         if (typeof definitionJson === "string" && definitionJson.trim()) {
@@ -88,7 +103,6 @@ export function useFlowActions() {
             nextDef = definitionJson;
           }
         }
-
         const created = await createInActiveScope({
           name: nextName,
           status: "draft",
@@ -96,8 +110,7 @@ export function useFlowActions() {
           definitionJson: nextDef || "{}",
           description: flow.description || "",
         });
-
-        addFlow(created);
+        queryClient.invalidateQueries({ queryKey: ["flows"] });
         showSuccess("Flow duplicated", created.name);
         return created;
       } catch (err: unknown) {
@@ -107,42 +120,31 @@ export function useFlowActions() {
         setDuplicatingId(undefined);
       }
     },
-    [addFlow, createInActiveScope, showError, showSuccess]
+    [createInActiveScope, queryClient, showError, showSuccess]
   );
 
   const archiveExistingFlow = useCallback(
     async (flow: FlowDTO): Promise<FlowDTO> => {
       setArchivingId(flow.id);
       try {
-        const updated = await updateFlow(flow.id, { status: "archived" });
-        upsertFlow(updated);
-        showSuccess("Flow archived", updated.name);
-        return updated;
-      } catch (err: unknown) {
-        showError("Archive failed", getErrorMessage(err) || "Unable to archive flow");
-        throw err;
+        return await archiveMutation.mutateAsync(flow);
       } finally {
         setArchivingId(undefined);
       }
     },
-    [showError, showSuccess, upsertFlow]
+    [archiveMutation]
   );
 
   const deleteExistingFlow = useCallback(
     async (flow: FlowDTO): Promise<void> => {
       setDeletingId(flow.id);
       try {
-        await deleteFlow(flow.id);
-        removeFlow(flow.id);
-        showSuccess("Flow deleted", flow.name);
-      } catch (err: unknown) {
-        showError("Delete failed", getErrorMessage(err) || "Unable to delete flow");
-        throw err;
+        await deleteMutation.mutateAsync(flow);
       } finally {
         setDeletingId(undefined);
       }
     },
-    [removeFlow, showError, showSuccess]
+    [deleteMutation]
   );
 
   return {
