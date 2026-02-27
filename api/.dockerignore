@@ -1,0 +1,21 @@
+# Env secrets — never ship to image
+.env
+
+# Docker files (not needed in build context)
+Dockerfile
+docker-compose*.yml
+.dockerignore
+
+# Docs and plans
+*.md
+
+# Test artifacts
+**/*_test.go
+coverage.out
+
+# Git
+.git
+.gitignore
+
+# OS
+.DS_Store
