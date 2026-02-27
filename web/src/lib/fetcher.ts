@@ -44,8 +44,7 @@ function isAuthRequest(path: string) {
 
 async function safeMessage(res: Response) {
   try {
-    const data = await res.json();
-    // @ts-ignore
+    const data = (await res.json()) as { error?: { message?: string }; message?: string };
     return data?.error?.message || data?.message;
   } catch {
     return undefined;
