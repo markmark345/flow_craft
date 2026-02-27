@@ -35,7 +35,7 @@ This document outlines the planned work, in-progress tasks, and completed milest
     - [x] Slack (Send Message node)
     - [x] Notion (Create Page node)
 - [x] **E2E Testing**: Implemented Playwright tests for auth and dashboard flows (4/4 passing).
-- [ ] **Real-time Architecture (WebSockets)**: Implement WebSocket server (Go) and client (React) for real-time logs and dashboard stats.
+- [x] **Real-time Architecture (WebSockets)**: Implement WebSocket server (Go) and client (React) for real-time logs and dashboard stats.
 
 ---
 
