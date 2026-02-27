@@ -49,6 +49,7 @@ web/out/
 
 # Claude Code local settings
 .claude/settings.local.json
+web/.claude/
 
 # Playwright output
 web/playwright-report/
