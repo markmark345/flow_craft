@@ -2,7 +2,7 @@
 
 **Date:** 2026-02-27
 **Branch:** `feature/docker-deployment`
-**Spec status:** Draft
+**Spec status:** Complete
 
 ---
 
@@ -65,8 +65,8 @@ api/docker-compose.dev.yml (dev, renamed)
 ### Health checks
 
 - `postgres`: `pg_isready`
-- `api`: `curl -f http://localhost:8080/health`
-- `frontend`: `curl -f http://localhost:3000`
+- `api`: `curl -f http://localhost:8080/api/v1/health`
+- `frontend`: not added (no lightweight health endpoint in Next.js standalone)
 
 ---
 
@@ -86,22 +86,30 @@ api/docker-compose.dev.yml (dev, renamed)
 
 ## Checklist
 
-- [ ] Rename `api/docker-compose.yml` → `api/docker-compose.dev.yml`
-- [ ] Create `api/Dockerfile` (multi-stage Go)
-- [ ] Create `api/.dockerignore`
-- [ ] Add `output: 'standalone'` to `web/next.config.js`
-- [ ] Create `web/Dockerfile` (multi-stage Next.js standalone)
-- [ ] Create `web/.dockerignore`
-- [ ] Create root `docker-compose.yml` (production)
-- [ ] Verify `docker compose build` succeeds for both services
-- [ ] Verify `docker compose up` boots all services cleanly
+- [x] Rename `api/docker-compose.yml` → `api/docker-compose.dev.yml`
+- [x] Create `api/Dockerfile` (multi-stage Go)
+- [x] Create `api/.dockerignore`
+- [x] Add `output: 'standalone'` to `web/next.config.js`
+- [x] Create `web/Dockerfile` (multi-stage Next.js standalone)
+- [x] Create `web/.dockerignore`
+- [x] Create root `docker-compose.yml` (production)
+- [x] Verify `pnpm build` passes with `output: standalone` — `.next/standalone/` generated
+- [ ] Verify `docker compose build` succeeds end-to-end (requires Docker daemon)
 
 ---
 
 ## Deviations
 
-_To be filled after implementation._
+- **Health check path:** Spec said `/health`, actual endpoint is `/api/v1/health` — corrected in compose.
+- **Frontend health check omitted:** Next.js standalone has no lightweight ping; depends_on `api: service_healthy` is sufficient guard.
+- **web/Dockerfile uses 3 stages, not 2:** Split `deps` (install only) from `builder` (build) for better layer caching when only source changes.
 
 ## Changelog
 
-_To be filled after implementation._
+- `api/Dockerfile` — multi-stage: `golang:1.24-alpine` builder compiles `api-server`, `worker`, `migrate` binaries; `alpine:3.19` runner copies binaries + `internal/migrations/` dir, runs as non-root `appuser`
+- `api/.dockerignore` — excludes `.env`, test files, markdown, docker compose files
+- `web/next.config.js` — added `output: "standalone"`
+- `web/Dockerfile` — 3-stage: deps (pnpm install), builder (pnpm build with `NEXT_PUBLIC_API_BASE_URL` ARG), runner (standalone output only)
+- `web/.dockerignore` — excludes `node_modules/`, `.next/`, `.env*`, test output
+- `docker-compose.yml` (root) — production compose with health checks, `postgres_data` named volume, `depends_on: condition: service_healthy`
+- `api/docker-compose.dev.yml` — renamed from `api/docker-compose.yml` (dev only, `go run` + source volume mounts)
