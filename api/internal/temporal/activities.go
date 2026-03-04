@@ -486,8 +486,11 @@ func (a *Activities) ExecuteNodeActivity(ctx context.Context, runID string, defi
 
 		deps := stepDependencies{cfg: a.cfg, creds: a.creds, credsKey: a.credsKey}
 
-		// Retry Logic
+		// Retry Logic — clamp to minimum 1 so the loop always executes at least once
 		maxAttempts := readIntWithDefault(p.config, "maxAttempts", 1)
+		if maxAttempts < 1 {
+			maxAttempts = 1
+		}
 		initialInterval := readIntWithDefault(p.config, "initialInterval", 1000)
 		retryBackoff := 2.0
 

@@ -2,8 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { type ReactFlowInstance } from "reactflow";
 import { useBuilderStore } from "../store/use-builder-store";
-import { useRunStepsQuery } from "@/features/runs/hooks/use-run-steps";
-
+import { useRunRealtime } from "@/features/runs/hooks/use-run-realtime";
 import { useCanvasDisplay } from "./use-canvas-display";
 import { useCanvasEvents } from "./use-canvas-events";
 
@@ -36,6 +35,9 @@ export function useCanvas() {
     if (!rfInstance) return;
     rfInstance.setViewport(viewport);
   }, [rfInstance, viewport]);
+
+  // Subscribe to WS run_update events → invalidate run + step queries for real-time node coloring
+  useRunRealtime(activeRunId);
 
   // Composed Hooks
   const { displayNodes, displayEdges, steps: _steps, baseEdgeStroke } = useCanvasDisplay(activeRunId);

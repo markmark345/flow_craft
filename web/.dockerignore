@@ -1,0 +1,34 @@
+# Dependencies — installed fresh inside the image
+node_modules/
+
+# Build output — produced by the build stage
+.next/
+out/
+
+# Env secrets
+.env
+.env.local
+.env.*.local
+
+# Docker files
+Dockerfile
+.dockerignore
+
+# Docs
+*.md
+README*
+
+# Test output
+playwright-report/
+test-results/
+coverage/
+
+# OS
+.DS_Store
+
+# Editor
+.vscode/
+.idea/
+
+# Claude Code local settings
+.claude/

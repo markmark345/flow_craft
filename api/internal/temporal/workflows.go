@@ -13,6 +13,7 @@ type RunFlowInput struct {
 }
 
 func RunFlowWorkflow(ctx workflow.Context, input RunFlowInput) error {
+	// Status/load activities are idempotent and safe to retry.
 	ao := workflow.ActivityOptions{
 		StartToCloseTimeout:    time.Minute,
 		ScheduleToCloseTimeout: time.Minute * 5,
@@ -21,6 +22,16 @@ func RunFlowWorkflow(ctx workflow.Context, input RunFlowInput) error {
 		},
 	}
 	ctx = workflow.WithActivityOptions(ctx, ao)
+
+	// ExecuteNodeActivity must not auto-retry: a failure means a node failed
+	// and the run should be marked failed, not silently re-run from node 1.
+	execCtx := workflow.WithActivityOptions(ctx, workflow.ActivityOptions{
+		StartToCloseTimeout:    time.Minute * 10,
+		ScheduleToCloseTimeout: time.Minute * 30,
+		RetryPolicy: &temporal.RetryPolicy{
+			MaximumAttempts: 1,
+		},
+	})
 
 	var def string
 	if err := workflow.ExecuteActivity(ctx, "UpdateRunStatusActivity", input.RunID, "running", "running").Get(ctx, nil); err != nil {
@@ -33,7 +44,7 @@ func RunFlowWorkflow(ctx workflow.Context, input RunFlowInput) error {
 	}
 
 	var summary string
-	if err := workflow.ExecuteActivity(ctx, "ExecuteNodeActivity", input.RunID, def).Get(ctx, &summary); err != nil {
+	if err := workflow.ExecuteActivity(execCtx, "ExecuteNodeActivity", input.RunID, def).Get(ctx, &summary); err != nil {
 		if temporal.IsCanceledError(err) {
 			_ = workflow.ExecuteActivity(ctx, "UpdateRunStatusActivity", input.RunID, "canceled", "canceled").Get(ctx, nil)
 			return err

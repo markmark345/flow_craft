@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { startTransition, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { getErrorMessage } from "@/lib/error-utils";
@@ -92,7 +92,7 @@ export function useRunDetailPage(runId: string): UseRunDetailPageReturn {
   useEffect(() => {
     if (!steps.length) return;
     if (selectedStepId && steps.some((s) => s.id === selectedStepId)) return;
-    setSelectedStepId(steps[0].id);
+    startTransition(() => setSelectedStepId(steps[0].id));
   }, [selectedStepId, steps]);
 
   // Get selected step
