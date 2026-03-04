@@ -3,7 +3,7 @@ import { getErrorMessage } from "@/lib/error-utils";
 
 import { useCallback, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { resetWorkspace as apiResetWorkspace } from "@/services/systemApi";
+import { resetWorkspace as apiResetWorkspace } from "../services/systemApi";
 import { useAppStore } from "@/hooks/use-app-store";
 
 export function useResetWorkspace() {
