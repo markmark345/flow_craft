@@ -45,4 +45,4 @@ This document outlines the planned work, in-progress tasks, and completed milest
 - [x] **Custom HTTP Request Node**: Added support for Auth (API Key, Bearer, Basic), Custom Headers, Content-Type, and Timeout.
 - [x] **Advanced Error Handling in Workflows**: Implemented Node-level Retry Policies (Max Attempts, Linear Backoff) and Visual Error Branching.
 - [x] **Performance Monitoring**: Integrated Prometheus metrics for API server and Temporal Workers.
-- [ ] **Docker Deployment Optimization**: Streamline production Docker builds and multi-stage deployments.
+- [x] **Docker Deployment Optimization**: Streamline production Docker builds and multi-stage deployments.
