@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useWorkspaceStore } from "@/features/workspaces/store/use-workspace-store";
-import { listPersonalWorkflows, listProjectWorkflows } from "@/features/workflows/services/workflowsApi";
+import { listPersonalWorkflows, listProjectWorkflows } from "../services/flowsApi";
 
 export function useFlowsQuery() {
   const scope = useWorkspaceStore((s) => s.activeScope);

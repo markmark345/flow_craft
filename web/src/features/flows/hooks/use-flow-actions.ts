@@ -6,7 +6,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { deleteFlow, getFlow, updateFlow } from "../services/flowsApi";
 import { useAppStore } from "@/hooks/use-app-store";
 import { FlowDTO } from "@/types/dto";
-import { createWorkflow } from "@/features/workflows/services/workflowsApi";
+import { createWorkflow } from "../services/flowsApi";
 import { useWorkspaceStore } from "@/features/workspaces/store/use-workspace-store";
 
 type ImportResult = {

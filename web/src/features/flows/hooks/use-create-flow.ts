@@ -2,7 +2,7 @@ import { useCallback } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { getErrorMessage } from "@/lib/error-utils";
 import { FlowDTO } from "@/types/dto";
-import { createWorkflow } from "@/features/workflows/services/workflowsApi";
+import { createWorkflow } from "../services/flowsApi";
 import { useWorkspaceStore, type WorkspaceScope } from "@/features/workspaces/store/use-workspace-store";
 
 type UseCreateFlowResult = {
